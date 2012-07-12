@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Emf
+Bundle-SymbolicName: de.devboost.buildboost.genext.emf
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: de.devboost.buildboost.genext.emf,
+ de.devboost.buildboost.genext.emf.artifacts,
+ de.devboost.buildboost.genext.emf.discovery,
+ de.devboost.buildboost.genext.emf.stages,
+ de.devboost.buildboost.genext.emf.steps
+Require-Bundle: de.devboost.buildboost

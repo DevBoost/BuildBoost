@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="buildboost-generate" name="Generate Scripts using buildboost">
+	<target name="buildboost-generate">
+		<echo message="Run custom script generator via delegate" />
+		<java classname="de.devboost.buildboost.BuildScriptGeneratorRunner" failonerror="true">
+			<arg value="${workspace}" />
+			<arg value="${build_plugin_id}.BuildScriptGenerator" />
+			
+			<classpath>
+				<pathelement path="${build_dir}/build-boost-bin"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+		</java>
+	</target>
+</project>

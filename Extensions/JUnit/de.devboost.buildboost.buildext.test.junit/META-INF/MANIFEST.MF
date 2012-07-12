@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Junit
+Bundle-SymbolicName: de.devboost.buildboost.buildext.test.junit
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: de.devboost.buildboost
+Export-Package: de.devboost.buildboost.buildext.test.junit.stages,
+ de.devboost.buildboost.buildext.test.junit.steps

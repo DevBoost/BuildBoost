@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="buildboost-bootstrap" name="Bootstrap buildboost">
+	<!-- This script must be called at the beginning of any buildboost process. 
+		It compiles all available buildboost plug-ins. -->
+
+	<property name="buildboost_core_src" value="${basedir}"/>
+
+	<property name="buildboost_core_plugin_id" value="de.devboost.buildboost"/>
+	<property name="buildboost_core_bin" value="${build_dir}/artifacts/${buildboost_core_plugin_id}"/>
+
+	<target name="buildboost-bootstrap">
+		<mkdir dir="${build_dir}"/>
+		<mkdir dir="${buildboost_core_bin}"/>
+		
+		<echo message="Compile buildboost core plug-in to bootstrap build process" />
+		<javac srcdir="${buildboost_core_src}/src" destdir="${buildboost_core_bin}" includeantruntime="false" debug="true" />
+
+		<echo message="Compile buildboost generator extensions" />
+		<copy file="${buildboost_core_src}/buildboost_compile_extensions.xml" tofile="${buildboost_core_bin}/buildboost_compile_extensions.xml" />
+		<ant antfile="buildboost_compile_extensions.xml" dir="${buildboost_core_bin}">
+			<property name="build_plugin_id" value="${buildboost_core_plugin_id}" />
+			<property name="workspace" value="${workspace}"/>
+			<property name="build_dir" value="${build_dir}"/>
+		</ant>
+
+		<copy file="${buildboost_core_src}/buildboost_generate.xml" tofile="${buildboost_core_bin}/buildboost_generate.xml" />
+		<ant antfile="buildboost_generate.xml" dir="${buildboost_core_bin}">
+			<property name="buildboost_core_plugin_id" value="${buildboost_core_plugin_id}" />
+			<property name="workspace" value="${workspace}"/>
+			<property name="build_dir" value="${build_dir}"/>
+		</ant>
+		
+		<echo message="Call master script" />
+		<ant antfile="${build_dir}/buildboost_master.xml" dir="${build_dir}">
+			<property name="build_plugin_id" value="${build_plugin_id}" />
+			<property name="workspace" value="${workspace}"/>
+		</ant>
+	</target>
+</project>

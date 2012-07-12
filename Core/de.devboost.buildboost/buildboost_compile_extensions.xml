@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="buildboost-bootstrap-generate" name="Generate Bootstrap Scripts for buildboost">
+	<target name="buildboost-bootstrap-generate">
+		<echo message="Run buildboost bootstrap generator to obtain script that compiles all additional buildboost plug-ins (including the custom build script generator)" />
+		<java classname="de.devboost.buildboost.BuildScriptGeneratorRunner" failonerror="true">
+			<arg value="${workspace}" />
+			<arg value="de.devboost.buildboost.BuildScriptGenerator" />
+			
+			<classpath>
+				<pathelement path="${buildboost_core_bin}"/>
+			</classpath>
+		</java>
+		
+		<!-- Call generated script -->
+		<ant antfile="${build_dir}/buildboost_master.xml" dir="${build_dir}">
+			<property name="build_plugin_id" value="${buildboost_core_plugin_id}" />
+			<property name="workspace" value="${workspace}"/>
+		</ant>
+	</target>
+</project>

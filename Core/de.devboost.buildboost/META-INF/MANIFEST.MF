@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BuildBoost
+Bundle-SymbolicName: de.devboost.buildboost
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: de.devboost.buildboost,
+ de.devboost.buildboost.ant,
+ de.devboost.buildboost.artifacts,
+ de.devboost.buildboost.discovery,
+ de.devboost.buildboost.filters,
+ de.devboost.buildboost.model,
+ de.devboost.buildboost.stages,
+ de.devboost.buildboost.steps,
+ de.devboost.buildboost.steps.compile,
+ de.devboost.buildboost.steps.copy,
+ de.devboost.buildboost.util
