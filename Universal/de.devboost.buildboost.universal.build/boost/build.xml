@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="boost" name="Boost!">
+	<property environment="env"/>
+	<property name="env.WORKSPACE" value="${basedir}"/>
+	<property name="build_boost_repo_remote" value="https://github.com/DevBoost/BuildBoost.git"/>
+	<property name="build_boost_repo_local" value="github-com_DevBoost_BuildBoost-git/BuildBoost.git"/>
+	<property name="build_plugin_ID" value="de.devboost.buildboost.universal.build"/>
+
+
+	<property name="build_dir" value="${env.WORKSPACE}/build"/>
+	<property name="repos_dir" value="${env.WORKSPACE}/repos"/>
+
+	<target name="boost" depends="init,get-build-boost,update-build-boost,clean">
+		<echo message="Working with repositories in: ${repos_dir}" />
+		<echo message="Building in: ${build_dir}" />
+		<mkdir dir="${build_dir}"/>
+
+		<first id="bootstrap-script-location">
+			<fileset dir="${repos_dir}" includes="**/buildboost_bootstrap.xml" />
+		</first>
+		<echo message="Found BuildBoost bootstrap Script: ${toString:bootstrap-script-location}" />
+
+		<echo message="Bootstrapping BuildBoost tool" />
+		<ant antfile="${toString:bootstrap-script-location}" dir="${toString:bootstrap-script-location}/..">
+			<property name="build_plugin_path" value="${toString:bootstrap-script-location}/../${build_plugin_ID}"/>
+			<property name="build_plugin_id" value="${build_plugin_ID}"/>
+			<property name="build_dir" value="${build_dir}"/>
+			<property name="workspace" value="${env.WORKSPACE}"/>
+		</ant>
+	</target>
+
+	<target name="init">
+		<condition property="build_boost_repo_exists">
+			<available file="${repos_dir}/${build_boost_repo_local}" type="dir" />
+		</condition>
+	</target>
+
+	<target name="get-build-boost" unless="build_boost_repo_exists">
+		<mkdir dir="${repos_dir}"/>
+		<exec executable="git" dir="${repos_dir}">
+			<arg value="clone"/>
+			<arg value="${build_boost_repo_remote}"/>
+			<arg value="${build_boost_repo_local}"/>
+		</exec>
+	</target>
+
+	<target name="update-build-boost" if="build_boost_repo_exists">
+		<exec executable="git" dir="${repos_dir}/${build_boost_repo_local}">
+			<arg value="pull"/>
+		</exec>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build_dir}"/>
+	</target>
+</project>
