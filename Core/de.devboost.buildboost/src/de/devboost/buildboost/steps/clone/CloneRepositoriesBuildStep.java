@@ -23,13 +23,7 @@ import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.util.XMLContent;
 
-/**
- * The {@link CloneRepositoriesBuildStep} generates a script that copies plug-in
- * projects from one directory (typically a SVN working copy) to another
- * directory (typically a directory where the actual build is performed). The
- * {@link CloneRepositoriesBuildStep} uses synchronization instead of pure copying
- * to avoid unnecessary copy operations.
- */
+
 public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 
 	private File reposFolder;
@@ -45,11 +39,40 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		String localRepositoryFolderName = location.substring(location.indexOf("//") + 2);
 		localRepositoryFolderName = localRepositoryFolderName.replace("/", "_");
 		localRepositoryFolderName = localRepositoryFolderName.replace(".", "-");
-		File localRepo = new File(reposFolder, localRepositoryFolderName);
+		localRepositoryFolderName = localRepositoryFolderName.replace(" ", "-");
+		
+		String rootName = location.substring(location.lastIndexOf("/") + 1);
 
+		File localRepo = new File(new File(reposFolder, localRepositoryFolderName), rootName);
+		
 		XMLContent content = new XMLContent();
-		content.append("<echo message=\"TODO CLONE/UPDATE/PULL/DOWNLOAD from " + location + " to " + localRepo + "\"/>");
-		content.append("<mkdir dir=\"" + localRepo + "\"/>");
+		
+		//TODO improve this check
+		boolean isGit = location.contains("git");
+		
+		if (isGit) {
+			if (localRepo.exists()) {
+				content.append("<exec executable=\"git\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<arg value=\"pull\"/>");
+			} else {
+				content.append("<exec executable=\"git\" dir=\"" + reposFolder.getAbsolutePath() + "\">");
+				content.append("<arg value=\"clone\"/>");
+				content.append("<arg value=\"" + location + "\"/>");
+				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
+			}
+		} else {
+			if (localRepo.exists()) {
+				content.append("<exec executable=\"svn\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<arg value=\"update\"/>");
+			} else {
+				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\">");
+				content.append("<arg value=\"co\"/>");
+				content.append("<arg value=\"" + location + "\"/>");
+				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
+			}
+		}
+		content.append("</exec>");
+		
 		return Collections.singleton(new AntTarget("update-" + localRepositoryFolderName, content));
 	}
 }
