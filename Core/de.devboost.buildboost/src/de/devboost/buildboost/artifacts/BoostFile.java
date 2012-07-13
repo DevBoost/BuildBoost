@@ -39,7 +39,9 @@ public class BoostFile extends AbstractArtifact {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String location;
 			while((location = reader.readLine()) != null) {
-				locations.add(location);
+				if (location.contains("//")) {
+					locations.add(location);
+				}
 			}
 			reader.close();
 		} catch (Exception e) {
