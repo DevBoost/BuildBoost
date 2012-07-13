@@ -62,12 +62,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 		
 		findFiles(directory, artifacts);
 		
-		File[] subDirectories = directory.listFiles(new FileFilter() {
-			
-			public boolean accept(File file) {
-				return file.isDirectory();
-			}
-		});
+		File[] subDirectories = directory.listFiles(getDirectoryFilter());
 		if (subDirectories == null) {
 			return;
 		}
@@ -97,6 +92,14 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 	}
 
 	protected abstract ArtifactType createArtifactFromFile(File file);
+
+	protected FileFilter getDirectoryFilter() {
+		return new FileFilter() {	
+			public boolean accept(File file) {
+				return file.isDirectory();
+			}
+		};
+	}
 
 	protected abstract FileFilter getFileFilter();
 }

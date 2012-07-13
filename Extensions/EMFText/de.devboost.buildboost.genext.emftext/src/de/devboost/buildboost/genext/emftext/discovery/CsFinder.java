@@ -31,6 +31,8 @@ import de.devboost.buildboost.util.ArtifactUtil;
  * definitions. File with extension 'cs' are recognized as such.
  */
 public class CsFinder extends AbstractFileFinder<ConcreteSyntaxDefinition> {
+	
+	public String TEST_PROJECT_SUFFIX = ".test";
 
 	public CsFinder(File directory) {
 		super(directory);
@@ -47,10 +49,17 @@ public class CsFinder extends AbstractFileFinder<ConcreteSyntaxDefinition> {
 	}
 
 	protected FileFilter getFileFilter() {
-		return new FileFilter() {
-			
+		return new FileFilter() {		
 			public boolean accept(File file) {
 				return file.getName().endsWith(".cs") && file.isFile();
+			}
+		};
+	}
+	
+	protected FileFilter getDirectoryFilter() {
+		return new FileFilter() {	
+			public boolean accept(File file) {
+				return file.isDirectory() && !file.getName().endsWith(TEST_PROJECT_SUFFIX);
 			}
 		};
 	}

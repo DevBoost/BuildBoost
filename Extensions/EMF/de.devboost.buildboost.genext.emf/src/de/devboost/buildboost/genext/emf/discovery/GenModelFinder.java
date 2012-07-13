@@ -31,6 +31,8 @@ import de.devboost.buildboost.util.ArtifactUtil;
  * file with extension 'genmodel').
  */
 public class GenModelFinder extends AbstractFileFinder<GeneratorModel> {
+	
+	public String TEST_PROJECT_SUFFIX = ".test";
 
 	public GenModelFinder(File directory) {
 		super(directory);
@@ -47,10 +49,17 @@ public class GenModelFinder extends AbstractFileFinder<GeneratorModel> {
 	}
 
 	protected FileFilter getFileFilter() {
-		return new FileFilter() {
-			
+		return new FileFilter() {		
 			public boolean accept(File file) {
 				return file.getName().endsWith(".genmodel") && file.isFile();
+			}
+		};
+	}
+	
+	protected FileFilter getDirectoryFilter() {
+		return new FileFilter() {	
+			public boolean accept(File file) {
+				return file.isDirectory() && !file.getName().endsWith(TEST_PROJECT_SUFFIX);
 			}
 		};
 	}
