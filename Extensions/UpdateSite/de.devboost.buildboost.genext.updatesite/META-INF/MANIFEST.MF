@@ -4,5 +4,8 @@ Bundle-Name: Updatesite
 Bundle-SymbolicName: de.devboost.buildboost.genext.updatesite
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: de.devboost.buildboost.genext.updatesite.steps
+Export-Package: de.devboost.buildboost.genext.updatesite.artifacts,
+ de.devboost.buildboost.genext.updatesite.discovery,
+ de.devboost.buildboost.genext.updatesite.stages,
+ de.devboost.buildboost.genext.updatesite.steps
 Require-Bundle: de.devboost.buildboost
