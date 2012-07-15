@@ -47,15 +47,24 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		
 		XMLContent content = new XMLContent();
 		
+		content.append("<condition property=\"git-executable\" value=\"git.cmd\">");
+		content.append("<os family=\"windows\"/>");
+		content.append("</condition>");
+		content.append("<condition property=\"git-executable\" value=\"git\">");
+		content.append("<not>");
+		content.append("<os family=\"windows\"/>");
+		content.append("</not>");
+		content.append("</condition>");
+		
 		//TODO improve this check
 		boolean isGit = location.contains("git");
 		
 		if (isGit) {
 			if (localRepo.exists()) {
-				content.append("<exec executable=\"git\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
 				content.append("<arg value=\"pull\"/>");
 			} else {
-				content.append("<exec executable=\"git\" dir=\"" + reposFolder.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\">");
 				content.append("<arg value=\"clone\"/>");
 				content.append("<arg value=\"" + location + "\"/>");
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
