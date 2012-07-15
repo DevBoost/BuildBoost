@@ -10,6 +10,17 @@
 	<property name="build_dir" value="${env.WORKSPACE}/build"/>
 	<property name="repos_dir" value="${env.WORKSPACE}/repos"/>
 
+	
+	<condition property="git-executable" value="git.cmd">
+		<os family="windows"/>
+	</condition>
+	<condition property="git-executable" value="git">
+		<not>
+			<os family="windows"/>
+		</not>
+	</condition>
+	
+
 	<target name="boost" depends="init,get-build-boost,update-build-boost,clean">
 		<echo message="Boosting: ${boost}"/>
 		<echo message="Working with repositories in: ${repos_dir}" />
@@ -41,7 +52,7 @@
 
 	<target name="get-build-boost" unless="build_boost_repo_exists">
 		<mkdir dir="${repos_dir}"/>
-		<exec executable="git" dir="${repos_dir}">
+		<exec executable="${git-executable}" dir="${repos_dir}">
 			<arg value="clone"/>
 			<arg value="${build_boost_repo_remote}"/>
 			<arg value="${build_boost_repo_local}"/>
@@ -49,7 +60,7 @@
 	</target>
 
 	<target name="update-build-boost" if="build_boost_repo_exists">
-		<exec executable="git" dir="${repos_dir}/${build_boost_repo_local}">
+		<exec executable="${git-executable}" dir="${repos_dir}/${build_boost_repo_local}">
 			<arg value="pull"/>
 		</exec>
 	</target>
