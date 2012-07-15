@@ -170,23 +170,28 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		CloneRepositoriesStage stage1 = new CloneRepositoriesStage();
 		stage1.setReposFolder(reposFolder.getAbsolutePath());
 
-		CopyProjectsStage stage2 = new CopyProjectsStage();
+		//update a second time, since the first update might have revealed new boost files
+		CloneRepositoriesStage stage2 = new CloneRepositoriesStage();
 		stage2.setReposFolder(reposFolder.getAbsolutePath());
-		stage2.setArtifactsFolder(artifactsFolder.getAbsolutePath());
-		stage2.addBuildParticipant(createFilter());
 		
-		CompileStage stage3 = new CompileStage();
+		CopyProjectsStage stage3 = new CopyProjectsStage();
+		stage3.setReposFolder(reposFolder.getAbsolutePath());
 		stage3.setArtifactsFolder(artifactsFolder.getAbsolutePath());
 		stage3.addBuildParticipant(createFilter());
 		
-		MergeBootstrapBinariesStage stage4 = new MergeBootstrapBinariesStage(
-				artifactsFolder.getAbsolutePath(), buildBoostBinFolder.getAbsolutePath());
+		CompileStage stage4 = new CompileStage();
+		stage4.setArtifactsFolder(artifactsFolder.getAbsolutePath());
 		stage4.addBuildParticipant(createFilter());
+		
+		MergeBootstrapBinariesStage stage5 = new MergeBootstrapBinariesStage(
+				artifactsFolder.getAbsolutePath(), buildBoostBinFolder.getAbsolutePath());
+		stage5.addBuildParticipant(createFilter());
 		
 		stages.add(stage1);
 		stages.add(stage2);
 		stages.add(stage3);
 		stages.add(stage4);
+		stages.add(stage5);
 		return stages;
 	}
 

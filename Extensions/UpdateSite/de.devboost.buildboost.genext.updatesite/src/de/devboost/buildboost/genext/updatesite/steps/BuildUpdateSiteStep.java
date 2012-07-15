@@ -16,6 +16,7 @@
 package de.devboost.buildboost.genext.updatesite.steps;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -45,6 +46,12 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
+		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
+		AntTarget mavenRepositoryTarget = generateMavenRepositoryAntTarget();
+		return Arrays.asList(new AntTarget[] {updateSiteTarget, mavenRepositoryTarget});
+	}
+
+	protected AntTarget generateUpdateSiteAntTarget() throws BuildException {
 		EclipseUpdateSite updateSite = updateSiteSpec.getUpdateSite();
 		if (updateSite == null) {
 			throw new BuildException("Can't find update site for update site specification.");
@@ -86,14 +93,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			File featureFile = feature.getFile();
 			String tempDir = distDir + File.separator + "temp_features";
 			String tempFeatureDir = tempDir + "/" + featureID;
-			String featureVersion = updateSiteSpec.getValue("feature", featureID, "version");
-			if (featureVersion == null) {
-				featureVersion = "0.0.0";
-			}
-			String featureVendor = updateSiteSpec.getValue("feature", featureID, "vendor");
-			if (featureVendor == null) {
-				featureVendor = updateSiteVendor;
-			}
+			String featureVersion = getFeatureVersion(featureID);
+			String featureVendor = getFeatureVendor(featureID);
 
 			content.append("<echo message=\"Building feature '" + featureID + "' for update site '" + updateSiteID + "'\"/>");
 			content.append("<!-- update version numbers in feature.xml -->");
@@ -152,7 +153,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
 		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
 		// should figure out a way to provide this JAR together with BuildBoost.
-		content.append("<!-- Copy new version of update site to server -->");
+		/*content.append("<!-- Copy new version of update site to server -->");
 		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"features/**\"/>");
@@ -171,9 +172,111 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<include name=\"content.jar\"/>");
 		content.append("<include name=\"site.xml\"/>");
 		content.append("</fileset>");
-		content.append("</scp>");
+		content.append("</scp>");*/
 		
 		AntTarget target = new AntTarget("build-update-site", content);
-		return Collections.singleton(target);
+		return target;
 	}
+
+	protected AntTarget generateMavenRepositoryAntTarget() throws BuildException {
+		EclipseUpdateSite updateSite = updateSiteSpec.getUpdateSite();
+		if (updateSite == null) {
+			throw new BuildException("Can't find update site for update site specification.");
+		}
+		
+		String distDir = targetDir.getAbsolutePath() + File.separator + "dist";
+
+		XMLContent content = new XMLContent();
+		
+		String repositoryID = updateSite.getIdentifier();
+		File updateSiteFile = updateSite.getFile();
+		String repositoryDir = distDir + File.separator + "repositories" + File.separator + repositoryID;
+
+		content.append("<property environment=\"env\"/>");
+		content.append("<!-- Get BUILD_ID from environment -->");
+		content.append("<condition property=\"buildid\" value=\"${env.BUILD_ID}\">");
+		content.append("<isset property=\"env.BUILD_ID\" />");
+		content.append("</condition>");
+		content.appendLineBreak();
+	
+		content.append("<!-- fallback if env.BUILD_ID is not set -->");
+		content.append("<tstamp/>");
+		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
+		content.appendLineBreak();
+
+		for (EclipseFeature feature : updateSite.getFeatures()) {
+			String featureVersion = getFeatureVersion(feature.getIdentifier());
+			String featureVendor = getFeatureVendor(feature.getIdentifier());
+			for (Plugin plugin : feature.getPlugins()) {
+				String pluginID = plugin.getIdentifier();
+				File pluginDirectory = plugin.getFile();
+				String pluginPath = pluginDirectory.getAbsolutePath();
+
+				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
+				if (pluginVersion == null) {
+					pluginVersion = featureVersion;
+				}
+				String pluginVendor = updateSiteSpec.getValue("plugin", pluginID, "vendor");
+				if (pluginVendor == null) {
+					pluginVendor = featureVendor;
+				}
+				String pluginName = updateSiteSpec.getValue("plugin", pluginID, "name");
+				if (pluginName == null) {
+					pluginName = "Unknown";
+				}
+				// package plugin(s)
+				content.append("<echo message=\"Packaging binary artifact '" + pluginID + "'\"/>");
+				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
+				content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
+				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
+				content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
+				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
+				content.append("</manifest>");
+				content.appendLineBreak();
+				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + ".${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+				content.append("<fileset dir=\"" + pluginPath + "\" excludes=\".*\"/>"); //TODO pattern
+				content.append("</jar>");
+				content.appendLineBreak();
+
+				content.append("<echo message=\"Packaging source artifact '" + pluginID + "'\"/>");
+				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
+				content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
+				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
+				content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
+				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
+				content.append("</manifest>");
+				content.appendLineBreak();
+				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + ".${buildid}-sources.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+				content.append("<fileset dir=\"" + pluginPath + "\" includes=\"src*\"/>"); //TODO pattern
+				content.append("</jar>");
+				content.appendLineBreak();
+			}
+		}
+		
+		AntTarget target = new AntTarget("build-maven-repository", content);
+		return target;
+	}
+
+	private String getFeatureVendor(String featureID) {
+		String featureVendor = updateSiteSpec.getValue("feature", featureID, "vendor");
+		if (featureVendor == null) {
+			featureVendor = updateSiteSpec.getValue("site", "vendor");
+		}
+		if (featureVendor == null) {
+			featureVendor = "Unknown vendor";
+		}
+		return featureVendor;
+	}
+
+	private String getFeatureVersion(String featureID) {
+		String featureVersion = updateSiteSpec.getValue("feature", featureID, "version");
+		if (featureVersion == null) {
+			featureVersion = updateSiteSpec.getValue("site", "version");
+		}
+		if (featureVersion == null) {
+			featureVersion = "0.0.1";
+		}
+		return featureVersion;
+	}
+
 }
