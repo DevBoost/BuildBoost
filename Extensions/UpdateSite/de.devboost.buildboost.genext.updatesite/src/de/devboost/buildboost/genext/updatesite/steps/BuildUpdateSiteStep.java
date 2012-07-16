@@ -16,9 +16,11 @@
 package de.devboost.buildboost.genext.updatesite.steps;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
@@ -27,6 +29,7 @@ import de.devboost.buildboost.artifacts.EclipseFeature;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
+import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
@@ -203,7 +206,20 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<tstamp/>");
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
-
+		
+		Map<String, String> plugin2VersionMap = new LinkedHashMap<String, String>();
+		for (EclipseFeature feature : updateSite.getFeatures()) {
+			String featureVersion = getFeatureVersion(feature.getIdentifier());
+			for (Plugin plugin : feature.getPlugins()) {
+				String pluginID = plugin.getIdentifier();
+				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
+				if (pluginVersion == null) {
+					pluginVersion = featureVersion;
+				}
+				plugin2VersionMap.put(pluginID, pluginVersion);
+			}
+		}
+		
 		for (EclipseFeature feature : updateSite.getFeatures()) {
 			String featureVersion = getFeatureVersion(feature.getIdentifier());
 			String featureVendor = getFeatureVendor(feature.getIdentifier());
@@ -211,7 +227,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				String pluginID = plugin.getIdentifier();
 				File pluginDirectory = plugin.getFile();
 				String pluginPath = pluginDirectory.getAbsolutePath();
-
+				
 				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
 				if (pluginVersion == null) {
 					pluginVersion = featureVersion;
@@ -224,6 +240,24 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				if (pluginName == null) {
 					pluginName = "Unknown";
 				}
+				
+				String pomXML = createPomXML(plugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
+				if (pomXML == null) {
+					continue;
+				}
+				
+				File pomFolder = new File(pluginDirectory.getAbsolutePath() + File.separator + "META-INF"
+						+ File.separator + "maven" + File.separator + getMavenGroup(pluginID)
+						+ File.separator + pluginID);
+				pomFolder.mkdirs();
+				File pomXMLFile = new File(pomFolder, "pom.xml");
+				
+				try {
+					new FileOutputStream(pomXMLFile).write(pomXML.getBytes());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 				// package plugin(s)
 				content.append("<echo message=\"Packaging binary artifact '" + pluginID + "'\"/>");
 				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
@@ -234,7 +268,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("</manifest>");
 				content.appendLineBreak();
 				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				content.append("<fileset dir=\"" + pluginPath + "\" excludes=\".*\"/>"); //TODO pattern
+				content.append("<fileset dir=\"" + pluginPath + "\" excludes=\".*,src*\"/>"); //TODO pattern
 				content.append("</jar>");
 				content.appendLineBreak();
 
@@ -246,18 +280,17 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
 				content.append("</manifest>");
 				content.appendLineBreak();
-				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + ".SNAPSHOT-sources.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				content.append("<fileset dir=\"" + pluginPath + "\" includes=\"src*\"/>"); //TODO pattern -> src to root!
+				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT-sources.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+				 //TODO read .classpath for src-folders! remove <mkdir/>s then...
+				content.append("<mkdir dir=\"" + pluginPath + "/src\"/>");
+				content.append("<fileset dir=\"" + pluginPath + "/src\"/>");
+				content.append("<mkdir dir=\"" + pluginPath + "/src-gen\"/>");
+				content.append("<fileset dir=\"" + pluginPath + "/src-gen\"/>");
+				// ----
 				content.append("</jar>");
 				content.appendLineBreak();
 			}
 		}
-		
-		//TODO add versions
-		
-		//TODO create POM and insert into jar
-		
-		//TODO only projects that do not point to the target platform
 		
 		//TODO call mvn deploy
 		
@@ -285,6 +318,84 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			featureVersion = "0.0.1";
 		}
 		return featureVersion;
+	}
+	
+	private String createPomXML(Plugin plugin, String pluginVersion, 
+			String pluginName, String pluginVendor, Map<String, String> plugin2VersionMap) {
+		XMLContent content = new XMLContent();
+		content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		content.append("<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"" +
+				" xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+		content.append("<modelVersion>");
+		content.append("4.0.0");
+		content.append("</modelVersion>");
+		content.append("<groupId>");
+		content.append(getMavenGroup(plugin.getIdentifier()));
+		content.append("</groupId>");
+		content.append("<artifactId>");
+		content.append(plugin.getIdentifier());
+		content.append("</artifactId>");
+		content.append("<version>");
+		content.append(pluginVersion);
+		content.append("</version>");
+		content.append("<name>");
+		content.append(pluginName);
+		content.append("</name>");
+		content.append("<organization>");
+		content.append("<name>");
+		content.append(pluginVendor);
+		content.append("</name>");
+		content.append("</organization>");
+		content.append("<licenses>");
+		content.append("<license>");
+		content.append("<name>");
+		content.append("Eclipse Public License - v 1.0");
+		content.append("</name>");
+		content.append("<url>");
+		content.append("http://www.eclipse.org/org/documents/epl-v10.html");
+		content.append("</url>");
+		content.append("</license>");
+		content.append("</licenses>");
+		content.append("<dependencies>");
+		content.append("<dependency>");
+		for (UnresolvedDependency dependency : plugin.getResolvedDependencies()) {
+			if (dependency.isOptional()) {
+				continue;
+			}
+			String dependencyVersion = plugin2VersionMap.get(dependency.getIdentifier());
+			if (dependencyVersion == null) {
+				System.out.println("Can not create maven artifact for " + plugin.getIdentifier() 
+						+ " since " + dependency.getIdentifier() + " is not versioned");
+				return null;
+			}
+			content.append("<groupId>");
+			content.append(getMavenGroup(dependency.getIdentifier()));
+			content.append("</groupId>");
+			content.append("<artifactId>");
+			content.append(dependency.getIdentifier());
+			content.append("</artifactId>");
+			content.append("<version>");
+			content.append("" + dependencyVersion);
+			content.append("</version>");
+		}
+		content.append("</dependency>");
+		content.append("</dependencies>");
+		content.append("</project>");
+		return content.toString();
+	}
+	
+
+	public String getMavenGroup(String identifier) {
+		String groupID = "";
+		String[] idSegments = identifier.split("\\.");
+		for (int i = 0; i < idSegments.length && i < 3; i++) {
+			if ("".equals(groupID)) {
+				groupID = idSegments[i];
+			} else {
+				groupID = groupID + "." + idSegments[i];
+			}
+		}
+		return groupID;
 	}
 
 }

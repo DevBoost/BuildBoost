@@ -150,7 +150,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 			if (artifact instanceof Plugin) {
 				Plugin plugin = (Plugin) artifact;
 
-				Collection<UnresolvedDependency> resolvedDependencies = new LinkedHashSet<UnresolvedDependency>();
+				Collection<UnresolvedDependency> resolvedDependencies = getResolvedDependencies();
 				Collection<UnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies();
 				
 				for (UnresolvedDependency dependency : unresolvedDependencies) {
@@ -394,4 +394,5 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 	public File getFile() {
 		return getLocation();
 	}
+
 }

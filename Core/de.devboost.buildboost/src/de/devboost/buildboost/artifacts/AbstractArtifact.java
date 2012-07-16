@@ -37,6 +37,7 @@ public abstract class AbstractArtifact implements IArtifact {
 	private String identifier;
 	private Collection<IDependable> dependencies = new LinkedHashSet<IDependable>();
 	private Collection<UnresolvedDependency> unresolvedDependencies = new LinkedHashSet<UnresolvedDependency>();
+	private Collection<UnresolvedDependency> resolvedDependencies = new LinkedHashSet<UnresolvedDependency>();
 
 	public String getIdentifier() {
 		return identifier;
@@ -52,6 +53,10 @@ public abstract class AbstractArtifact implements IArtifact {
 
 	public Collection<UnresolvedDependency> getUnresolvedDependencies() {
 		return unresolvedDependencies;
+	}
+	
+	public Collection<UnresolvedDependency> getResolvedDependencies() {
+		return resolvedDependencies;
 	}
 
 	protected void setIdentifier(String identifier) {
