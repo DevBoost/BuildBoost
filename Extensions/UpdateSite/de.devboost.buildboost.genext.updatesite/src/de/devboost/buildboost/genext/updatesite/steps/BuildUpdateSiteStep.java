@@ -233,7 +233,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
 				content.append("</manifest>");
 				content.appendLineBreak();
-				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + ".${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
 				content.append("<fileset dir=\"" + pluginPath + "\" excludes=\".*\"/>"); //TODO pattern
 				content.append("</jar>");
 				content.appendLineBreak();
@@ -246,12 +246,20 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
 				content.append("</manifest>");
 				content.appendLineBreak();
-				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + ".${buildid}-sources.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				content.append("<fileset dir=\"" + pluginPath + "\" includes=\"src*\"/>"); //TODO pattern
+				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + ".SNAPSHOT-sources.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+				content.append("<fileset dir=\"" + pluginPath + "\" includes=\"src*\"/>"); //TODO pattern -> src to root!
 				content.append("</jar>");
 				content.appendLineBreak();
 			}
 		}
+		
+		//TODO add versions
+		
+		//TODO create POM and insert into jar
+		
+		//TODO only projects that do not point to the target platform
+		
+		//TODO call mvn deploy
 		
 		AntTarget target = new AntTarget("build-maven-repository", content);
 		return target;
