@@ -20,15 +20,19 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
+import de.devboost.buildboost.artifacts.CompiledPlugin;
 import de.devboost.buildboost.artifacts.EclipseFeature;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
+import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.XMLContent;
 
@@ -192,8 +196,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		XMLContent content = new XMLContent();
 		
 		String repositoryID = updateSite.getIdentifier();
-		File updateSiteFile = updateSite.getFile();
-		String repositoryDir = distDir + File.separator + "repositories" + File.separator + repositoryID;
+		String jarsDir = distDir + File.separator + "jars" + File.separator + repositoryID;
+		String mavenRespoitoryDir = distDir + File.separator + "maven-repository" + File.separator + repositoryID;
 
 		content.append("<property environment=\"env\"/>");
 		content.append("<!-- Get BUILD_ID from environment -->");
@@ -207,6 +211,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
 		
+		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
 		Map<String, String> plugin2VersionMap = new LinkedHashMap<String, String>();
 		for (EclipseFeature feature : updateSite.getFeatures()) {
 			String featureVersion = getFeatureVersion(feature.getIdentifier());
@@ -217,6 +222,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 					pluginVersion = featureVersion;
 				}
 				plugin2VersionMap.put(pluginID, pluginVersion);
+				addDependenciesRecursively(plugin, pluginsToRepack, plugin2VersionMap);
 			}
 		}
 		
@@ -241,61 +247,163 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 					pluginName = "Unknown";
 				}
 				
-				String pomXML = createPomXML(plugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
-				if (pomXML == null) {
+				String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
+				if (pomXMLContent == null) {
 					continue;
 				}
 				
-				File pomFolder = new File(pluginDirectory.getAbsolutePath() + File.separator + "META-INF"
-						+ File.separator + "maven" + File.separator + getMavenGroup(pluginID)
-						+ File.separator + pluginID);
-				pomFolder.mkdirs();
-				File pomXMLFile = new File(pomFolder, "pom.xml");
-				
-				try {
-					new FileOutputStream(pomXMLFile).write(pomXML.getBytes());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID).getAbsolutePath();
 				
 				// package plugin(s)
 				content.append("<echo message=\"Packaging binary artifact '" + pluginID + "'\"/>");
-				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
-				content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
-				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
-				content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
-				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
-				content.append("</manifest>");
-				content.appendLineBreak();
-				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				content.append("<fileset dir=\"" + pluginPath + "\" excludes=\".*,src*\"/>"); //TODO pattern
+				String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT.jar";
+				content.append("<jar destfile=\"" + destBinJarFile + "\">");
+				content.append("<fileset dir=\"" + pluginPath + "\">");
+				content.append("<exclude name=\".*\"/>");
+				content.append("<exclude name=\"src*\"/>");
+				content.append("<exclude name=\"bin\"/>");
+				content.append("</fileset>");
 				content.append("</jar>");
-				content.appendLineBreak();
+				deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
 
 				content.append("<echo message=\"Packaging source artifact '" + pluginID + "'\"/>");
-				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
-				content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
-				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
-				content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
-				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
-				content.append("</manifest>");
-				content.appendLineBreak();
-				content.append("<jar destfile=\"" + repositoryDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT-sources.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				 //TODO read .classpath for src-folders! remove <mkdir/>s then...
-				content.append("<mkdir dir=\"" + pluginPath + "/src\"/>");
-				content.append("<fileset dir=\"" + pluginPath + "/src\"/>");
-				content.append("<mkdir dir=\"" + pluginPath + "/src-gen\"/>");
-				content.append("<fileset dir=\"" + pluginPath + "/src-gen\"/>");
-				// ----
+				String destSrcJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT-sources.jar";
+				content.append("<jar destfile=\"" + destSrcJarFile + "\">");
+				for (File childFolder : pluginDirectory.listFiles()) {
+					 //TODO read .classpath for src-folders instead
+					if (childFolder.isDirectory() && childFolder.getName().startsWith("src")) {
+						content.append("<fileset dir=\"" + childFolder.getAbsolutePath() + "\"/>");
+					}
+				}
 				content.append("</jar>");
+				deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destSrcJarFile);
 				content.appendLineBreak();
 			}
 		}
 		
-		//TODO call mvn deploy
+		for (CompiledPlugin compiledPlugin : pluginsToRepack) {
+			String pluginID = compiledPlugin.getIdentifier();
+			String pluginPath = compiledPlugin.getFile().getAbsolutePath();
+			String pluginVersion = compiledPlugin.getVersion();
+			
+			//TODO we could read this from plugin.properties
+			String pluginName = pluginID.substring("org.eclipse.".length()).replace('.', ' ');
+			String pluginVendor = "Eclipse Modeling Project";
+			
+			String pomXMLContent = generatePomXML(compiledPlugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
+			if (pomXMLContent == null) {
+				continue;
+			}
+			
+			String dirName = compiledPlugin.getFile().getName().replace(".jar", "");
+			File pluginDirectory = new File(compiledPlugin.getFile().getParent(), dirName);
+			String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID).getAbsolutePath();
+			
+			content.append("<echo message=\"Repacking for maven repository '" + pluginID  + "'\"/>");
+			String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + ".jar";
+			content.append("<jar destfile=\"" + destBinJarFile + "\">");
+			content.append("<zipgroupfileset file=\"" + pluginPath + "\"/>");
+			content.append("<fileset dir=\"" + pluginDirectory.getAbsolutePath() + "\"/>");
+			content.append("</jar>");
+			deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
+			
+			//src versioin
+			String srcPluginFile = compiledPlugin.getFile().getName().replace(pluginID, pluginID + ".source");
+			pluginPath = new File(compiledPlugin.getFile().getParent(), srcPluginFile).getAbsolutePath();
+			String destSrcJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-sources.jar";
+			content.append("<jar destfile=\"" + destSrcJarFile + "\">");
+			content.append("<zipgroupfileset file=\"" + pluginPath + "\"/>");
+			content.append("</jar>");
+			deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destSrcJarFile);
+			
+			content.appendLineBreak();
+		}
 		
 		AntTarget target = new AntTarget("build-maven-repository", content);
 		return target;
+	}
+
+	private void deployInRepository(XMLContent content, String jarsDir,
+			String mavenRespoitoryDir, String pomFile, String destJarFile) {
+		content.append("<exec executable=\"mvn\" dir=\"" + jarsDir + "\">");
+		content.append("<arg value=\"deploy:deploy-file\"/>");
+		content.append("<arg value=\"-Dfile=" + destJarFile + "\"/>");
+		content.append("<arg value=\"-DpomFile=" + pomFile + "\"/>");
+		content.append("<arg value=\"-Durl=file:" + mavenRespoitoryDir + "\"/>");
+		content.append("</exec>");
+	}
+
+	private void addDependenciesRecursively(Plugin plugin,
+			Set<CompiledPlugin> pluginsToRepack, Map<String, String> plugin2VersionMap) {
+		for (IDependable dependency : plugin.getDependencies()) {
+			if (dependency instanceof CompiledPlugin) {
+				CompiledPlugin compiledPlugin = (CompiledPlugin) dependency;
+				if (includeInMavenRepository(compiledPlugin)) {
+					plugin2VersionMap.put(
+							compiledPlugin.getIdentifier(), compiledPlugin.getVersion());
+					pluginsToRepack.add(compiledPlugin);
+					addDependenciesRecursively(compiledPlugin, pluginsToRepack, plugin2VersionMap);
+				}
+			}
+		}
+	}
+
+	protected String generatePomXML(Plugin plugin, String pluginVersion, 
+			String pluginName, String pluginVendor, Map<String, String> plugin2VersionMap) {
+		XMLContent content = new XMLContent();
+		
+		content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		content.append("<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"" +
+				" xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+		content.append("<modelVersion>4.0.0</modelVersion>");
+		content.append("<groupId>" + getMavenGroup(plugin.getIdentifier()) + "</groupId>");
+		content.append("<artifactId>" + plugin.getIdentifier() + "</artifactId>");
+		content.append("<version>" + pluginVersion + "</version>");
+		content.append("<name>" + pluginName + "</name>");
+		content.append("<organization>");
+		content.append("<name>" + pluginVendor + "</name>");
+		content.append("</organization>");
+		content.append("<licenses>");
+		content.append("<license>");
+		content.append("<name>Eclipse Public License - v 1.0</name>");
+		content.append("<url>http://www.eclipse.org/org/documents/epl-v10.html</url>");
+		content.append("</license>");
+		content.append("</licenses>");
+		content.append("<dependencies>");
+		for (UnresolvedDependency dependency : plugin.getResolvedDependencies()) {
+			if (isOptional(dependency)) {
+				continue;
+			}
+			String dependencyVersion = plugin2VersionMap.get(dependency.getIdentifier());
+			if (dependencyVersion == null) {
+				System.out.println("Can not create maven artifact for " + plugin.getIdentifier() 
+						+ " since " + dependency.getIdentifier() + " is not versioned");
+				return null;
+			}
+			content.append("<dependency>");
+			content.append("<groupId>" + getMavenGroup(dependency.getIdentifier()) + "</groupId>");
+			content.append("<artifactId>" + dependency.getIdentifier() + "</artifactId>");
+			content.append("<version>" + dependencyVersion + "</version>");
+			content.append("</dependency>");
+		}
+		content.append("</dependencies>");
+		content.append("</project>");
+		return content.toString();
+	}
+
+	private File writePomFile(String pomXMLContent, File pluginDirectory, String pluginID) {
+		File pomFolder = new File(pluginDirectory.getAbsolutePath() + File.separator + "META-INF"
+				+ File.separator + "maven" + File.separator + getMavenGroup(pluginID)
+				+ File.separator + pluginID);
+		pomFolder.mkdirs();
+		File pomXMLFile = new File(pomFolder, "pom.xml");
+		
+		try {
+			new FileOutputStream(pomXMLFile).write(pomXMLContent.getBytes());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return pomXMLFile;
 	}
 
 	private String getFeatureVendor(String featureID) {
@@ -320,72 +428,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		return featureVersion;
 	}
 	
-	private String createPomXML(Plugin plugin, String pluginVersion, 
-			String pluginName, String pluginVendor, Map<String, String> plugin2VersionMap) {
-		XMLContent content = new XMLContent();
-		content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		content.append("<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"" +
-				" xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-		content.append("<modelVersion>");
-		content.append("4.0.0");
-		content.append("</modelVersion>");
-		content.append("<groupId>");
-		content.append(getMavenGroup(plugin.getIdentifier()));
-		content.append("</groupId>");
-		content.append("<artifactId>");
-		content.append(plugin.getIdentifier());
-		content.append("</artifactId>");
-		content.append("<version>");
-		content.append(pluginVersion);
-		content.append("</version>");
-		content.append("<name>");
-		content.append(pluginName);
-		content.append("</name>");
-		content.append("<organization>");
-		content.append("<name>");
-		content.append(pluginVendor);
-		content.append("</name>");
-		content.append("</organization>");
-		content.append("<licenses>");
-		content.append("<license>");
-		content.append("<name>");
-		content.append("Eclipse Public License - v 1.0");
-		content.append("</name>");
-		content.append("<url>");
-		content.append("http://www.eclipse.org/org/documents/epl-v10.html");
-		content.append("</url>");
-		content.append("</license>");
-		content.append("</licenses>");
-		content.append("<dependencies>");
-		content.append("<dependency>");
-		for (UnresolvedDependency dependency : plugin.getResolvedDependencies()) {
-			if (dependency.isOptional()) {
-				continue;
-			}
-			String dependencyVersion = plugin2VersionMap.get(dependency.getIdentifier());
-			if (dependencyVersion == null) {
-				System.out.println("Can not create maven artifact for " + plugin.getIdentifier() 
-						+ " since " + dependency.getIdentifier() + " is not versioned");
-				return null;
-			}
-			content.append("<groupId>");
-			content.append(getMavenGroup(dependency.getIdentifier()));
-			content.append("</groupId>");
-			content.append("<artifactId>");
-			content.append(dependency.getIdentifier());
-			content.append("</artifactId>");
-			content.append("<version>");
-			content.append("" + dependencyVersion);
-			content.append("</version>");
-		}
-		content.append("</dependency>");
-		content.append("</dependencies>");
-		content.append("</project>");
-		return content.toString();
-	}
-	
-
-	public String getMavenGroup(String identifier) {
+	protected String getMavenGroup(String identifier) {
 		String groupID = "";
 		String[] idSegments = identifier.split("\\.");
 		for (int i = 0; i < idSegments.length && i < 3; i++) {
@@ -397,5 +440,36 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		}
 		return groupID;
 	}
+	
+	protected boolean isOptional(UnresolvedDependency dependency) {
+		if (dependency.isOptional()) {
+			return true;
+		}
+		//This dependency is not marked optional in EMF plugins although it is optional.
+		//See also: https://bugs.eclipse.org/bugs/show_bug.cgi?id=328227
+		if (dependency.getIdentifier().equals("org.eclipse.core.runtime")) {
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean includeInMavenRepository(CompiledPlugin compiledPlugin) {
+		// TODO This selects the EMF core plugins, could be moved to an external spec
+		String id = compiledPlugin.getIdentifier();
+		if (id.equals("org.eclipse.emf.common")) {
+			return true;
+		}
+		if (id.equals("org.eclipse.emf.ecore")) {
+			return true;
+		}
+		if (id.equals("org.eclipse.emf.ecore.change")) {
+			return true;
+		}
+		if (id.equals("org.eclipse.emf.xmi")) {
+			return true;
+		}
+		return false;
+	}
+
 
 }
