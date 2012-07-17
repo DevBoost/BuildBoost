@@ -49,7 +49,7 @@ public class XMLContent {
 				continue;
 			}
 			// tag that is closed on the same line or comment or XML header
-			if (text.endsWith("/>") || text.endsWith("-->") || text.endsWith("?>")) {
+			if (text.endsWith("/>") || text.endsWith("-->") || text.endsWith("?>") || text.matches(".*<.+>.+</.+>")) {
 				content.append(getTabs(indentation, tabMap));
 				content.append(text);
 				content.append(NL);
