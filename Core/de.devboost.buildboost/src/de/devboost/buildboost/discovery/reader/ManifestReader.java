@@ -38,8 +38,8 @@ public class ManifestReader {
 	public final static String QUALIFIED_NUMBER_REGEX = "([0-9\\.]+)";
 	public final static String INCLUDING_EXCLUDING_REGEX = "(\\[|\\))";
 	public final static String BUNDLE_VERSION_REGEX = "bundle-version=\\\"(" + QUALIFIED_NUMBER_REGEX + "|" + INCLUDING_EXCLUDING_REGEX + QUALIFIED_NUMBER_REGEX + "," + QUALIFIED_NUMBER_REGEX + INCLUDING_EXCLUDING_REGEX + ")\\\"";
-	public final static String RESOLUTION_REFEX = "resolution:=optional";
-	public final static String VISIBILITY_REGEX = "visibility:=reexport";
+	public final static String RESOLUTION_REFEX = "resolution:=\\\"?optional\\\"?";
+	public final static String VISIBILITY_REGEX = "visibility:=\\\"?reexport\\\"?";
 	public final static String OPTION_VALUE_REGEX = "((\\\"[^\\\"]+\\\")+|[^\\\"]([^;,])+)";
 	public final static String OPTION_REGEX = ";[ ]*(" + OPTION_NAME_REGEX + "[:]?=" + OPTION_VALUE_REGEX + ")";
 	public final static String DEPENDENCY_REGEX = 
