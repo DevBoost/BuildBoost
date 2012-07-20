@@ -37,7 +37,7 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
-
+	
 	private EclipseUpdateSiteDeploymentSpec updateSiteSpec;
 	private File targetDir;
 	private String usernameProperty;
@@ -244,30 +244,39 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				}
 				String pluginName = updateSiteSpec.getValue("plugin", pluginID, "name");
 				if (pluginName == null) {
-					pluginName = "Unknown";
+					pluginName = idToName(pluginID);
+				}
+				
+				String snapshotValue = updateSiteSpec.getValue("site", "snapshot");
+				boolean snapshot = true;
+				if (snapshotValue != null) {
+					snapshot = Boolean.parseBoolean(snapshotValue);
+				}
+				
+				if (snapshot) {
+					pluginVersion = pluginVersion + "-SNAPSHOT";
 				}
 				
 				String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
 				if (pomXMLContent == null) {
 					continue;
 				}
+				String pomPropertiesContent = generatePomProperties(plugin, pluginVersion);
 				
-				String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID).getAbsolutePath();
+				String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID, "xml").getAbsolutePath();
+				writePomFile(pomPropertiesContent, pluginDirectory, pluginID, "properties");
 				
 				// package plugin(s)
-				content.append("<echo message=\"Packaging binary artifact '" + pluginID + "'\"/>");
-				String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT.jar";
+				content.append("<echo message=\"Packaging maven artifact '" + pluginID + "'\"/>");
+				String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + ".jar";
 				content.append("<jar destfile=\"" + destBinJarFile + "\">");
 				content.append("<fileset dir=\"" + pluginPath + "\">");
 				content.append("<exclude name=\".*\"/>");
-				content.append("<exclude name=\"src*\"/>");
-				content.append("<exclude name=\"bin\"/>");
+				content.append("<exclude name=\"src*/**\"/>");
+				content.append("<exclude name=\"bin/**\"/>");
 				content.append("</fileset>");
 				content.append("</jar>");
-				deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
-
-				content.append("<echo message=\"Packaging source artifact '" + pluginID + "'\"/>");
-				String destSrcJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-SNAPSHOT-sources.jar";
+				String destSrcJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-sources.jar";
 				content.append("<jar destfile=\"" + destSrcJarFile + "\">");
 				for (File childFolder : pluginDirectory.listFiles()) {
 					 //TODO read .classpath for src-folders instead
@@ -276,7 +285,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 					}
 				}
 				content.append("</jar>");
-				deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destSrcJarFile);
+				
+				deployBinInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
+				deploySrcInRepository(content, jarsDir, mavenRespoitoryDir, plugin, pluginVersion, destSrcJarFile);
+				
 				content.appendLineBreak();
 			}
 		}
@@ -287,17 +299,19 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			String pluginVersion = compiledPlugin.getVersion();
 			
 			//TODO we could read this from plugin.properties
-			String pluginName = pluginID.substring("org.eclipse.".length()).replace('.', ' ');
+			String pluginName = idToName(pluginID);
 			String pluginVendor = "Eclipse Modeling Project";
 			
 			String pomXMLContent = generatePomXML(compiledPlugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
 			if (pomXMLContent == null) {
 				continue;
 			}
+			String pomPropertiesContent = generatePomProperties(compiledPlugin, pluginVersion);
 			
 			String dirName = compiledPlugin.getFile().getName().replace(".jar", "");
 			File pluginDirectory = new File(compiledPlugin.getFile().getParent(), dirName);
-			String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID).getAbsolutePath();
+			String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID, "xml").getAbsolutePath();
+			writePomFile(pomPropertiesContent, pluginDirectory, pluginID, "properties").getAbsolutePath();
 			
 			content.append("<echo message=\"Repacking for maven repository '" + pluginID  + "'\"/>");
 			String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + ".jar";
@@ -305,7 +319,6 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<zipgroupfileset file=\"" + pluginPath + "\"/>");
 			content.append("<fileset dir=\"" + pluginDirectory.getAbsolutePath() + "\"/>");
 			content.append("</jar>");
-			deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
 			
 			//src versioin
 			String srcPluginFile = compiledPlugin.getFile().getName().replace(pluginID, pluginID + ".source");
@@ -314,7 +327,9 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<jar destfile=\"" + destSrcJarFile + "\">");
 			content.append("<zipgroupfileset file=\"" + pluginPath + "\"/>");
 			content.append("</jar>");
-			deployInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destSrcJarFile);
+			
+			deployBinInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
+			deploySrcInRepository(content, jarsDir, mavenRespoitoryDir, compiledPlugin, pluginVersion, destSrcJarFile);
 			
 			content.appendLineBreak();
 		}
@@ -323,12 +338,26 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		return target;
 	}
 
-	private void deployInRepository(XMLContent content, String jarsDir,
-			String mavenRespoitoryDir, String pomFile, String destJarFile) {
+	private void deployBinInRepository(XMLContent content, String jarsDir,
+			String mavenRespoitoryDir, String pomFile, String destBinJarFile) {
 		content.append("<exec executable=\"mvn\" dir=\"" + jarsDir + "\">");
 		content.append("<arg value=\"deploy:deploy-file\"/>");
-		content.append("<arg value=\"-Dfile=" + destJarFile + "\"/>");
+		content.append("<arg value=\"-Dfile=" + destBinJarFile + "\"/>");
 		content.append("<arg value=\"-DpomFile=" + pomFile + "\"/>");
+		content.append("<arg value=\"-Durl=file:" + mavenRespoitoryDir + "\"/>");
+		content.append("</exec>");
+	}
+	
+	private void deploySrcInRepository(XMLContent content, String jarsDir,
+			String mavenRespoitoryDir, Plugin plugin, String pluginVersion, String destSrcJarFile) {
+		content.append("<exec executable=\"mvn\" dir=\"" + jarsDir + "\">");
+		content.append("<arg value=\"deploy:deploy-file\"/>");
+		content.append("<arg value=\"-Dfile=" + destSrcJarFile + "\"/>");
+		content.append("<arg value=\"-Dpackaging=java-source\"/>");
+		content.append("<arg value=\"-DgeneratePom=false\"/>");
+		content.append("<arg value=\"-DgroupId=" + getMavenGroup(plugin.getIdentifier()) + "\"/>");
+		content.append("<arg value=\"-DartifactId=" + plugin.getIdentifier() + "\"/>");
+		content.append("<arg value=\"-Dversion=" + pluginVersion + "\"/>");
 		content.append("<arg value=\"-Durl=file:" + mavenRespoitoryDir + "\"/>");
 		content.append("</exec>");
 	}
@@ -390,13 +419,21 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("</project>");
 		return content.toString();
 	}
+	
+	protected String generatePomProperties(Plugin plugin, String pluginVersion) {
+		String content = "";
+		content += "version=" + pluginVersion + "\n";
+		content += "groupId=" + getMavenGroup(plugin.getIdentifier()) + "\n";
+		content += "artifactId=" + plugin.getIdentifier() + "\n";
+		return content;
+	}
 
-	private File writePomFile(String pomXMLContent, File pluginDirectory, String pluginID) {
+	private File writePomFile(String pomXMLContent, File pluginDirectory, String pluginID, String extension) {
 		File pomFolder = new File(pluginDirectory.getAbsolutePath() + File.separator + "META-INF"
 				+ File.separator + "maven" + File.separator + getMavenGroup(pluginID)
 				+ File.separator + pluginID);
 		pomFolder.mkdirs();
-		File pomXMLFile = new File(pomFolder, "pom.xml");
+		File pomXMLFile = new File(pomFolder, "pom." + extension);
 		
 		try {
 			new FileOutputStream(pomXMLFile).write(pomXMLContent.getBytes());
@@ -439,6 +476,23 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			}
 		}
 		return groupID;
+	}
+	
+	private String idToName(String pluginID) {
+		String name = "";
+		String[] segements = pluginID.split("\\.");
+		for (int i = 1; i < segements.length; i++) {
+			String s = segements[i];
+			name = name + firstToUpper(s) + " ";
+		}
+		if ("".equals(name)) {
+			return pluginID;
+		}
+		return name.trim();
+	}
+	
+	private String firstToUpper(String s) {
+		return s.substring(0,1).toUpperCase() + s.substring(1);
 	}
 	
 	protected boolean isOptional(UnresolvedDependency dependency) {
