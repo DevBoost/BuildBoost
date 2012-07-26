@@ -99,7 +99,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			} else {
 				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\">");
 				content.append("<arg value=\"co\"/>");
-				content.append("<arg value=\"" + location + "\"/>");
+				content.append("<arg value=\"" + location.getUrl() + "\"/>");
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
 				content.append("</exec>");
 			}
