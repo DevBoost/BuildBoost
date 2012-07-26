@@ -316,16 +316,20 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<echo message=\"Repacking for maven repository '" + pluginID  + "'\"/>");
 			String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + ".jar";
 			content.append("<jar destfile=\"" + destBinJarFile + "\">");
-			content.append("<zipgroupfileset file=\"" + pluginPath + "\"/>");
+			content.append("<zipfileset src=\"" + pluginPath + "\">");	
+			content.append("<exclude name=\"META-INF/**\"/>");
+			content.append("</zipfileset>");
 			content.append("<fileset dir=\"" + pluginDirectory.getAbsolutePath() + "\"/>");
 			content.append("</jar>");
 			
-			//src versioin
+			//src version
 			String srcPluginFile = compiledPlugin.getFile().getName().replace(pluginID, pluginID + ".source");
 			pluginPath = new File(compiledPlugin.getFile().getParent(), srcPluginFile).getAbsolutePath();
 			String destSrcJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-sources.jar";
 			content.append("<jar destfile=\"" + destSrcJarFile + "\">");
-			content.append("<zipgroupfileset file=\"" + pluginPath + "\"/>");
+			content.append("<zipfileset src=\"" + pluginPath + "\">");	
+			content.append("<exclude name=\"META-INF/**\"/>");
+			content.append("</zipfileset>");
 			content.append("</jar>");
 			
 			deployBinInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
