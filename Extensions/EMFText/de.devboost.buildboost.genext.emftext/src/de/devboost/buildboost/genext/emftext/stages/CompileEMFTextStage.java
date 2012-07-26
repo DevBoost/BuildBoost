@@ -13,7 +13,7 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package de.devboost.buildboost.stages;
+package de.devboost.buildboost.genext.emftext.stages;
 
 import java.io.File;
 import java.util.LinkedHashSet;
@@ -27,6 +27,7 @@ import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
 import de.devboost.buildboost.filters.IdentifierFilter;
 import de.devboost.buildboost.model.IUniversalBuildStage;
+import de.devboost.buildboost.stages.AbstractBuildStage;
 import de.devboost.buildboost.steps.compile.CompileProjectStepProvider;
 
 public class CompileEMFTextStage extends AbstractBuildStage implements IUniversalBuildStage {
