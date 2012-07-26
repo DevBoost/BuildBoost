@@ -84,7 +84,7 @@ public class BoostFile extends AbstractArtifact {
 					if (locationString.startsWith(supportedType)) {
 						String type = supportedType.substring(0, supportedType.length() - 1);
 						String url = locationString.substring(supportedType.length()).trim();
-						String subDirectory = "";
+						String subDirectory = null;
 						int idx = url.lastIndexOf(SUB_DIR_SEPARATOR);
 						if (idx != -1) {
 							subDirectory = url.substring(idx + 1);
@@ -95,7 +95,9 @@ public class BoostFile extends AbstractArtifact {
 							location = new Location(type, url);
 							locations.put(url, location);
 						}
-						location.getSubDirectories().add(subDirectory);
+						if (subDirectory != null) {
+							location.getSubDirectories().add(subDirectory);
+						}
 					}
 				}
 			}
