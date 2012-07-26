@@ -15,16 +15,57 @@
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
 
+import static de.devboost.buildboost.IConstants.BUILD_BOOST_REPOSITORY_URL;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class BoostFile extends AbstractArtifact {
+	
+	public static String SUB_DIR_SEPARATOR = "!";
+	
+	public static String[] SUPPORTED_TYPES = { "svn:", "git:" };
+	
+	public class Location {
+		private String type;
+		private String url;
+		private Set<String> subDirectories;
+		
+		public Location(String type, String url) {
+			super();
+			this.type = type;
+			this.url = url;
+			this.subDirectories = new LinkedHashSet<String>();
+			//TODO we wouldn't need this if we create an extra repository for extensions
+			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) { 
+				subDirectories.add("Core");
+				subDirectories.add("Universal");
+			}
+		}
+
+		public String getType() {
+			return type;
+		}
+		
+		public String getUrl() {
+			return url;
+		}
+		
+		public Set<String> getSubDirectories() {
+			return subDirectories;
+		}
+		
+	}
 
 	private File file;
-	private List<String> locations;
+	private Map<String, Location> locations;
 
 	public BoostFile(File file) {
 		this.file = file;
@@ -33,14 +74,29 @@ public class BoostFile extends AbstractArtifact {
 	}
 
 	private void readContent(File file) {
-		//TODO also read properties
-		locations = new ArrayList<String>();
+		locations = new LinkedHashMap<String, BoostFile.Location>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String location;
-			while((location = reader.readLine()) != null) {
-				if (location.contains("//")) {
-					locations.add(location);
+			String locationString;
+			while((locationString = reader.readLine()) != null) {
+				locationString = locationString.trim();
+				for (String supportedType : SUPPORTED_TYPES) {
+					if (locationString.startsWith(supportedType)) {
+						String type = supportedType.substring(0, supportedType.length() - 1);
+						String url = locationString.substring(supportedType.length()).trim();
+						String subDirectory = "";
+						int idx = url.lastIndexOf(SUB_DIR_SEPARATOR);
+						if (idx != -1) {
+							subDirectory = url.substring(idx + 1);
+							url = url.substring(0, idx);
+						}
+						Location location = locations.get(url);
+						if (location == null) {
+							location = new Location(type, url);
+							locations.put(url, location);
+						}
+						location.getSubDirectories().add(subDirectory);
+					}
 				}
 			}
 			reader.close();
@@ -58,7 +114,7 @@ public class BoostFile extends AbstractArtifact {
 		return file.lastModified();
 	}
 
-	public List<String> getLocations() {
-		return locations;
+	public List<Location> getLocations() {
+		return new ArrayList<Location>(locations.values());
 	}
 }

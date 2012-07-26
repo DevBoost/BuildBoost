@@ -21,27 +21,29 @@ import java.util.Collections;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
+import de.devboost.buildboost.artifacts.BoostFile.Location;
 import de.devboost.buildboost.util.XMLContent;
 
 
 public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 
 	private File reposFolder;
-	private String location;
+	private Location location;
 
-	public CloneRepositoriesBuildStep(File reposFolder, String location) {
+	public CloneRepositoriesBuildStep(File reposFolder, Location location) {
 		super();
 		this.reposFolder = reposFolder;
 		this.location = location;
 	}
 
 	public Collection<AntTarget> generateAntTargets() {
-		String localRepositoryFolderName = location.substring(location.indexOf("//") + 2);
+		String localRepositoryFolderName = location.getUrl().substring(
+				location.getUrl().indexOf("//") + 2);
 		localRepositoryFolderName = localRepositoryFolderName.replace("/", "_");
 		localRepositoryFolderName = localRepositoryFolderName.replace(".", "-");
 		localRepositoryFolderName = localRepositoryFolderName.replace(" ", "-");
 		
-		String rootName = location.substring(location.lastIndexOf("/") + 1);
+		String rootName = location.getUrl().substring(location.getUrl().lastIndexOf("/") + 1);
 
 		File localRepo = new File(new File(reposFolder, localRepositoryFolderName), rootName);
 		
@@ -56,31 +58,52 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		content.append("</not>");
 		content.append("</condition>");
 		
-		//TODO improve this check
-		boolean isGit = location.contains("git");
+		boolean isGit = location.getType().equals("git");
 		
 		if (isGit) {
 			if (localRepo.exists()) {
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
 				content.append("<arg value=\"pull\"/>");
+				content.append("</exec>");
 			} else {
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\">");
 				content.append("<arg value=\"clone\"/>");
 				content.append("<arg value=\"" + location + "\"/>");
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
+				content.append("</exec>");
+			}
+			if (!location.getSubDirectories().isEmpty()) {
+				//enable sparse checkout
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<arg value=\"config\"/>");
+				content.append("<arg value=\"core.sparsecheckout\"/>");
+				content.append("<arg value=\"true\"/>");
+				content.append("</exec>");
+				String dirList = "";
+				for (String subDir : location.getSubDirectories()) {
+					dirList += subDir;
+					dirList += "${line.separator}";
+				}
+				content.append("<echo message=\"" + dirList + "\" file=\"" + localRepo.getAbsolutePath() + "/.git/info/sparse-checkout\"/>");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<arg value=\"read-tree\"/>");
+				content.append("<arg value=\"-mu\"/>");
+				content.append("<arg value=\"HEAD\"/>");
+				content.append("</exec>");
 			}
 		} else {
 			if (localRepo.exists()) {
 				content.append("<exec executable=\"svn\" dir=\"" + localRepo.getAbsolutePath() + "\">");
 				content.append("<arg value=\"update\"/>");
+				content.append("</exec>");
 			} else {
 				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\">");
 				content.append("<arg value=\"co\"/>");
 				content.append("<arg value=\"" + location + "\"/>");
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
+				content.append("</exec>");
 			}
 		}
-		content.append("</exec>");
 		
 		return Collections.singleton(new AntTarget("update-" + localRepositoryFolderName, content));
 	}

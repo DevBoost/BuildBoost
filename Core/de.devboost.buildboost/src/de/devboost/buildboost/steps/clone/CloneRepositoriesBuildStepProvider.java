@@ -23,6 +23,7 @@ import java.util.List;
 import de.devboost.buildboost.ant.AbstractAntTargetGeneratorProvider;
 import de.devboost.buildboost.ant.IAntTargetGenerator;
 import de.devboost.buildboost.artifacts.BoostFile;
+import de.devboost.buildboost.artifacts.BoostFile.Location;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 
@@ -43,8 +44,8 @@ public class CloneRepositoriesBuildStepProvider extends AbstractAntTargetGenerat
 		if (artifact instanceof BoostFile) {
 			BoostFile boostFile = (BoostFile) artifact;
 			List<IAntTargetGenerator> steps = new ArrayList<IAntTargetGenerator>();
-			List<String> locations = boostFile.getLocations();
-			for (String location : locations) {
+			List<Location> locations = boostFile.getLocations();
+			for (Location location : locations) {
 				CloneRepositoriesBuildStep step = new CloneRepositoriesBuildStep(
 						reposFolder, location);
 				steps.add(step);
