@@ -97,6 +97,7 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 		sb.append("<junit errorproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" failureproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" haltonfailure=\"false\" haltonerror=\"false\" fork=\"true\" dir=\"" + testPlugin.getAbsolutePath() + "\" maxmemory=\"2048m\">");
 		sb.append("<jvmarg value=\"-ea\" />");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\" />");
+		sb.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
 		sb.append("<classpath>");
 		sb.append("<path path=\"test-classpath.jar\"/>");
 		sb.append("</classpath>");
