@@ -127,7 +127,7 @@ public class TextResourcePluginGenerator {
 
 	private void registerURIMappings(List<String> pluginPaths) throws Exception {
 		// TODO this is a copy of this method from class HeadlessCodeGenerator
-		Map<URI, URI> uriMap = URIConverter.INSTANCE.getURIMap();
+		Map<URI, URI> uriMap = URIConverter.URI_MAP;
 		for (String pluginPath : pluginPaths) {
 			File pluginFile = new File(pluginPath);
 			if (pluginFile.isDirectory() && !pluginPath.endsWith("/")) {
