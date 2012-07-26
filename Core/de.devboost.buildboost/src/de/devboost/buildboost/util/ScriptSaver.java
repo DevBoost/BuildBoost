@@ -18,6 +18,7 @@ package de.devboost.buildboost.util;
 import static de.devboost.buildboost.IConstants.ARTIFACTS_FOLDER;
 import static de.devboost.buildboost.IConstants.BUILD_BOOST_BIN_FOLDER;
 import static de.devboost.buildboost.IConstants.BUILD_BOOST_CORE_PROJECT_ID;
+import static de.devboost.buildboost.IConstants.PROJECTS_FOLDER;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -80,7 +81,7 @@ public class ScriptSaver {
 				content.append("<arg value=\"${build_plugin_id}.BuildScriptGenerator\"/>");
 					
 				content.append("<classpath>");
-				content.append("<pathelement path=\"${basedir}/" + ARTIFACTS_FOLDER + "/" + BUILD_BOOST_CORE_PROJECT_ID + "\" />");
+				content.append("<pathelement path=\"${basedir}/" + ARTIFACTS_FOLDER + "/" + PROJECTS_FOLDER + "/" + BUILD_BOOST_CORE_PROJECT_ID + "\" />");
 				content.append("<pathelement path=\"${basedir}/" + BUILD_BOOST_BIN_FOLDER + "\" />");
 				content.append("<pathelement path=\"${java.class.path}\"/>");
 				content.append("</classpath>");

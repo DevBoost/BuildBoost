@@ -28,6 +28,7 @@ public interface IConstants {
 	String REPOS_FOLDER = "repos";
 	String BUILD_FOLDER = "build";
 	String ARTIFACTS_FOLDER = "artifacts";
+	String PROJECTS_FOLDER = "projects";
 	String BUILD_BOOST_BIN_FOLDER = "build-boost-bin";
 
 	String NL = System.getProperty("line.separator");

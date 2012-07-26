@@ -15,6 +15,8 @@
  ******************************************************************************/
 package de.devboost.buildboost.steps.copy;
 
+import static de.devboost.buildboost.IConstants.PROJECTS_FOLDER;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +40,7 @@ public class CopyProjectsBuildStep extends AbstractAntTargetGenerator {
 
 	public CopyProjectsBuildStep(File targetDir, Plugin plugin) {
 		super();
-		this.targetDir = new File(targetDir, "projects");
+		this.targetDir = new File(targetDir, PROJECTS_FOLDER);
 		this.plugin = plugin;
 	}
 

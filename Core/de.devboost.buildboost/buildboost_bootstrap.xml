@@ -6,7 +6,7 @@
 	<property name="buildboost_core_src" value="${basedir}"/>
 
 	<property name="buildboost_core_plugin_id" value="de.devboost.buildboost"/>
-	<property name="buildboost_core_bin" value="${build_dir}/artifacts/${buildboost_core_plugin_id}"/>
+	<property name="buildboost_core_bin" value="${build_dir}/artifacts/projects/${buildboost_core_plugin_id}"/>
 
 	<target name="buildboost-bootstrap">
 		<mkdir dir="${build_dir}"/>
