@@ -38,7 +38,7 @@ public class CopyProjectsBuildStep extends AbstractAntTargetGenerator {
 
 	public CopyProjectsBuildStep(File targetDir, Plugin plugin) {
 		super();
-		this.targetDir = targetDir;
+		this.targetDir = new File(targetDir, "projects");
 		this.plugin = plugin;
 	}
 

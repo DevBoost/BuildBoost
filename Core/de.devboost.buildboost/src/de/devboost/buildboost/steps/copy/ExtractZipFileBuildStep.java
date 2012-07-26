@@ -33,7 +33,7 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 	public ExtractZipFileBuildStep(TargetPlatformZip zip, File targetDir) {
 		super();
 		this.zip = zip;
-		this.targetDir = targetDir;
+		this.targetDir = new File(targetDir, "target-platform");
 	}
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {

@@ -64,7 +64,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		if (targetVersion != null) {
 			target = " target=\"" + targetVersion.getNumber() + "\"";
 		}
-		String javacTag = "<javac" + target + " destdir=\"" + binPath + "\" debug=\"on\" includeantruntime=\"false\"";
+		String javacTag = "<javac" + target + " destdir=\"" + binPath + "\" debug=\"on\" encoding=\"utf-8\" includeantruntime=\"false\"";
 		if (sourceFileEncoding != null) {
 			javacTag += " encoding=\"" + sourceFileEncoding + "\"";
 		}

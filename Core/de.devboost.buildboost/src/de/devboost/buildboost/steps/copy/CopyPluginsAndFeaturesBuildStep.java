@@ -39,7 +39,7 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 	public CopyPluginsAndFeaturesBuildStep(IArtifact pluginOrFeature, File targetDir) {
 		super();
 		this.pluginOrFeature = pluginOrFeature;
-		this.targetDir = targetDir;
+		this.targetDir = new File(targetDir, "target-platform");
 	}
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
