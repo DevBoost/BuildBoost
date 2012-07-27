@@ -227,6 +227,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
 		
+		content.append("<mkdir dir=\"" + jarsDir + "\" />");
+		
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
 		Map<String, String> plugin2VersionMap = new LinkedHashMap<String, String>();
 		for (EclipseFeature feature : updateSite.getFeatures()) {
