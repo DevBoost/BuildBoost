@@ -45,8 +45,8 @@ public class BoostFile extends AbstractArtifact {
 			this.subDirectories = new LinkedHashSet<String>();
 			//TODO we wouldn't need this if we create an extra repository for extensions
 			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) { 
-				subDirectories.add("Core");
-				subDirectories.add("Universal");
+				subDirectories.add("Core/");
+				subDirectories.add("Universal/");
 			}
 		}
 
