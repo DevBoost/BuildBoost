@@ -100,6 +100,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 		content.append("<echo message=\"Copying update site descriptor for update site '" + updateSiteID + "'\"/>");
 		content.append("<mkdir dir=\"" + updateSiteDir + "\" />");
+		content.append("<mkdir dir=\"" + updateSiteDir + "/plugins\" />");
+		content.append("<mkdir dir=\"" + updateSiteDir + "/features\" />");
 		content.append("<copy file=\"" + updateSiteFile.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/site.xml\"/>");
 		content.appendLineBreak();
 
