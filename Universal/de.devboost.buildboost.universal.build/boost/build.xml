@@ -27,7 +27,7 @@
 			<arg value="core.sparsecheckout"/>
 			<arg value="true"/>
 		</exec>
-		<echo message="Core${line.separator}Universal" file="${repos_dir}/${build_boost_repo_local}/.git/info/sparse-checkout"/>
+		<echo message="Core/${line.separator}Universal/" file="${repos_dir}/${build_boost_repo_local}/.git/info/sparse-checkout"/>
 		<exec executable="${git-executable}" dir="${repos_dir}/${build_boost_repo_local}">
 			<arg value="read-tree"/>
 			<arg value="-mu"/>
