@@ -65,7 +65,7 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		
 		sb.append("<echo message=\"Generating EMF model code for generator model " + genModelPath + "\" />");
 		// TODO use constant here
-		sb.append("<java classname=\"" + IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
+		sb.append("<java fork=\"true\" classname=\"" + IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
 		sb.append("<arg value=\"${ECLIPSE_HOME}\"/>");
 		sb.append("<arg value=\"" + genModelPath + "\"/>");
 		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName() + "\"/>");

@@ -76,7 +76,7 @@ public class ScriptSaver {
 				content.append("<echo message=\"Regenerate build scripts (to consider changes from previous build stage)\" />");
 				// TODO put this into a macro
 				content.append("<echo message=\"Run custom script generator via script runner\" />");
-				content.append("<java classname=\"" + BuildScriptGeneratorRunner.class.getName() + "\" failonerror=\"true\">");
+				content.append("<java fork=\"true\" classname=\"" + BuildScriptGeneratorRunner.class.getName() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"${workspace}\" />");
 				content.append("<arg value=\"${build_plugin_id}.BuildScriptGenerator\"/>");
 					

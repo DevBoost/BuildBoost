@@ -57,7 +57,7 @@ public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 
 		XMLContent content = new XMLContent();
 		content.append("<echo message=\"Generating text resource plug-ins for concrete syntax definition " + csFilePath + "\" />");
-		content.append("<java classname=\""+ BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
+		content.append("<java fork=\"true\" classname=\""+ BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
 		content.append("<arg value=\"${ECLIPSE_HOME}\"/>");
 		content.append("<arg value=\"" + csFilePath + "\"/>");
 		content.append("<arg value=\"" + syntaxDefinition.getProjectDir().getName() + "\"/>");
