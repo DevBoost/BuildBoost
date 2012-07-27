@@ -32,8 +32,8 @@ public class BuildScriptGeneratorRunner {
 
 	public static void main(String[] args) throws BuildException {
 		if (args.length < 2) {
-			System.err.println("Wrong call to BuildScriptGeneratorRunner.main().");
-			System.err.println("Usage: BuildScriptGeneratorRunner.main(pathToWorkspace, classToRun).");
+			System.out.println("Wrong call to BuildScriptGeneratorRunner.main().");
+			System.out.println("Usage: BuildScriptGeneratorRunner.main(pathToWorkspace, classToRun).");
 			System.exit(1);
 			return;
 		}

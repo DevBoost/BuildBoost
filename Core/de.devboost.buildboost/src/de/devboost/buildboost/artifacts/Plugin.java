@@ -130,7 +130,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 						libs.add(relativePath);
 					} catch (IOException e) {
 						// TODO handle exception
-						System.err.println("IOException: " + e.getMessage());
+						System.out.println("IOException: " + e.getMessage());
 					}
 				}
 			}
