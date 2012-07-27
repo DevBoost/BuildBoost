@@ -56,6 +56,7 @@
 	<target name="init">
 		<fail unless="boost" 
 			message="No repository defined to boost! usage: ant -Dboost=https://github.com/DevBoost/MyRepository.git"/>		
+		<mkdir dir="${repos_dir}"/>
 		<echo message="${boost}" file="${repos_dir}/init.boost"/>
 		<condition property="build_boost_repo_exists">
 			<available file="${repos_dir}/${build_boost_repo_local}" type="dir" />
@@ -63,7 +64,6 @@
 	</target>
 
 	<target name="get-build-boost" unless="build_boost_repo_exists">
-		<mkdir dir="${repos_dir}"/>
 		<exec executable="${git-executable}" dir="${repos_dir}">
 			<arg value="clone"/>
 			<arg value="${build_boost_repo_remote}"/>
