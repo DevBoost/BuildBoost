@@ -46,13 +46,27 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec, String usernameProperty, String passwordProperty, File targetDir) {
 		super();
 		this.updateSiteSpec = updateSiteSpec;
+		this.targetDir = targetDir;
+		
+		//TODO I would prefer to read these from the site.deployment as well
 		this.usernameProperty = usernameProperty;
 		this.passwordProperty = passwordProperty;
-		this.targetDir = targetDir;
 	}
-
+	
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
+		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
+		String propertyBase = targetPath.replace(
+				'.', '_').replace('-', '_').replace('/', '_').replace(":", "").toUpperCase();
+		if (usernameProperty == null) {
+			usernameProperty = propertyBase + "_USER";
+			System.out.println("Using user: " + usernameProperty);
+		}
+		if (passwordProperty == null) {
+			passwordProperty = propertyBase + "_PASSWORD";
+			System.out.println("Using password: " + passwordProperty);
+		}
+		
 		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
 		AntTarget mavenRepositoryTarget = generateMavenRepositoryAntTarget();
 		return Arrays.asList(new AntTarget[] {updateSiteTarget, mavenRepositoryTarget});
@@ -160,7 +174,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
 		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
 		// should figure out a way to provide this JAR together with BuildBoost.
-		/*content.append("<!-- Copy new version of update site to server -->");
+		content.append("<!-- Copy new version of update site to server -->");
 		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"features/**\"/>");
@@ -179,7 +193,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<include name=\"content.jar\"/>");
 		content.append("<include name=\"site.xml\"/>");
 		content.append("</fileset>");
-		content.append("</scp>");*/
+		content.append("</scp>");
 		
 		AntTarget target = new AntTarget("build-update-site", content);
 		return target;
@@ -338,12 +352,21 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.appendLineBreak();
 		}
 		
+		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
+		String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
+		
+		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append("<fileset dir=\"" + mavenRespoitoryDir + "\">");
+		content.append("</fileset>");
+		content.append("</scp>");
+		
 		AntTarget target = new AntTarget("build-maven-repository", content);
 		return target;
 	}
 
 	private void deployBinInRepository(XMLContent content, String jarsDir,
 			String mavenRespoitoryDir, String pomFile, String destBinJarFile) {
+		
 		content.append("<exec executable=\"mvn\" dir=\"" + jarsDir + "\">");
 		content.append("<arg value=\"deploy:deploy-file\"/>");
 		content.append("<arg value=\"-Dfile=" + destBinJarFile + "\"/>");
@@ -354,6 +377,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	
 	private void deploySrcInRepository(XMLContent content, String jarsDir,
 			String mavenRespoitoryDir, Plugin plugin, String pluginVersion, String destSrcJarFile) {
+		
 		content.append("<exec executable=\"mvn\" dir=\"" + jarsDir + "\">");
 		content.append("<arg value=\"deploy:deploy-file\"/>");
 		content.append("<arg value=\"-Dfile=" + destSrcJarFile + "\"/>");
