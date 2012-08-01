@@ -35,6 +35,7 @@ import de.devboost.buildboost.util.ArtifactUtil;
  * to detect all contained plug-ins. This is required to compile Eclipse
  * plug-in projects that depend on plug-in of an Eclipse target platform.
  */
+//TODO is there a overlap with FeatureFinder?
 public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	private interface IArtifactCreator {

@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//TODO rename to .repositories
 public class BoostFile extends AbstractArtifact {
 	
 	public static String SUB_DIR_SEPARATOR = "!";
 	
+	//TODO use 'svn+' and 'git+'
 	public static String[] SUPPORTED_TYPES = { "svn:", "git:" };
 	
 	public class Location {

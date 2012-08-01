@@ -56,6 +56,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
+		//TODO use build stage name and a generic mechanism
 		String propertyBase = targetPath.replace(
 				'.', '_').replace('-', '_').replace('/', '_').replace(":", "").toUpperCase();
 		if (usernameProperty == null) {

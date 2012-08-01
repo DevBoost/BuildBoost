@@ -18,5 +18,6 @@ package de.devboost.buildboost.model;
 //TODO document
 public interface IUniversalBuildStage extends IBuildStage {
 	
+	//TODO use explicit dependencies (BuildStage class names?) instead
 	public int getPriority();
 }
