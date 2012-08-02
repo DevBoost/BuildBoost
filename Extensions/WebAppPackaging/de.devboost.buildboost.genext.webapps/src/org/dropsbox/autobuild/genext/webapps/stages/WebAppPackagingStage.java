@@ -35,18 +35,19 @@ import de.devboost.buildboost.stages.AbstractBuildStage;
 
 public class WebAppPackagingStage extends AbstractBuildStage implements IUniversalBuildStage {
 
-	private String buildDirPath;
-	private String eclipseHome;
+	private String artifactsFolder;
+
+	public void setArtifactsFolder(String artifactsFolder) {
+		this.artifactsFolder = artifactsFolder;
+	}
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		File buildDir = new File(buildDirPath);
-		File targetPlatform = new File(eclipseHome);
 		Collection<UnresolvedDependency> webAppDendencies = getWebAppDendencies();
 
 		BuildContext context = createContext(false);
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(targetPlatform));
-		context.addBuildParticipant(new PluginFinder(buildDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(artifactsFolder)));
+		context.addBuildParticipant(new PluginFinder(new File(artifactsFolder)));
 		context.addBuildParticipant(new WebAppFinder(webAppDendencies));
 		
 		context.addBuildParticipant(new WebAppPackagingStepProvider(webAppDendencies));
@@ -57,14 +58,6 @@ public class WebAppPackagingStage extends AbstractBuildStage implements IUnivers
 		script.addTargets(builder.generateAntTargets());
 		
 		return script;
-	}
-	
-	public void setBuildDirPath(String buildDirPath) {
-		this.buildDirPath = buildDirPath;
-	}
-
-	public void setEclipseHome(String eclipseHome) {
-		this.eclipseHome = eclipseHome;
 	}
 
 	private Collection<UnresolvedDependency> getWebAppDendencies() {
