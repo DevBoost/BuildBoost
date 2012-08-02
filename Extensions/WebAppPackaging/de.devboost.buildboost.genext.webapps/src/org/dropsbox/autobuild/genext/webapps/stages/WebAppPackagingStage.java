@@ -29,10 +29,11 @@ import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
+import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.stages.AbstractBuildStage;
 
-public class WebAppPackagingStage extends AbstractBuildStage {
+public class WebAppPackagingStage extends AbstractBuildStage implements IUniversalBuildStage {
 
 	private String buildDirPath;
 	private String eclipseHome;
@@ -77,5 +78,10 @@ public class WebAppPackagingStage extends AbstractBuildStage {
 				false, 
 				false);
 		return Collections.singletonList(dependency);
+	}
+
+	@Override
+	public int getPriority() {
+		return 11000;
 	}
 }
