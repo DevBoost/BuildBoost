@@ -62,11 +62,11 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		
 		if (isGit) {
 			if (localRepo.exists()) {
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"pull\"/>");
 				content.append("</exec>");
 			} else {
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"clone\"/>");
 				content.append("<arg value=\"" + location.getUrl() + "\"/>");
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
@@ -74,7 +74,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			}
 			if (!location.getSubDirectories().isEmpty()) {
 				//enable sparse checkout
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"config\"/>");
 				content.append("<arg value=\"core.sparsecheckout\"/>");
 				content.append("<arg value=\"true\"/>");
@@ -85,7 +85,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 					dirList += "${line.separator}";
 				}
 				content.append("<echo message=\"" + dirList + "\" file=\"" + localRepo.getAbsolutePath() + "/.git/info/sparse-checkout\"/>");
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"read-tree\"/>");
 				content.append("<arg value=\"-mu\"/>");
 				content.append("<arg value=\"HEAD\"/>");
@@ -93,11 +93,11 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			}
 		} else {
 			if (localRepo.exists()) {
-				content.append("<exec executable=\"svn\" dir=\"" + localRepo.getAbsolutePath() + "\">");
+				content.append("<exec executable=\"svn\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"update\"/>");
 				content.append("</exec>");
 			} else {
-				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\">");
+				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\" failonerror=\"true\">");
 				content.append("<arg value=\"co\"/>");
 				content.append("<arg value=\"" + location.getUrl() + "\"/>");
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
