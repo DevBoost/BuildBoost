@@ -229,6 +229,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.appendLineBreak();
 		
 		content.append("<mkdir dir=\"" + jarsDir + "\" />");
+		boolean deployedSomething = false;
 		
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
 		Map<String, String> plugin2VersionMap = new LinkedHashMap<String, String>();
@@ -309,6 +310,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				deploySrcInRepository(content, jarsDir, mavenRespoitoryDir, plugin, pluginVersion, destSrcJarFile);
 				
 				content.appendLineBreak();
+				
+				deployedSomething = true;
 			}
 		}
 		
@@ -357,13 +360,15 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.appendLineBreak();
 		}
 		
-		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
-		String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
-		
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-		content.append("<fileset dir=\"" + mavenRespoitoryDir + "\">");
-		content.append("</fileset>");
-		content.append("</scp>");
+		if (deployedSomething) {
+			String targetPath = updateSiteSpec.getValue("site", "uploadPath");
+			String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
+			
+			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+			content.append("<fileset dir=\"" + mavenRespoitoryDir + "\">");
+			content.append("</fileset>");
+			content.append("</scp>");
+		}
 		
 		AntTarget target = new AntTarget("build-maven-repository", content);
 		return target;
