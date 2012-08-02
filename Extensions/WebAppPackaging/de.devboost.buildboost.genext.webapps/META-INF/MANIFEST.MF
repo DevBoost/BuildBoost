@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Webapps
+Bundle-SymbolicName: de.devboost.buildboost.genext.webapps
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: de.devboost.buildboost
+Export-Package: org.dropsbox.autobuild.genext.webapps.discovery,
+ org.dropsbox.autobuild.genext.webapps.stages,
+ org.dropsbox.autobuild.genext.webapps.steps,
+ org.dropsbox.autobuild.genext.webapps.util
