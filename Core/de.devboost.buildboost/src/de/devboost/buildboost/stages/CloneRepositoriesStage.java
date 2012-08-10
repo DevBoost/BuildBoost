@@ -23,7 +23,7 @@ import de.devboost.buildboost.BuildContext;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.ant.AntTarget;
-import de.devboost.buildboost.discovery.BoostFileFinder;
+import de.devboost.buildboost.discovery.RepositoriesFileFinder;
 import de.devboost.buildboost.steps.clone.CloneRepositoriesBuildStepProvider;
 
 public class CloneRepositoriesStage extends AbstractBuildStage {
@@ -38,7 +38,7 @@ public class CloneRepositoriesStage extends AbstractBuildStage {
 		BuildContext context = createContext(true);
 		
 		context.addBuildParticipant(
-				new BoostFileFinder(new File(reposFolder)));
+				new RepositoriesFileFinder(new File(reposFolder)));
 		context.addBuildParticipant(
 				new CloneRepositoriesBuildStepProvider(new File(reposFolder)));
 		

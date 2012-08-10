@@ -20,34 +20,34 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import de.devboost.buildboost.artifacts.BoostFile;
+import de.devboost.buildboost.artifacts.RepositoriesFile;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.util.ArtifactUtil;
 
-public class BoostFileFinder extends AbstractFileFinder<BoostFile> {
+public class RepositoriesFileFinder extends AbstractFileFinder<RepositoriesFile> {
 	
-	public static final String BOOST_EXTENSION = ".boost";
+	public static final String REPOSITORIES_EXTENSION = ".repositories";
 
-	public BoostFileFinder(File directory) {
+	public RepositoriesFileFinder(File directory) {
 		super(directory);
 	}
 
 	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
-		Collection<BoostFile> boostFiles = new ArrayList<BoostFile>();
+		Collection<RepositoriesFile> boostFiles = new ArrayList<RepositoriesFile>();
 		traverse(context, boostFiles);
 		return new ArtifactUtil().getSetOfArtifacts(boostFiles);
 	}
 
-	protected BoostFile createArtifactFromFile(File file) {
-		return new BoostFile(file);
+	protected RepositoriesFile createArtifactFromFile(File file) {
+		return new RepositoriesFile(file);
 	}
 
 	protected FileFilter getFileFilter() {
 		return new FileFilter() {
 			
 			public boolean accept(File file) {
-				return file.getName().endsWith(BOOST_EXTENSION) && file.isFile();
+				return file.getName().endsWith(REPOSITORIES_EXTENSION) && file.isFile();
 			}
 		};
 	}

@@ -34,7 +34,7 @@
 			<arg value="HEAD"/>
 		</exec>
 		
-		<echo message="Boosting: ${boost}"/>
+		<echo message="Boosting: ${rootRepository}"/>
 		<echo message="Working with repositories in: ${repos_dir}" />
 		<echo message="Building in: ${build_dir}" />
 		<mkdir dir="${build_dir}"/>
@@ -54,10 +54,10 @@
 	</target>
 
 	<target name="init">
-		<fail unless="boost" 
-			message="No repository defined to boost! usage: ant -Dboost=https://github.com/DevBoost/MyRepository.git"/>		
+		<fail unless="rootRepository" 
+			message="No root repository defined to build! usage: ant -DrootRepository='git:https://github.com/DevBoost/MyRepository.git!MySubPath'"/>		
 		<mkdir dir="${repos_dir}"/>
-		<echo message="${boost}" file="${repos_dir}/init.boost"/>
+		<echo message="${rootRepository}" file="${repos_dir}/root.repositories"/>
 		<condition property="build_boost_repo_exists">
 			<available file="${repos_dir}/${build_boost_repo_local}" type="dir" />
 		</condition>

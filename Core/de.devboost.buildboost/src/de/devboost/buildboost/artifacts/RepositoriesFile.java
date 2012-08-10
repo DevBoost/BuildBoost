@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//TODO rename to .repositories
-public class BoostFile extends AbstractArtifact {
+public class RepositoriesFile extends AbstractArtifact {
 	
 	public static String SUB_DIR_SEPARATOR = "!";
 	
@@ -68,14 +67,14 @@ public class BoostFile extends AbstractArtifact {
 	private File file;
 	private Map<String, Location> locations;
 
-	public BoostFile(File file) {
+	public RepositoriesFile(File file) {
 		this.file = file;
 		setIdentifier(file.getName());
 		readContent(file);
 	}
 
 	private void readContent(File file) {
-		locations = new LinkedHashMap<String, BoostFile.Location>();
+		locations = new LinkedHashMap<String, RepositoriesFile.Location>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String locationString;

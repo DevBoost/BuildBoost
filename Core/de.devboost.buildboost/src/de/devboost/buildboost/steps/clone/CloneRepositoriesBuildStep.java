@@ -21,7 +21,7 @@ import java.util.Collections;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
-import de.devboost.buildboost.artifacts.BoostFile.Location;
+import de.devboost.buildboost.artifacts.RepositoriesFile.Location;
 import de.devboost.buildboost.util.XMLContent;
 
 
