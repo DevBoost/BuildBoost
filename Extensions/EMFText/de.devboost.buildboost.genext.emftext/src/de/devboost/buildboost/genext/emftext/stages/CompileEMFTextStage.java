@@ -29,12 +29,14 @@ import de.devboost.buildboost.filters.IdentifierFilter;
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.stages.AbstractBuildStage;
 import de.devboost.buildboost.steps.compile.CompileProjectStepProvider;
+import de.devboost.buildboost.steps.compile.ExtractPluginZipStepProvider;
 
 public class CompileEMFTextStage extends AbstractBuildStage implements IUniversalBuildStage {
 
 	private static final Set<String> EMFTEXT_SDK_PLUGIN_IDENTIFIERS = new LinkedHashSet<String>();
 	
 	static {
+		// EMFText core
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.access");
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk");
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.ant");
@@ -50,12 +52,8 @@ public class CompileEMFTextStage extends AbstractBuildStage implements IUniversa
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.resource.cs");
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.resource.cs.ui");
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.ui");
-		// also compile BuildBoost EMF plug-in
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("de.devboost.buildboost.buildext.emf");
-		// also compile BuildBoost EMFText plug-in
+		// BuildBoost EMFText plug-in
 		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("de.devboost.buildboost.buildext.emftext");
-		// also compile BuildBoost webapps plug-in
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("de.devboost.buildboost.genext.webapps");
 	}
 
 	private String artifactsFolder;
@@ -69,6 +67,7 @@ public class CompileEMFTextStage extends AbstractBuildStage implements IUniversa
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(artifactsFolder)));
 		context.addBuildParticipant(new PluginFinder(new File(artifactsFolder)));
 		
+		context.addBuildParticipant(new ExtractPluginZipStepProvider());
 		context.addBuildParticipant(new CompileProjectStepProvider());
 		
 		context.addBuildParticipant(new IdentifierFilter(EMFTEXT_SDK_PLUGIN_IDENTIFIERS));
