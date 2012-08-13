@@ -37,13 +37,9 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 	}
 
 	public Collection<AntTarget> generateAntTargets() {
-		String localRepositoryFolderName = location.getUrl().substring(
-				location.getUrl().indexOf("//") + 2);
-		localRepositoryFolderName = localRepositoryFolderName.replace("/", "_");
-		localRepositoryFolderName = localRepositoryFolderName.replace(".", "-");
-		localRepositoryFolderName = localRepositoryFolderName.replace(" ", "-");
+		String localRepositoryFolderName = url2FolderName(location.getUrl());
 		
-		String rootName = location.getUrl().substring(location.getUrl().lastIndexOf("/") + 1);
+		String rootName = url2FolderName(location.getUrl().substring(location.getUrl().lastIndexOf("/") + 1));
 
 		File localRepo = new File(new File(reposFolder, localRepositoryFolderName), rootName);
 		
@@ -59,6 +55,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		content.append("</condition>");
 		
 		boolean isGit = location.getType().equals("git");
+		boolean isSVN = location.getType().equals("svn");
 		
 		if (isGit) {
 			if (localRepo.exists()) {
@@ -79,7 +76,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"core.sparsecheckout\"/>");
 				content.append("<arg value=\"true\"/>");
 				content.append("</exec>");
-				String dirList = "";
+				String dirList = ".gitignore${line.separator}";
 				for (String subDir : location.getSubDirectories()) {
 					dirList += subDir;
 					dirList += "${line.separator}";
@@ -91,7 +88,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"HEAD\"/>");
 				content.append("</exec>");
 			}
-		} else {
+		} else if (isSVN) {
 			if (localRepo.exists()) {
 				content.append("<exec executable=\"svn\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"update\"/>");
@@ -103,8 +100,42 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
 				content.append("</exec>");
 			}
+		} else /* isGet */ {
+			if (!localRepo.exists()) {
+				content.append("<mkdir dir=\""+ localRepo.getAbsolutePath() + "\"/>");
+				content.append("<get src=\""+ location.getUrl() + "\" dest=\""+ localRepo.getAbsolutePath() + "\"/>");
+				if (localRepo.getName().endsWith(".zip") && !location.getSubDirectories().isEmpty()) {
+					String zipFilePath = new File(localRepo, rootName).getAbsolutePath()  ;
+					content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepo.getAbsolutePath() + "\">");
+					content.append("<patternset>");
+					for (String zipEntry : location.getSubDirectories()) {
+						content.append("<include name=\"" + zipEntry + "\"/>");
+					}
+					content.append("</patternset>");
+					content.append("</unzip>");
+					content.append("<delete file=\"" + zipFilePath + "\"/>");
+				}
+			}
 		}
 		
 		return Collections.singleton(new AntTarget("update-" + localRepositoryFolderName, content));
+	}
+
+	protected String url2FolderName(String url) {
+		int idx;
+		String folderName = url;
+		//cut leading protocol
+		idx = folderName.indexOf("//");
+		if (idx != -1) {
+			folderName = folderName.substring(idx + 2);
+		}
+		//cut arguments
+		idx = folderName.indexOf("?");
+		if (idx != -1) {
+			folderName = folderName.substring(0, idx);
+		}
+		folderName = folderName.replace("/", "_");
+		folderName = folderName.replace(" ", "-");
+		return folderName;
 	}
 }

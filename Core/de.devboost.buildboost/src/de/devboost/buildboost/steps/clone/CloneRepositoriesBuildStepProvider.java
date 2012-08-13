@@ -29,7 +29,7 @@ import de.devboost.buildboost.model.IBuildContext;
 
 /**
  * The {@link CloneRepositoriesBuildStepProvider} add a {@link CloneRepositoriesBuildStep} 
- * for each plug-in project.
+ * for each {@link RepositoriesFile}.
  */
 public class CloneRepositoriesBuildStepProvider extends AbstractAntTargetGeneratorProvider {
 
