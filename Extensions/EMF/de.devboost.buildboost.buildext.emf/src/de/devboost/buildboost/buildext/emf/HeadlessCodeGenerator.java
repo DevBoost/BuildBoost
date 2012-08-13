@@ -53,18 +53,17 @@ public class HeadlessCodeGenerator {
 		// TODO use properties file to pass arguments instead
 		// TODO add property 'generateEditCode' the is set to true by the
 		//      build script generator if there is a respective edit plug-in.
-		String pathToEclipseTargetPlatform = args[0];
-		String pathToGenModel = args[1];
-		String projectName = args[2];
-		String projectPath = args[3];
+		String pathToGenModel = args[0];
+		String projectName = args[1];
+		String projectPath = args[2];
 		List<String> pluginPaths = new ArrayList<String>();
-		for (int i = 4; i < args.length; i++) {
+		for (int i = 3; i < args.length; i++) {
 			pluginPaths.add(args[i]);
 		}
-		new HeadlessCodeGenerator().run(pathToEclipseTargetPlatform, pathToGenModel, projectName, projectPath, pluginPaths);
+		new HeadlessCodeGenerator().run(pathToGenModel, projectName, projectPath, pluginPaths);
 	}
 
-	private void run(String pathToEclipseTargetPlatform, String pathToGenModel, String projectName, String projectPath, List<String> pluginPaths) throws Exception {
+	private void run(String pathToGenModel, String projectName, String projectPath, List<String> pluginPaths) throws Exception {
 		ResourceSet rs = new ResourceSetImpl();
 		
 		registerFactoriesAndPackages(rs);

@@ -68,7 +68,6 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		sb.append("<java fork=\"true\" classname=\"" + IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
 		sb.append("<jvmarg value=\"-Xmx2048m\"/>");
-		sb.append("<arg value=\"${ECLIPSE_HOME}\"/>");
 		sb.append("<arg value=\"" + genModelPath + "\"/>");
 		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName() + "\"/>");
 		sb.append("<arg value=\"" + generatorModel.getProjectDir() + "\"/>");
