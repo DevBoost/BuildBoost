@@ -96,7 +96,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				if (!file.getParentFile().getName().equals("features")) {
 					return false;
 				}
-				return file.isDirectory() && isFeatureDir(file);
+				return isFeatureDirOrJar(file);
 			}
 
 		});
@@ -183,11 +183,21 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		return manifestFile.exists();
 	}
 	
-	private boolean isFeatureDir(File directory) {
-		File featureDescriptor = new File(directory, "feature.xml");
-		if (directory.getParentFile().getName().equals("features") && featureDescriptor.exists()) {
-			return true;
+	private boolean isFeatureDirOrJar(File file) {
+		if (!file.getParentFile().getName().equals("features")) {
+			return false;
 		}
+		if (file.isDirectory()) {
+			File featureDescriptor = new File(file, "feature.xml");
+			if (featureDescriptor.exists()) {
+				return true;
+			}
+		} else {
+			if (file.getName().endsWith(".jar")) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 

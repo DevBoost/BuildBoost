@@ -16,10 +16,15 @@
 package de.devboost.buildboost.artifacts;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -34,20 +39,33 @@ import de.devboost.buildboost.util.AbstractXMLReader;
 
 public class EclipseFeature extends AbstractArtifact {
 
+	private static final String FEATURE_XML = "feature.xml";
+	
 	private File file;
 
 	public EclipseFeature(File file) {
 		super();
 		this.file = file;
-		if (file.getName().equals("feature.xml")) {
-			readFeatureFile(file);
+		if (file.getName().equals(FEATURE_XML)) {
+			try {
+				readFeatureInputStream(new FileInputStream(file));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
 		} else {
 			// this is JAR
-			throw new RuntimeException("Can't handle packaged features (yet). Path is " + file.getAbsolutePath());
+			try {
+				ZipFile jar = new ZipFile(file);
+				ZipEntry entry = jar.getEntry(FEATURE_XML);
+				InputStream is = jar.getInputStream(entry);
+				readFeatureInputStream(is);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
-	private void readFeatureFile(File file) {
+	private void readFeatureInputStream(InputStream is) {
 		AbstractXMLReader xmlUtil = new AbstractXMLReader() {
 
 			@Override
@@ -98,7 +116,7 @@ public class EclipseFeature extends AbstractArtifact {
 			}
 		};
 		
-		xmlUtil.readXMLFile(file);
+		xmlUtil.readXMLStrem(is);
 	}
 
 	public Collection<Plugin> getPlugins() {

@@ -17,6 +17,7 @@ package de.devboost.buildboost.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -41,11 +42,20 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 public abstract class AbstractXMLReader {
 
 	public void readXMLFile(File file) {
+		InputStream inputStream;
+		try {
+			inputStream = new FileInputStream(file);
+			readXMLStrem(inputStream);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void readXMLStrem(InputStream inputStream) {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 	    
 		try {
 		    DocumentBuilder builder = builderFactory.newDocumentBuilder();
-		    InputStream inputStream = new FileInputStream(file);
 			Document document = builder.parse(inputStream);
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			process(document, xpath);
