@@ -54,19 +54,17 @@ public class TextResourcePluginGenerator {
 
 	// TODO use property file to pass arguments instead
 	public static void main(String[] args) throws Exception {
-		String pathToEclipseTargetPlatform = args[0];
-		String pathToCsFile = args[1];
-		String projectName = args[2];
-		String buildDirPath = args[3];
+		String pathToCsFile = args[0];
+		String projectName = args[1];
+		String buildDirPath = args[2];
 		List<String> pluginPaths = new ArrayList<String>();
-		for (int i = 4; i < args.length; i++) {
+		for (int i = 3; i < args.length; i++) {
 			pluginPaths.add(args[i]);
 		}
-		new TextResourcePluginGenerator().run(pathToEclipseTargetPlatform, pathToCsFile, projectName, buildDirPath, pluginPaths);
+		new TextResourcePluginGenerator().run(pathToCsFile, projectName, buildDirPath, pluginPaths);
 	}
 
 	public void run(
-			String pathToEclipseTargetPlatform, 
 			String pathToCsFile,
 			String projectName, 
 			String buildDirPath, 
