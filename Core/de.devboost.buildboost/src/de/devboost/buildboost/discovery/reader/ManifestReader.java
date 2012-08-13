@@ -105,6 +105,10 @@ public class ManifestReader {
 					if (".".equals(path)) {
 						continue;
 					}
+					//TODO this is declared in "org.eclipse.equinox.registry" but the JAR does not exist
+					if ("runtime_registry_compatibility.jar".equals(path)) {
+						continue;
+					}
 					classpath.add(path);
 				}
 			}

@@ -23,8 +23,10 @@ import de.devboost.buildboost.AutoBuilder;
 import de.devboost.buildboost.BuildContext;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AntScript;
+import de.devboost.buildboost.artifacts.CompiledPlugin;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
+import de.devboost.buildboost.filters.ArtifactTypeFilter;
 import de.devboost.buildboost.filters.IdentifierFilter;
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.stages.AbstractBuildStage;
@@ -70,7 +72,8 @@ public class CompileEMFTextStage extends AbstractBuildStage implements IUniversa
 		context.addBuildParticipant(new ExtractPluginZipStepProvider());
 		context.addBuildParticipant(new CompileProjectStepProvider());
 		
-		context.addBuildParticipant(new IdentifierFilter(EMFTEXT_SDK_PLUGIN_IDENTIFIERS));
+		context.addBuildParticipant(new IdentifierFilter(EMFTEXT_SDK_PLUGIN_IDENTIFIERS).or(
+				new ArtifactTypeFilter(CompiledPlugin.class)));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 

@@ -38,6 +38,7 @@ public class ExtractPluginZipStep extends AbstractAntTargetGenerator {
 		plugin.unzip();
 		File unzippedLocation = plugin.getLocation();
 		content.append("<unzip src=\"" + zippedLocation.getAbsolutePath() + "\" dest=\"" + unzippedLocation.getAbsolutePath() + "\" />");
+		content.append("<delete file=\"" + zippedLocation.getAbsolutePath() + "\" />");
 		return Collections.singleton(new AntTarget("unzip-plugin-with-libs-" + plugin.getIdentifier(), content));
 	}
 
