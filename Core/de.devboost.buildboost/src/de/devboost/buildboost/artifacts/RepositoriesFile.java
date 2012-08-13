@@ -31,7 +31,7 @@ public class RepositoriesFile extends AbstractArtifact {
 	
 	public static String SUB_DIR_SEPARATOR = "!";
 	
-	public static String[] SUPPORTED_TYPES = { "svn:", "git:" };
+	public static String[] SUPPORTED_TYPES = { "svn:", "git:", "get:" };
 	
 	public class Location {
 		private String type;

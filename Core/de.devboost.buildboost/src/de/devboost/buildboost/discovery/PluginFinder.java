@@ -89,10 +89,6 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 			if (!child.isDirectory()) {
 				continue;
 			}
-			if (child.getName().equals("build")) {
-				// do not search in the 'build' directory for plug-ins
-				continue;
-			}
 			projectDirs.addAll(findProjectDirs(child, buildListener));
 		}
 		return projectDirs;

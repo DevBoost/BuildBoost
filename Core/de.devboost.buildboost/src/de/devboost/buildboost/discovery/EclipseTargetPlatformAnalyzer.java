@@ -68,7 +68,10 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				// exclude JUnit 3, because this requires to check the bundle
 				// version when resolving dependencies
 				// TODO remove this once the versions are checked
-				if (file.isDirectory() && isPluginDir(file) && !file.getName().contains("org.junit_3")) {
+				if (file.getName().contains("org.junit_3")) {
+					return false;
+				}
+				if (file.isDirectory() && isPluginDir(file)) {
 					return true;
 				}
 				if (file.isFile() && file.getName().endsWith(".jar")) {

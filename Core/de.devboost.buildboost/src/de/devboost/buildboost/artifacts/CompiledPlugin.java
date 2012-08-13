@@ -36,4 +36,17 @@ public class CompiledPlugin extends Plugin {
 		return false;
 	}
 
+	public boolean isZipped() {
+		return getLocation().getName().endsWith(".jar");
+	}
+	
+	public void unzip() {
+		if (isZipped()) {
+			String zipFileName = getLocation().getName();
+			File newLocation = new File(getLocation().getParentFile(), 
+					zipFileName.substring(0, zipFileName.lastIndexOf('.')));
+			location = newLocation;
+		}
+	}
+
 }

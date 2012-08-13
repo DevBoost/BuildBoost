@@ -25,6 +25,7 @@ import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.steps.compile.CompileProjectStepProvider;
+import de.devboost.buildboost.steps.compile.ExtractPluginZipStepProvider;
 import de.devboost.buildboost.steps.compile.JDKVersion;
 
 public class CompileStage extends AbstractBuildStage implements IUniversalBuildStage {
@@ -56,6 +57,7 @@ public class CompileStage extends AbstractBuildStage implements IUniversalBuildS
 
 		context.addBuildParticipant(new PluginFinder(buildDir));
 		
+		context.addBuildParticipant(new ExtractPluginZipStepProvider());
 		context.addBuildParticipant(new CompileProjectStepProvider(jdkVersion, sourceFileEncoding));
 		
 		AutoBuilder builder = new AutoBuilder(context);

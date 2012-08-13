@@ -92,16 +92,7 @@ public class ClasspathHelper {
 
 	private XMLContent getPluginClassPath(Plugin plugin) {
 		XMLContent classpath = new XMLContent();
-		if (plugin.getLocation().isFile()) {
-			// for JARs we add the JAR itself
-			classpath.append(prefix + plugin.getAbsolutePath() + suffix);
-		} else {
-			if (!plugin.isProject()) {
-				return classpath;
-			}
-			// for plug-in projects we add the binary folder
-			classpath.append(prefix + getBinPath(plugin) + suffix);
-		}
+		classpath.append(prefix + plugin.getAbsolutePath() + suffix);
 		return classpath;
 	}
 

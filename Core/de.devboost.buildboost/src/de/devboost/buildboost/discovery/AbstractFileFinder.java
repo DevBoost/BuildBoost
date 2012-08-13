@@ -55,7 +55,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 	 * @param directory the root directory where to start the traversal
 	 * @param artifacts a collection that is used to store the found artifacts
 	 */
-	private void traverse(
+	protected void traverse(
 			IBuildContext context, 
 			File directory,
 			Collection<ArtifactType> artifacts) {

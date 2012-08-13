@@ -62,7 +62,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 	 * The location of this plug-in. This can be either a directory or a JAR 
 	 * file.
 	 */
-	private final File location;
+	protected File location;
 	
 	/**
 	 * The absolute path to the location of the plug-in. Stored for performance

@@ -44,15 +44,26 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 		return new ArtifactUtil().getSetOfArtifacts(zipFiles);
 	}
 
+	@Override
+	protected void traverse(IBuildContext context, File directory,
+			Collection<TargetPlatformZip> artifacts) {
+		//ignore projects and things inside projects
+		File dotProject = new File(directory, ".project");
+		if (dotProject.exists()) {
+			return;
+		}
+		super.traverse(context, directory, artifacts);
+	}
+	
 	protected TargetPlatformZip createArtifactFromFile(File file) {
 		return new TargetPlatformZip(file);
 	}
-
+	
 	protected FileFilter getFileFilter() {
 		return new FileFilter() {
 			
 			public boolean accept(File file) {
-				return file.getName().endsWith(".zip") && file.getName().startsWith("eclipse-");
+				return !file.isDirectory() && file.getName().endsWith(".zip");
 			}
 		};
 	}
