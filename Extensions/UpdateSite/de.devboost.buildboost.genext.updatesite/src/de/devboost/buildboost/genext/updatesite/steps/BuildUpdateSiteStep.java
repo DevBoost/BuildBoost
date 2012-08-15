@@ -189,7 +189,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"artifacts.jar\"/>");
 		content.append("<include name=\"content.jar\"/>");
-		content.append("<include name=\"site.xml\"/>");
+		content.append("<include name=\"*.xml\"/>");
 		content.append("</fileset>");
 		content.append("</scp>");
 		
