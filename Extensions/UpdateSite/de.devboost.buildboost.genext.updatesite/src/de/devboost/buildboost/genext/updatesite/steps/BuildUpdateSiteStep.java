@@ -40,31 +40,23 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	
 	private EclipseUpdateSiteDeploymentSpec updateSiteSpec;
 	private File targetDir;
-	private String usernameProperty;
-	private String passwordProperty;
+	private String usernameProperty = null;
+	private String passwordProperty = null;
 
-	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec, String usernameProperty, String passwordProperty, File targetDir) {
+	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec, File targetDir) {
 		super();
 		this.updateSiteSpec = updateSiteSpec;
 		this.targetDir = targetDir;
-		
-		//TODO I would prefer to read these from the site.deployment as well
-		this.usernameProperty = usernameProperty;
-		this.passwordProperty = passwordProperty;
 	}
 	
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
-		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
-		//TODO use build stage name and a generic mechanism
-		String propertyBase = targetPath.replace(
-				'.', '_').replace('-', '_').replace('/', '_').replace(":", "").toUpperCase();
 		if (usernameProperty == null) {
-			usernameProperty = propertyBase + "_USER";
+			usernameProperty = updateSiteSpec.getValue("site", "usernameProperty");
 			System.out.println("Using user: " + usernameProperty);
 		}
 		if (passwordProperty == null) {
-			passwordProperty = propertyBase + "_PASSWORD";
+			passwordProperty = updateSiteSpec.getValue("site", "passwordProperty");
 			System.out.println("Using password: " + passwordProperty);
 		}
 		

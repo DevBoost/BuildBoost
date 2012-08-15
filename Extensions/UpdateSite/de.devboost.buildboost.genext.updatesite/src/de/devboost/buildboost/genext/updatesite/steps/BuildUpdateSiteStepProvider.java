@@ -28,20 +28,16 @@ import de.devboost.buildboost.model.IBuildContext;
 public class BuildUpdateSiteStepProvider extends AbstractAntTargetGeneratorProvider {
 
 	private File targetDir;
-	private String usernameProperty;
-	private String passwordProperty;
 	
-	public BuildUpdateSiteStepProvider(File targetDir, String usernameProperty, String passwordProperty) {
+	public BuildUpdateSiteStepProvider(File targetDir) {
 		super();
 		this.targetDir = targetDir;
-		this.usernameProperty = usernameProperty;
-		this.passwordProperty = passwordProperty;
 	}
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof EclipseUpdateSiteDeploymentSpec) {
 			EclipseUpdateSiteDeploymentSpec updateSite = (EclipseUpdateSiteDeploymentSpec) artifact;
-			IAntTargetGenerator step = new BuildUpdateSiteStep(updateSite, usernameProperty, passwordProperty, targetDir);
+			IAntTargetGenerator step = new BuildUpdateSiteStep(updateSite, targetDir);
 			return Collections.singletonList(step);
 		}
 		return Collections.emptyList();

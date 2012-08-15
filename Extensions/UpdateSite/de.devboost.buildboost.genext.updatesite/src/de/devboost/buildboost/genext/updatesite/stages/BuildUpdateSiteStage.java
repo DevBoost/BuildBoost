@@ -34,19 +34,8 @@ public class BuildUpdateSiteStage extends AbstractBuildStage implements IUnivers
 
 	private String artifactsFolder;
 
-	private String usernameProperty;
-	private String passwordProperty;
-
 	public void setArtifactsFolder(String artifactsFolder) {
 		this.artifactsFolder = artifactsFolder;
-	}
-
-	public void setUsernameProperty(String usernameProperty) {
-		this.usernameProperty = usernameProperty;
-	}
-
-	public void setPasswordProperty(String passwordProperty) {
-		this.passwordProperty = passwordProperty;
 	}
 
 	@Override
@@ -62,7 +51,7 @@ public class BuildUpdateSiteStage extends AbstractBuildStage implements IUnivers
 		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildDir));
 		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildDir));
 		
-		context.addBuildParticipant(new BuildUpdateSiteStepProvider(buildDir, usernameProperty, passwordProperty));
+		context.addBuildParticipant(new BuildUpdateSiteStepProvider(buildDir));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		
