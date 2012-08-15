@@ -119,6 +119,9 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
 			content.append("<!-- set version in copy -->");
 			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\"0.0.0\" value=\"" + featureVersion + ".v${buildid}\"/>");
+			// === TODO put this into a separate stage
+			content.append("<replace file='" + tempFeatureDir + "/feature.xml' token='&lt;requires&gt;' value='&lt;requires&gt;&lt;import feature=\"de.devboost.eclipse.feedback\"/&gt;'/>");			
+			// ===
 			content.append("<!-- create empty file 'feature.properties' -->");
 			content.append("<touch file=\"feature.properties\"/>");
 			content.append("<!-- create feature JAR -->");
