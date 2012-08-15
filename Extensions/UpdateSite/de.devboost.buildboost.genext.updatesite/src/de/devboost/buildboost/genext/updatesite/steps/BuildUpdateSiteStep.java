@@ -96,6 +96,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<mkdir dir=\"" + updateSiteDir + "/plugins\" />");
 		content.append("<mkdir dir=\"" + updateSiteDir + "/features\" />");
 		content.append("<copy file=\"" + updateSiteFile.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/site.xml\"/>");
+		content.append("<copy file=\"" + new File(updateSiteFile.getParent(), "associateSites.xml").getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/associateSites.xml\"/>");
 		content.appendLineBreak();
 
 		String updateSiteVendor = updateSiteSpec.getValue("site", "vendor");
@@ -189,7 +190,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"artifacts.jar\"/>");
 		content.append("<include name=\"content.jar\"/>");
-		content.append("<include name=\"*.xml\"/>");
+		content.append("<include name=\"site.xml\"/>");
 		content.append("</fileset>");
 		content.append("</scp>");
 		
