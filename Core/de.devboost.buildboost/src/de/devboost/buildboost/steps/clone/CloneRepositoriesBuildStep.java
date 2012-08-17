@@ -57,21 +57,23 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		boolean isGit = location.getType().equals("git");
 		boolean isSVN = location.getType().equals("svn");
 		
+		String localRepositoryPath = localRepo.getAbsolutePath();
+		String revisionFile = localRepositoryPath + "/buildboost_revision.txt";
 		if (isGit) {
 			if (localRepo.exists()) {
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
 				content.append("<arg value=\"pull\"/>");
 				content.append("</exec>");
 			} else {
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"clone\"/>");
 				content.append("<arg value=\"" + location.getUrl() + "\"/>");
-				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
+				content.append("<arg value=\"" + localRepositoryPath + "\"/>");
 				content.append("</exec>");
 			}
 			if (!location.getSubDirectories().isEmpty()) {
 				//enable sparse checkout
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
 				content.append("<arg value=\"config\"/>");
 				content.append("<arg value=\"core.sparsecheckout\"/>");
 				content.append("<arg value=\"true\"/>");
@@ -81,32 +83,45 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 					dirList += subDir;
 					dirList += "${line.separator}";
 				}
-				content.append("<echo message=\"" + dirList + "\" file=\"" + localRepo.getAbsolutePath() + "/.git/info/sparse-checkout\"/>");
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
+				content.append("<echo message=\"" + dirList + "\" file=\"" + localRepositoryPath + "/.git/info/sparse-checkout\"/>");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
 				content.append("<arg value=\"read-tree\"/>");
 				content.append("<arg value=\"-mu\"/>");
 				content.append("<arg value=\"HEAD\"/>");
 				content.append("</exec>");
 			}
+			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" failonerror=\"true\">");
+			content.append("<arg value=\"log\"/>");
+			content.append("<arg value=\"-1\"/>");
+			content.append("</exec>");
 		} else if (isSVN) {
+			// execute log command to remember revision (used for build polling in Jenkins)
+			content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" failonerror=\"true\">");
+			content.append("<arg value=\"log\"/>");
+			content.append("<arg value=\"--limit\"/>");
+			content.append("<arg value=\"1\"/>");
+			content.append("<arg value=\"" + location.getUrl() + "\"/>");
+			content.append("</exec>");
 			if (localRepo.exists()) {
-				content.append("<exec executable=\"svn\" dir=\"" + localRepo.getAbsolutePath() + "\" failonerror=\"true\">");
+				// execute update
+				content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
 				content.append("<arg value=\"update\"/>");
 				content.append("</exec>");
 			} else {
+				// execute checkout
 				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\" failonerror=\"true\">");
 				content.append("<arg value=\"co\"/>");
 				content.append("<arg value=\"" + location.getUrl() + "\"/>");
-				content.append("<arg value=\"" + localRepo.getAbsolutePath() + "\"/>");
+				content.append("<arg value=\"" + localRepositoryPath + "\"/>");
 				content.append("</exec>");
 			}
 		} else /* isGet */ {
 			if (!localRepo.exists()) {
-				content.append("<mkdir dir=\""+ localRepo.getAbsolutePath() + "\"/>");
-				content.append("<get src=\""+ location.getUrl() + "\" dest=\""+ localRepo.getAbsolutePath() + "\"/>");
+				content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
+				content.append("<get src=\""+ location.getUrl() + "\" dest=\""+ localRepositoryPath + "\"/>");
 				if (localRepo.getName().endsWith(".zip") && !location.getSubDirectories().isEmpty()) {
 					String zipFilePath = new File(localRepo, rootName).getAbsolutePath()  ;
-					content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepo.getAbsolutePath() + "\">");
+					content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepositoryPath + "\">");
 					content.append("<patternset>");
 					for (String zipEntry : location.getSubDirectories()) {
 						content.append("<include name=\"" + zipEntry + "\"/>");
