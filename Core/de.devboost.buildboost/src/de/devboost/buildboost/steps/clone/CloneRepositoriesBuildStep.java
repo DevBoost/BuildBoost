@@ -62,7 +62,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		String revisionFile = new File(reposFolder, "buildboost_revision.txt").getAbsolutePath();
 		if (isSVN || isGit) {
 			content.append("<echo message=\"URL: " + locationURL + "\" file=\"" + revisionFile + "\" append=\"true\">");
-			content.append("</exec>");
+			content.append("</echo>");
 		}
 		if (isGit) {
 			if (localRepo.exists()) {
