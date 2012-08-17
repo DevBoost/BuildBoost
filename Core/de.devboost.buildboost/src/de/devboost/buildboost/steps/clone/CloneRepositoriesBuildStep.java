@@ -37,9 +37,10 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 	}
 
 	public Collection<AntTarget> generateAntTargets() {
-		String localRepositoryFolderName = url2FolderName(location.getUrl());
+		String locationURL = location.getUrl();
+		String localRepositoryFolderName = url2FolderName(locationURL);
 		
-		String rootName = url2FolderName(location.getUrl().substring(location.getUrl().lastIndexOf("/") + 1));
+		String rootName = url2FolderName(locationURL.substring(locationURL.lastIndexOf("/") + 1));
 
 		File localRepo = new File(new File(reposFolder, localRepositoryFolderName), rootName);
 		
@@ -58,7 +59,11 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		boolean isSVN = location.getType().equals("svn");
 		
 		String localRepositoryPath = localRepo.getAbsolutePath();
-		String revisionFile = localRepositoryPath + "/buildboost_revision.txt";
+		String revisionFile = new File(reposFolder, "buildboost_revision.txt").getAbsolutePath();
+		if (isSVN || isGit) {
+			content.append("<echo message=\"URL: " + locationURL + "\" file=\"" + revisionFile + "\" append=\"true\">");
+			content.append("</exec>");
+		}
 		if (isGit) {
 			if (localRepo.exists()) {
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
@@ -67,7 +72,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			} else {
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"clone\"/>");
-				content.append("<arg value=\"" + location.getUrl() + "\"/>");
+				content.append("<arg value=\"" + locationURL + "\"/>");
 				content.append("<arg value=\"" + localRepositoryPath + "\"/>");
 				content.append("</exec>");
 			}
@@ -90,17 +95,17 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"HEAD\"/>");
 				content.append("</exec>");
 			}
-			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" failonerror=\"true\">");
+			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" append=\"true\" failonerror=\"true\">");
 			content.append("<arg value=\"log\"/>");
 			content.append("<arg value=\"-1\"/>");
 			content.append("</exec>");
 		} else if (isSVN) {
 			// execute log command to remember revision (used for build polling in Jenkins)
-			content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" failonerror=\"true\">");
+			content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" append=\"true\" failonerror=\"true\">");
 			content.append("<arg value=\"log\"/>");
 			content.append("<arg value=\"--limit\"/>");
 			content.append("<arg value=\"1\"/>");
-			content.append("<arg value=\"" + location.getUrl() + "\"/>");
+			content.append("<arg value=\"" + locationURL + "\"/>");
 			content.append("</exec>");
 			if (localRepo.exists()) {
 				// execute update
@@ -111,14 +116,14 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				// execute checkout
 				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\" failonerror=\"true\">");
 				content.append("<arg value=\"co\"/>");
-				content.append("<arg value=\"" + location.getUrl() + "\"/>");
+				content.append("<arg value=\"" + locationURL + "\"/>");
 				content.append("<arg value=\"" + localRepositoryPath + "\"/>");
 				content.append("</exec>");
 			}
 		} else /* isGet */ {
 			if (!localRepo.exists()) {
 				content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
-				content.append("<get src=\""+ location.getUrl() + "\" dest=\""+ localRepositoryPath + "\"/>");
+				content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
 				if (localRepo.getName().endsWith(".zip") && !location.getSubDirectories().isEmpty()) {
 					String zipFilePath = new File(localRepo, rootName).getAbsolutePath()  ;
 					content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepositoryPath + "\">");
