@@ -36,6 +36,7 @@ public class RepositoriesFileFinder extends AbstractFileFinder<RepositoriesFile>
 	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
 		Collection<RepositoriesFile> boostFiles = new ArrayList<RepositoriesFile>();
 		traverse(context, boostFiles);
+		// TODO merge all repository files as one artifact
 		return new ArtifactUtil().getSetOfArtifacts(boostFiles);
 	}
 
