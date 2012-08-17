@@ -70,6 +70,8 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"pull\"/>");
 				content.append("</exec>");
 			} else {
+				content.append("<mkdir dir=\"" + localRepositoryPath + "\">");
+				content.append("</mkdir>");
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"true\">");
 				content.append("<arg value=\"clone\"/>");
 				content.append("<arg value=\"" + locationURL + "\"/>");
