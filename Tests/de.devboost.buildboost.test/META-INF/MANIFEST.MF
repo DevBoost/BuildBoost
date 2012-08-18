@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test
+Bundle-SymbolicName: org.dropsbox.autobuild.test
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.junit4,
+ de.devboost.buildboost
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: de.devboost.buildboost.test

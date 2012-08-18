@@ -79,10 +79,6 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 	 * manifest and class path information if available.
 	 * 
 	 * @param location
-	 * @param isProject determine whether the plug-in is a plug-in project
-	 *        (as found within Eclipse workspaces) or a deployed plug-in
-	 *        (e.g., a JAR file or a folder with the plug-in directory of
-	 *        Eclipse).
 	 * @throws Exception
 	 */
 	public Plugin(File location) throws Exception {
