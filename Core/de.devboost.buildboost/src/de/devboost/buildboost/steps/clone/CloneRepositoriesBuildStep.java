@@ -59,15 +59,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		boolean isSVN = location.getType().equals("svn");
 		
 		String localRepositoryPath = localRepo.getAbsolutePath();
-		String revisionFile = new File(reposFolder, "buildboost_revisions.txt").getAbsolutePath();
-		if (isSVN || isGit) {
-			content.append("<echo message=\"BuildBoost-Repository-Type: " + location.getType() + "\" file=\"" + revisionFile + "\" append=\"true\">");
-			content.append("</echo>");
-			content.append("<echo message=\"BuildBoost-Repository-URL: " + locationURL + "\" file=\"" + revisionFile + "\" append=\"true\">");
-			content.append("</echo>");
-			content.append("<echo message=\"BuildBoost-Repository-Local: " + localRepositoryPath + "\" file=\"" + revisionFile + "\" append=\"true\">");
-			content.append("</echo>");
-		}
+		writeRepositoryList(locationURL, content, isGit, isSVN, localRepositoryPath);
 		if (isGit) {
 			if (localRepo.exists()) {
 				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
@@ -101,18 +93,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"HEAD\"/>");
 				content.append("</exec>");
 			}
-			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" append=\"true\" failonerror=\"true\">");
-			content.append("<arg value=\"log\"/>");
-			content.append("<arg value=\"-1\"/>");
-			content.append("</exec>");
 		} else if (isSVN) {
-			// execute log command to remember revision (used for build polling in Jenkins)
-			content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" output=\"" + revisionFile + "\" append=\"true\" failonerror=\"true\">");
-			content.append("<arg value=\"log\"/>");
-			content.append("<arg value=\"--limit\"/>");
-			content.append("<arg value=\"1\"/>");
-			content.append("<arg value=\"" + locationURL + "\"/>");
-			content.append("</exec>");
 			if (localRepo.exists()) {
 				// execute update
 				content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
@@ -145,6 +126,19 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		}
 		
 		return Collections.singleton(new AntTarget("update-" + localRepositoryFolderName, content));
+	}
+
+	private void writeRepositoryList(String locationURL, XMLContent content,
+			boolean isGit, boolean isSVN, String localRepositoryPath) {
+		String revisionFile = new File(reposFolder, "buildboost_repository_list.txt").getAbsolutePath();
+		if (isSVN || isGit) {
+			content.append("<echo message=\"BuildBoost-Repository-Type: " + location.getType() + "\" file=\"" + revisionFile + "\" append=\"true\">");
+			content.append("</echo>");
+			content.append("<echo message=\"BuildBoost-Repository-URL: " + locationURL + "\" file=\"" + revisionFile + "\" append=\"true\">");
+			content.append("</echo>");
+			content.append("<echo message=\"BuildBoost-Repository-Local: " + localRepositoryPath + "\" file=\"" + revisionFile + "\" append=\"true\">");
+			content.append("</echo>");
+		}
 	}
 
 	protected String url2FolderName(String url) {
