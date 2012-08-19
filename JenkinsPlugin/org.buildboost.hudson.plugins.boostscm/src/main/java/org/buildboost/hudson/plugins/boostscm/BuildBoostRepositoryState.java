@@ -1,14 +1,18 @@
 package org.buildboost.hudson.plugins.boostscm;
 
+import java.util.logging.Logger;
+
 public class BuildBoostRepositoryState {
 	
+	private final Logger logger = Logger.getLogger(BuildBoostRepositoryState.class.getName());
+
 	private BuildBoostRepository repository;
 	private String revision;
 	
 	public BuildBoostRepositoryState(BuildBoostRepository repository, String revision) {
 		super();
-		System.out.println("BuildBoostRepositoryState() repository = " + repository);
-		System.out.println("BuildBoostRepositoryState() revision = " + revision);
+		logger.info("repository = " + repository);
+		logger.info("revision = " + revision);
 		this.repository = repository;
 		this.revision = revision;
 	}
@@ -19,5 +23,11 @@ public class BuildBoostRepositoryState {
 
 	public String getRevision() {
 		return revision;
+	}
+
+	@Override
+	public String toString() {
+		return "BuildBoostRepositoryState [repository=" + repository
+				+ ", revision=" + revision + "]";
 	}
 }

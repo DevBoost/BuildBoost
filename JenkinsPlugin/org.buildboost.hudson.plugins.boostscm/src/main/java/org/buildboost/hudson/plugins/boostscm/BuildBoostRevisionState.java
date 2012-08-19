@@ -31,4 +31,9 @@ public class BuildBoostRevisionState extends SCMRevisionState {
 	public List<BuildBoostRepositoryState> getRepositoryStates() {
 		return states;
 	}
+
+	@Override
+	public String toString() {
+		return "BuildBoostRevisionState [states=" + states + "]";
+	}
 }

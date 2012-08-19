@@ -24,11 +24,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BuildBoostSCM extends SCM {
+	
+	private final Logger logger = Logger.getLogger(BuildBoostSCM.class.getName());
 
 	private static final String GIT_CMD_WINDOWS = "git.cmd";
 	private static final String GIT_CMD_OTHER = "git";
@@ -76,7 +79,7 @@ public class BuildBoostSCM extends SCM {
 			Launcher launcher, 
 			TaskListener listener) 
 			throws IOException, InterruptedException {
-		System.out.println("BuildBoostSCM.calcRevisionsFromBuild()");
+		logger.info("calcRevisionsFromBuild()");
 		return getBuildState(build);
 	}
 
@@ -112,29 +115,17 @@ public class BuildBoostSCM extends SCM {
                 while((line=br.readLine()) != null) {
                 	if (line.startsWith(TYPE_PREFIX)) {
 						type = line.substring(TYPE_PREFIX.length());
-						System.out.println("BuildBoostSCM.getRepositories() found type");
+						logger.info("found type");
 					}
                 	if (line.startsWith(URL_PREFIX)) {
                 		remoteURL = line.substring(URL_PREFIX.length());
-						System.out.println("BuildBoostSCM.getRepositories() found currentURL");
+                		logger.info("found currentURL");
 					}
                 	if (line.startsWith(LOCAL_PREFIX) && type != null && remoteURL != null) {
 						localPath = line.substring(LOCAL_PREFIX.length());
-						System.out.println("BuildBoostSCM.getRepositories() found localPath");
+						logger.info("found localPath");
 						repositories.put(remoteURL, new BuildBoostRepository(type, remoteURL, localPath));
 					}
-                	/*
-                	if (line.startsWith(COMMIT_PREFIX) && type != null && currentURL != null && localPath != null) {
-						revision = line.substring(COMMIT_PREFIX.length());
-						System.out.println("BuildBoostSCM.getBuildState() found git revision");
-						state.addState(type, currentURL, revision, localPath);
-					}
-                	if (line.matches(SVN_RESIVION_REGEX) && type != null && currentURL != null && localPath != null) {
-                		revision = line.substring(0, line.indexOf(" "));
-						System.out.println("BuildBoostSCM.getBuildState() found svn revision");
-						state.addState(type, currentURL, revision, localPath);
-					}
-					*/
                 }
             } finally {
                 br.close();
@@ -154,7 +145,7 @@ public class BuildBoostSCM extends SCM {
 			SCMRevisionState baseline)
 			throws IOException, InterruptedException {
 		
-		System.out.println("BuildBoostSCM.compareRemoteRevisionWith(" + baseline + ")");
+		logger.info("compareRemoteRevisionWith(" + baseline + ")");
 		if (baseline instanceof BuildBoostRevisionState) {
 			BuildBoostRevisionState state = (BuildBoostRevisionState) baseline;
 			List<BuildBoostRepositoryState> states = state.getRepositoryStates();
@@ -167,15 +158,15 @@ public class BuildBoostSCM extends SCM {
 	}
 
 	private boolean checkForUpdates(List<BuildBoostRepositoryState> states) {
-		System.out.println("BuildBoostSCM.checkForUpdates(" + states + ")");
+		logger.info("checkForUpdates(" + states + ")");
 		boolean foundUpdate = false;
 		for (BuildBoostRepositoryState state : states) {
 			BuildBoostRepository repository = state.getRepository();
 			String newRevision = getRemoteRevision(repository);
 			String oldRevision = state.getRevision();
 
-			System.out.println("BuildBoostSCM.checkForUpdates(" + state + ") new revision = " + newRevision);
-			System.out.println("BuildBoostSCM.checkForUpdates(" + state + ") old revision = " + oldRevision);
+			logger.info("new revision for repository " + repository + " is " + newRevision);
+			logger.info("old revision for repository " + repository + " is " + oldRevision);
 			
 			if (newRevision != null && !newRevision.equals(oldRevision)) {
 				foundUpdate = true;
@@ -203,7 +194,7 @@ public class BuildBoostSCM extends SCM {
 	}
 
 	private String getRemoteRevision(BuildBoostRepository repository) {
-		System.out.println("BuildBoostSCM.getRemoteRevision(" + repository + ")");
+		logger.info("getRemoteRevision(" + repository + ")");
 		
 		if (repository.isGit()) {
 			return getRemoteGitRevision(repository.getLocalPath());
@@ -307,13 +298,13 @@ public class BuildBoostSCM extends SCM {
 			pb.directory(new File(localPath));
 		}
 		try {
-			System.out.println("BuildBoostSCM.executeNativeBinary() " + command + " in " + localPath);
+			logger.info("executing " + command + " in " + localPath);
 			Process process = pb.start();
 			InputStream inputStream = process.getInputStream();
 			BufferedReader isr = new BufferedReader(new InputStreamReader(inputStream));
 			String line;
 			while((line = isr.readLine()) != null) {
-				System.out.println("BuildBoostSCM.executeNativeBinary() output: " + line);
+				logger.info("output: " + line);
 				if (readerCallback == null) {
 					continue;
 				}
@@ -323,7 +314,7 @@ public class BuildBoostSCM extends SCM {
 				}
 			}
 			int exitCode = process.waitFor();
-			System.out.println("BuildBoostSCM.executeNativeBinary() exitCode " + exitCode);
+			logger.info("exitCode " + exitCode);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -341,13 +332,13 @@ public class BuildBoostSCM extends SCM {
 			BuildListener listener, 
 			File changelogFile)
 			throws IOException, InterruptedException {
-		System.out.println("BuildBoostSCM.checkout()");
+		logger.info("checkout()");
 		return true;
 	}
 
 	@Override
 	public ChangeLogParser createChangeLogParser() {
-		System.out.println("BuildBoostSCM.createChangeLogParser()");
+		logger.info("createChangeLogParser()");
 		return null;
 	}
 }
