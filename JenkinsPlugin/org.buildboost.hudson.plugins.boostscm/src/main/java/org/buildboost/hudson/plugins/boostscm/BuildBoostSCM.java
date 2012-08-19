@@ -9,7 +9,7 @@
  * 
  * Contributors:
  *   DevBoost GmbH - Berlin, Germany
- *      - initial API and implementation
+ *	  - initial API and implementation
  ******************************************************************************/
 package org.buildboost.hudson.plugins.boostscm;
 
@@ -42,6 +42,14 @@ import java.util.logging.Logger;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+/**
+ * The BuildBoostSCM extends Jenkins with the ability to poll all repositories
+ * that are referenced by a BuildBoost build. This includes the root repository
+ * and all transitively referenced repositories.
+ * 
+ * To poll the repositories a list of all used repositories is created by the
+ * BuildBoost CloneStep.
+ */
 public class BuildBoostSCM extends SCM {
 	
 	private static final Logger logger = Logger.getLogger(BuildBoostSCM.class.getName());
@@ -69,22 +77,22 @@ public class BuildBoostSCM extends SCM {
 
 		@Override
 		public String getDisplayName() {
-		    return "BuildBoostDisplayName";
+			return "BuildBoostDisplayName";
 		}
 	}
 
-    @Extension
-    public final static DescriptorImpl descriptor = new DescriptorImpl();
+	@Extension
+	public final static DescriptorImpl descriptor = new DescriptorImpl();
 
-    @Override
-    public SCMDescriptor<?> getDescriptor() {
-    	return descriptor;
-    }
-    
-    @DataBoundConstructor
-    public BuildBoostSCM() {
-        super();
-    }
+	@Override
+	public SCMDescriptor<?> getDescriptor() {
+		return descriptor;
+	}
+	
+	@DataBoundConstructor
+	public BuildBoostSCM() {
+		super();
+	}
 	
 	@Override
 	public SCMRevisionState calcRevisionsFromBuild(
@@ -96,6 +104,10 @@ public class BuildBoostSCM extends SCM {
 		return getBuildState(build);
 	}
 
+	/**
+	 * Creates the build state using the list of repositories. Each of the
+	 * repository working copies is examined for its revision.
+	 */
 	private SCMRevisionState getBuildState(AbstractBuild<?, ?> build) 
 			throws IOException, InterruptedException {
 		
@@ -108,6 +120,10 @@ public class BuildBoostSCM extends SCM {
 		return state;
 	}
 
+	/**
+	 * Determines the list of repositories the was created by the BuildBoost
+	 * CloneStage.
+	 */
 	private List<BuildBoostRepository> getRepositories(AbstractBuild<?, ?> build) 
 			throws IOException, InterruptedException {
 		
@@ -119,30 +135,30 @@ public class BuildBoostSCM extends SCM {
 		
 		if (revisionsFile.exists()) {
 			revisionsFile.copyTo(baos);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(baos.toByteArray())));
-            try {
-            	String remoteURL = null;
-            	String type = null;
-            	String localPath = null;
-                String line;
-                while((line=br.readLine()) != null) {
-                	if (line.startsWith(TYPE_PREFIX)) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(baos.toByteArray())));
+			try {
+				String remoteURL = null;
+				String type = null;
+				String localPath = null;
+				String line;
+				while((line=br.readLine()) != null) {
+					if (line.startsWith(TYPE_PREFIX)) {
 						type = line.substring(TYPE_PREFIX.length());
 						logger.info("found type");
 					}
-                	if (line.startsWith(URL_PREFIX)) {
-                		remoteURL = line.substring(URL_PREFIX.length());
-                		logger.info("found currentURL");
+					if (line.startsWith(URL_PREFIX)) {
+						remoteURL = line.substring(URL_PREFIX.length());
+						logger.info("found currentURL");
 					}
-                	if (line.startsWith(LOCAL_PREFIX) && type != null && remoteURL != null) {
+					if (line.startsWith(LOCAL_PREFIX) && type != null && remoteURL != null) {
 						localPath = line.substring(LOCAL_PREFIX.length());
 						logger.info("found localPath");
 						repositories.put(remoteURL, new BuildBoostRepository(type, remoteURL, localPath));
 					}
-                }
-            } finally {
-                br.close();
-            }
+				}
+			} finally {
+				br.close();
+			}
 		} else {
 			System.out.println("BuildBoostSCM.getRepositories() Can't find " + revisionsFile);
 		}
@@ -170,6 +186,12 @@ public class BuildBoostSCM extends SCM {
 		return new PollingResult(Change.NONE);
 	}
 
+	/**
+	 * Checks whether one of the given repositories is not up-to-date.
+	 * 
+	 * @param states the repositories to check
+	 * @return true if an update is available, false if not
+	 */
 	private boolean checkForUpdates(List<BuildBoostRepositoryState> states) {
 		logger.info("checkForUpdates(" + states + ")");
 		boolean foundUpdate = false;
@@ -188,6 +210,9 @@ public class BuildBoostSCM extends SCM {
 		return foundUpdate;
 	}
 
+	/**
+	 * Returns the revision of the working copy of the given repository.
+	 */
 	private String getLocalRevision(BuildBoostRepository repository) {
 		if (repository.isGit()) {
 			return getLocalGitRevision(repository.getLocalPath());
@@ -198,14 +223,23 @@ public class BuildBoostSCM extends SCM {
 		}
 	}
 
+	/**
+	 * Returns the hash code of the GIT working tree at 'localPath'.
+	 */
 	private String getLocalGitRevision(String localPath) {
 		return exectureGitLog(localPath, false);
 	}
 
+	/**
+	 * Returns the revision of the SVN working copy at 'localPath'.
+	 */
 	private String getLocalSvnRevision(String localPath) {
 		return executeSvnInfo(localPath);
 	}
 
+	/**
+	 * Returns the latest revision/hash code of the given repository.
+	 */
 	private String getRemoteRevision(BuildBoostRepository repository) {
 		logger.info("getRemoteRevision(" + repository + ")");
 		
@@ -218,11 +252,18 @@ public class BuildBoostSCM extends SCM {
 		}
 	}
 
+	/**
+	 * Returns the hash code of the latest commit at the origin.
+	 */
 	private String getRemoteGitRevision(String localPath) {
 		exectureGitFetch(localPath);
 		return exectureGitLog(localPath, true);
 	}
 
+	/**
+	 * Executes the Git fetch command to retrieve the changes from the origin
+	 * this repository was cloned from.
+	 */
 	private void exectureGitFetch(String localPath) {
 		List<String> command = new ArrayList<String>();
 		command.add(getGitCommand());
@@ -232,6 +273,9 @@ public class BuildBoostSCM extends SCM {
 		executeNativeBinary(localPath, command, null);
 	}
 
+	/**
+	 * Returns the name of the Git executable for the OS we're running on.
+	 */
 	private String getGitCommand() {
 		if (System.getProperty("os.name").contains("Windows")) {
 			return GIT_CMD_WINDOWS;
@@ -240,6 +284,10 @@ public class BuildBoostSCM extends SCM {
 		}
 	}
 
+	/**
+	 * Executes the Git log command and returns the hash code of the last
+	 * commit.
+	 */
 	private String exectureGitLog(String localPath, boolean useOrigin) {
 		List<String> command = new ArrayList<String>();
 		command.add(getGitCommand());
@@ -253,7 +301,7 @@ public class BuildBoostSCM extends SCM {
 		executeNativeBinary(localPath, command, new IFunction<Boolean, String>() {
 			
 			public Boolean call(String line) {
-		    	if (line.startsWith(COMMIT_PREFIX)) {
+				if (line.startsWith(COMMIT_PREFIX)) {
 					revision[0] = line.substring(COMMIT_PREFIX.length());
 					return false;
 				}
@@ -263,6 +311,10 @@ public class BuildBoostSCM extends SCM {
 		return revision[0];
 	}
 
+	/**
+	 * Executes the SVN info command and returns the revision of the working
+	 * copy.
+	 */
 	private String executeSvnInfo(String localPath) {
 		List<String> command = new ArrayList<String>();
 		command.add("svn");
@@ -272,8 +324,8 @@ public class BuildBoostSCM extends SCM {
 		executeNativeBinary(null, command, new IFunction<Boolean, String>() {
 			
 			public Boolean call(String line) {
-            	if (line.startsWith(SVN_REVISION_PREFIX)) {
-            		revision[0] = line.substring(0, line.indexOf(" "));
+				if (line.startsWith(SVN_REVISION_PREFIX)) {
+					revision[0] = line.substring(0, line.indexOf(" "));
 					return false;
 				}
 				return true;
@@ -282,6 +334,9 @@ public class BuildBoostSCM extends SCM {
 		return revision[0];
 	}
 
+	/**
+	 * Executes the SVN log command and returns the revision of the last commit.
+	 */
 	private String executeSvnLog(String remotePath) {
 		List<String> command = new ArrayList<String>();
 		command.add("svn");
@@ -294,8 +349,8 @@ public class BuildBoostSCM extends SCM {
 		executeNativeBinary(null, command, new IFunction<Boolean, String>() {
 			
 			public Boolean call(String line) {
-            	if (line.matches(SVN_REVISION_REGEX)) {
-            		revision[0] = line.substring(0, line.indexOf(" "));
+				if (line.matches(SVN_REVISION_REGEX)) {
+					revision[0] = line.substring(0, line.indexOf(" "));
 					return false;
 				}
 				return true;
@@ -337,6 +392,10 @@ public class BuildBoostSCM extends SCM {
 		}
 	}
 	
+	/**
+	 * This method does nothing as the actual check out of project is perfomed
+	 * by BuildBoost during the CloneStage.
+	 */
 	@Override
 	public boolean checkout(
 			AbstractBuild<?, ?> build, 
@@ -352,6 +411,7 @@ public class BuildBoostSCM extends SCM {
 	@Override
 	public ChangeLogParser createChangeLogParser() {
 		logger.info("createChangeLogParser()");
+		// TODO implement this
 		return null;
 	}
 }
