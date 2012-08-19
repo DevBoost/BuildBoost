@@ -34,7 +34,7 @@ public class BuildBoostSCM extends SCM {
 	private static final String GIT_CMD_OTHER = "git";
 	
 	private static final String REPOSITORY_FOLDER_NAME = "repos";
-	private static final String BUILDBOOST_REVISIONS_FILE_NAME = "buildboost_revisions.txt";
+	private static final String BUILDBOOST_REVISIONS_FILE_NAME = "buildboost_repository_list.txt";
 	
 	private static final String URL_PREFIX = "BuildBoost-Repository-URL: ";
 	private static final String TYPE_PREFIX = "BuildBoost-Repository-Type: ";
