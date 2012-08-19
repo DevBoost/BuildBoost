@@ -30,8 +30,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BuildBoostSCM extends SCM {
 
-	// TODO this works only on Windows
-	private static final String GIT_CMD = "git.cmd";
+	private static final String GIT_CMD_WINDOWS = "git.cmd";
+	private static final String GIT_CMD_OTHER = "git";
 	
 	private static final String REPOSITORY_FOLDER_NAME = "repos";
 	private static final String BUILDBOOST_REVISIONS_FILE_NAME = "buildboost_revisions.txt";
@@ -221,16 +221,24 @@ public class BuildBoostSCM extends SCM {
 
 	private void exectureGitFetch(String localPath) {
 		List<String> command = new ArrayList<String>();
-		command.add(GIT_CMD);
+		command.add(getGitCommand());
 		command.add("fetch");
 		//command.add("--dry-run");
 		
 		executeNativeBinary(localPath, command, null);
 	}
 
+	private String getGitCommand() {
+		if (System.getProperty("os.name").contains("Windows")) {
+			return GIT_CMD_WINDOWS;
+		} else {
+			return GIT_CMD_OTHER;
+		}
+	}
+
 	private String exectureGitLog(String localPath, boolean useOrigin) {
 		List<String> command = new ArrayList<String>();
-		command.add(GIT_CMD);
+		command.add(getGitCommand());
 		command.add("log");
 		command.add("-1");
 		if (useOrigin) {
