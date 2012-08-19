@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 public class BuildBoostRepositoryState {
 	
-	private final Logger logger = Logger.getLogger(BuildBoostRepositoryState.class.getName());
+	private static final Logger logger = Logger.getLogger(BuildBoostRepositoryState.class.getName());
 
 	private BuildBoostRepository repository;
 	private String revision;

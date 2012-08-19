@@ -31,7 +31,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BuildBoostSCM extends SCM {
 	
-	private final Logger logger = Logger.getLogger(BuildBoostSCM.class.getName());
+	private static final Logger logger = Logger.getLogger(BuildBoostSCM.class.getName());
 
 	private static final String GIT_CMD_WINDOWS = "git.cmd";
 	private static final String GIT_CMD_OTHER = "git";
