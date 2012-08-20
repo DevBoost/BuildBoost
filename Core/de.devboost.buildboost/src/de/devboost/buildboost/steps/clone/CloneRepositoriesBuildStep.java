@@ -110,17 +110,25 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		} else /* isGet */ {
 			if (!localRepo.exists()) {
 				content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
-				content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
-				if (localRepo.getName().endsWith(".zip") && !location.getSubDirectories().isEmpty()) {
-					String zipFilePath = new File(localRepo, rootName).getAbsolutePath()  ;
-					content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepositoryPath + "\">");
-					content.append("<patternset>");
-					for (String zipEntry : location.getSubDirectories()) {
-						content.append("<include name=\"" + zipEntry + "\"/>");
+				if (!location.getSubDirectories().isEmpty()) {
+					if (localRepo.getName().endsWith(".zip")) {
+						String zipFilePath = new File(localRepo, rootName).getAbsolutePath()  ;
+						content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
+						content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepositoryPath + "\">");
+						content.append("<patternset>");
+						for (String zipEntry : location.getSubDirectories()) {
+							content.append("<include name=\"" + zipEntry + "\"/>");
+						}
+						content.append("</patternset>");
+						content.append("</unzip>");
+						content.append("<delete file=\"" + zipFilePath + "\"/>");
+					} else /* folder */ {
+						for (String subPath : location.getSubDirectories()) {
+							content.append("<get src=\""+ locationURL + "/" + subPath + "\" dest=\""+ localRepositoryPath + "/" + subPath + "\"/>");
+						}	
 					}
-					content.append("</patternset>");
-					content.append("</unzip>");
-					content.append("<delete file=\"" + zipFilePath + "\"/>");
+				} else {
+					content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
 				}
 			}
 		}

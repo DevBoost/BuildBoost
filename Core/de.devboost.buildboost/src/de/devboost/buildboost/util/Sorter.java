@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import de.devboost.buildboost.artifacts.Package;
 import de.devboost.buildboost.model.IDependable;
 
 /**
@@ -149,10 +150,16 @@ public class Sorter {
 				Set<IDependable> dependencySet = (Set<IDependable>) graph.get(key);
 				if (!dependencySet.isEmpty()) {
 					dependencySet.remove(next);
+					if (next instanceof Package) {
+						//TODO this is needed because the fairly complex package 
+						//     import/export mechanism of OSGi which allows multiple
+						//     (re-)exports of the same package
+						removeAllSimilarPackages(dependencySet, (Package) next);
+					}
 					// if this node now has zero incoming edges
 					if (dependencySet.isEmpty()) {
 						queue.add(key);
-					}
+					}	
 				}
 			}
 		}
@@ -166,6 +173,16 @@ public class Sorter {
 			result.add(next);
 		}
 		return result;
+	}
+
+	private void removeAllSimilarPackages(Set<IDependable> dependencySet, Package p) {
+		for (Iterator<IDependable> i = dependencySet.iterator(); i.hasNext();) {
+			IDependable next = i.next();
+			if (next instanceof Package && 
+					((Package) next).getIdentifier().endsWith(p.getIdentifier())) {
+				i.remove();
+			}
+		}	
 	}
 
 	/**
