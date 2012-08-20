@@ -42,6 +42,8 @@ public class EclipseFeature extends AbstractArtifact {
 	private static final String FEATURE_XML = "feature.xml";
 	
 	private File file;
+	
+	private Set<String> containedPluginIDs = new LinkedHashSet<String>();
 
 	public EclipseFeature(File file) {
 		super();
@@ -67,12 +69,16 @@ public class EclipseFeature extends AbstractArtifact {
 	
 	private void readFeatureInputStream(InputStream is) {
 		AbstractXMLReader xmlUtil = new AbstractXMLReader() {
+			
+			private boolean searchingContainedPlugins = false;
 
 			@Override
 			protected void process(Document document, XPath xpath)
 					throws XPathExpressionException {
 				findIdentifier(document, xpath);
+				searchingContainedPlugins = true;
 				findContainedPluginDependencies(document, xpath);
+				searchingContainedPlugins = false;
 				findFeatureDependencies(document, xpath);
 				findPluginDependencies(document, xpath);
 			}
@@ -86,6 +92,9 @@ public class EclipseFeature extends AbstractArtifact {
 				isOsIndependent &= isAttributeNotSet(element, "ws");
 				if (isOsIndependent) {
 					getUnresolvedDependencies().add(unresolvedDependency);
+					if (searchingContainedPlugins) {
+						containedPluginIDs.add(unresolvedDependency.getIdentifier());
+					}
 				}
 			}
 
@@ -125,7 +134,9 @@ public class EclipseFeature extends AbstractArtifact {
 		for (IDependable dependency : dependencies) {
 			if (dependency instanceof Plugin) {
 				Plugin plugin = (Plugin) dependency;
-				plugins.add(plugin);
+				if (containedPluginIDs.contains(plugin.getIdentifier())) {
+					plugins.add(plugin);	
+				}
 			}
 		}
 		return Collections.unmodifiableSet(plugins);
