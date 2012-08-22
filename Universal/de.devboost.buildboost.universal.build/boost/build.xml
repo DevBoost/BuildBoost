@@ -34,7 +34,6 @@
 			<arg value="HEAD"/>
 		</exec>
 		
-		<echo message="Boosting: ${rootRepository}"/>
 		<echo message="Working with repositories in: ${repos_dir}" />
 		<echo message="Building in: ${build_dir}" />
 		<mkdir dir="${build_dir}"/>
