@@ -37,6 +37,7 @@ public class RunJUnitTestsStepProvider extends AbstractAntTargetGeneratorProvide
 	public static final Collection<String> DEFAULT_TEST_CLASS_SUFFIXES = new LinkedHashSet<String>();
 	static {
 		DEFAULT_TEST_CLASS_SUFFIXES.add("Test");
+		DEFAULT_TEST_CLASS_SUFFIXES.add("Tests");
 		DEFAULT_TEST_CLASS_SUFFIXES.add("TestSuite");
 	}
 

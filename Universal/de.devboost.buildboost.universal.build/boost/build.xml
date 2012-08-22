@@ -21,7 +21,7 @@
 	</condition>
 	
 
-	<target name="boost" depends="init,get-build-boost,update-build-boost,clean">
+	<target name="boost" depends="init,write-root-repo,get-build-boost,update-build-boost,clean">
 		<exec executable="${git-executable}" dir="${repos_dir}/${build_boost_repo_local}">
 			<arg value="config"/>
 			<arg value="core.sparsecheckout"/>
@@ -34,7 +34,6 @@
 			<arg value="HEAD"/>
 		</exec>
 		
-		<echo message="Boosting: ${rootRepository}"/>
 		<echo message="Working with repositories in: ${repos_dir}" />
 		<echo message="Building in: ${build_dir}" />
 		<mkdir dir="${build_dir}"/>
@@ -54,13 +53,22 @@
 	</target>
 
 	<target name="init">
-		<fail unless="rootRepository" 
+		<condition property="root_repo_defined">
+			<or>
+				<available file="${repos_dir}/root.repositories"/>
+				<isset property="rootRepository"/>
+			</or>
+		</condition>
+		<fail unless="root_repo_defined" 
 			message="No root repository defined to build! usage: ant -DrootRepository='git:https://github.com/DevBoost/MyRepository.git!MySubPath'"/>		
-		<mkdir dir="${repos_dir}"/>
-		<echo message="${rootRepository}" file="${repos_dir}/root.repositories"/>
 		<condition property="build_boost_repo_exists">
 			<available file="${repos_dir}/${build_boost_repo_local}" type="dir" />
 		</condition>
+	</target>
+		
+	<target name="write-root-repo" if="rootRepository">
+		<mkdir dir="${repos_dir}"/>
+		<echo message="${rootRepository}" file="${repos_dir}/root.repositories"/>
 	</target>
 
 	<target name="get-build-boost" unless="build_boost_repo_exists">

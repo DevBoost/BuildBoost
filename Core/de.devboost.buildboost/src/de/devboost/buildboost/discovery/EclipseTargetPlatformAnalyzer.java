@@ -24,6 +24,7 @@ import java.util.Set;
 
 import de.devboost.buildboost.artifacts.CompiledPlugin;
 import de.devboost.buildboost.artifacts.EclipseFeature;
+import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
@@ -162,6 +163,9 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				continue;
 			}
 			artifacts.add(artifact);
+			if (artifact instanceof CompiledPlugin) {
+				artifacts.addAll(((Plugin) artifact).getExportedPackages());				
+			}
 			buildListener.handleBuildEvent(
 					BuildEventType.INFO, 
 					"Found target platform " + type + " '" + artifact.getIdentifier() + "' at " + targetPlatformFile.getAbsolutePath()

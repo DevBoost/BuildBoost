@@ -96,7 +96,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<mkdir dir=\"" + updateSiteDir + "/plugins\" />");
 		content.append("<mkdir dir=\"" + updateSiteDir + "/features\" />");
 		content.append("<copy file=\"" + updateSiteFile.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/site.xml\"/>");
-		content.append("<copy file=\"" + new File(updateSiteFile.getParent(), "associateSites.xml").getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/associateSites.xml\"/>");
+		File associatedSitesXML = new File(updateSiteFile.getParent(), "associateSites.xml");
+		if (associatedSitesXML.exists()) {
+			content.append("<copy file=\"" + associatedSitesXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/associateSites.xml\"/>");			
+		}
 		content.appendLineBreak();
 
 		String updateSiteVendor = updateSiteSpec.getValue("site", "vendor");
@@ -120,6 +123,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
 			content.append("<!-- set version in copy -->");
 			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\"0.0.0\" value=\"" + featureVersion + ".v${buildid}\"/>");
+			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
 			// === TODO put this into a separate stage
 			String feedbackFeatureID = "de.devboost.eclipse.feedback";
 			if (!feedbackFeatureID.equals(featureID)) {

@@ -45,7 +45,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 	/**
 	 * The set of plug-in fragments that complement this plug-in.
 	 */
-	private Set<Plugin> fragments = new LinkedHashSet<Plugin>();
+	private Set<Plugin> fragments = new LinkedHashSet<Plugin>();	
+	private Plugin fragmentHost = null;
 
 	/**
 	 * The plug-in that is complemented by this plug-in (if this plug-in is a
@@ -74,6 +75,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 
 	private Set<Plugin> allDependencies;
 	
+	private Set<Package> exportedPackages;
+	
 	/**
 	 * Create a descriptor for the plug-in at the given location. Reads the
 	 * manifest and class path information if available.
@@ -92,6 +95,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 		InputStream manifestInputStream = getManifestInputStream();
 		if (manifestInputStream == null) {
 			setIdentifier(location.getName());
+			exportedPackages = Collections.emptySet();
 		} else {
 			ManifestReader reader = new ManifestReader(manifestInputStream);
 			manifestInputStream.close();
@@ -103,6 +107,12 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 			addWebLibraries();
 			
 			setIdentifier(reader.getSymbolicName());
+			
+			Set<String> exportedPackageName = reader.getExportedPackages();
+			exportedPackages = new LinkedHashSet<Package>();
+			for (String packageName : exportedPackageName) {
+				exportedPackages.add(new Package(packageName, this));
+			}
 		}
 	}
 
@@ -143,23 +153,26 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 	@Override
 	public void resolveDependencies(Collection<? extends IArtifact> allArtifacts) {
 		for (IArtifact artifact : allArtifacts) {
+			Collection<UnresolvedDependency> resolvedDependencies = getResolvedDependencies();
+			Collection<UnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies();
+			
+			for (UnresolvedDependency dependency : unresolvedDependencies) {
+				if (dependency.isFulfilledBy(artifact)) {
+					addDependency(artifact);
+					resolvedDependencies.add(dependency);
+				}
+			}
+			// --- inserted in superclass code ----
 			if (artifact instanceof Plugin) {
 				Plugin plugin = (Plugin) artifact;
-
-				Collection<UnresolvedDependency> resolvedDependencies = getResolvedDependencies();
-				Collection<UnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies();
-				
-				for (UnresolvedDependency dependency : unresolvedDependencies) {
-					if (dependency.isFulfilledBy(plugin)) {
-						addDependency(plugin);
-						resolvedDependencies.add(dependency);
-					}
-				}
 				if (unresolvedFragmentHost != null && unresolvedFragmentHost.isFulfilledBy(plugin)) {
 					plugin.addFragment(this);
+					fragmentHost = plugin;
+					addDependency(plugin);
 				}
-				unresolvedDependencies.removeAll(resolvedDependencies);
 			}
+			// ---
+			unresolvedDependencies.removeAll(resolvedDependencies);	
 		}
 	}
 	
@@ -173,6 +186,13 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 			if (artifact instanceof Plugin) {
 				Plugin plugin = (Plugin) artifact;
 				result.add(plugin);
+				if (getFragmentHost() != null) {
+					result.add(getFragmentHost());
+				}
+			}
+			if (artifact instanceof Package) {
+				Package p = (Package) artifact;
+				result.add(p.getExportingPlugin());
 			}
 		}
 		return Collections.unmodifiableCollection(result);
@@ -194,6 +214,10 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 			}
 		}
 		return Collections.unmodifiableSet(result);
+	}
+	
+	public Set<Package> getExportedPackages() {
+		return exportedPackages;
 	}
 	
 	public Set<String> getLibs() {
@@ -385,6 +409,10 @@ public class Plugin extends AbstractArtifact implements IFileArtifact {
 
 	public boolean isProject() {
 		return true;
+	}
+	
+	public Plugin getFragmentHost() {
+		return fragmentHost;
 	}
 
 	public File getFile() {

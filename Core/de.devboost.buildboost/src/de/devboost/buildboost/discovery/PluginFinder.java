@@ -53,7 +53,7 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 		Collection<File> allProjectDirs = findProjectDirs(directory, buildListener);
 		allProjectDirs = sortByPathName(allProjectDirs);
 		checkForDuplicates(allProjectDirs);
-		Set<Plugin> allPlugins = convertToPlugins(allProjectDirs, context.getBuildListener());
+		Set<IArtifact> allPlugins = convertToPlugins(allProjectDirs, context.getBuildListener());
 		// make unmodifiable
 		return Collections.unmodifiableSet(new ArtifactUtil().getSetOfArtifacts(allPlugins));
 	}
@@ -120,8 +120,8 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 		}
 	}
 
-	private Set<Plugin> convertToPlugins(Collection<File> projectDirs, IBuildListener listener) {
-		Set<Plugin> plugins = new LinkedHashSet<Plugin>();
+	private Set<IArtifact> convertToPlugins(Collection<File> projectDirs, IBuildListener listener) {
+		Set<IArtifact> pluginsAndExportedPackages = new LinkedHashSet<IArtifact>();
 		for (File projectDir : projectDirs) {
 			Plugin newPlugin;
 			try {
@@ -142,9 +142,10 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 				listener.handleBuildEvent(BuildEventType.INFO, "Project without source folders: " + newPlugin.getIdentifier());
 			}
 			listener.handleBuildEvent(BuildEventType.INFO, "Discovered project: " + newPlugin.getIdentifier());
-			plugins.add(newPlugin);
+			pluginsAndExportedPackages.add(newPlugin);
+			pluginsAndExportedPackages.addAll(newPlugin.getExportedPackages());
 		}
-		return plugins;
+		return pluginsAndExportedPackages;
 	}
 	
 	@Override
