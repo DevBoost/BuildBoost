@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +54,12 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class BuildBoostSCM extends SCM {
 	
+	private static final String ROOT_REPOSITORIES_FILE = "repos/root.repositories";
+
+	private static final String MAIN_BUILD_SCRIPT = "build.xml";
+
+	private static final String UNIVERSAL_BUILD_SCRIPT_URL = "https://raw.github.com/DevBoost/BuildBoost/master/Universal/de.devboost.buildboost.universal.build/boost/build.xml";
+
 	private static final Logger logger = Logger.getLogger(BuildBoostSCM.class.getName());
 
 	private static final String GIT_CMD_WINDOWS = "git.cmd";
@@ -77,12 +85,14 @@ public class BuildBoostSCM extends SCM {
 
 		@Override
 		public String getDisplayName() {
-			return "BuildBoostDisplayName";
+			return "BuildBoostSCM";
 		}
 	}
 
 	@Extension
 	public final static DescriptorImpl descriptor = new DescriptorImpl();
+
+	private String rootRepositoryURL;
 
 	@Override
 	public SCMDescriptor<?> getDescriptor() {
@@ -90,10 +100,15 @@ public class BuildBoostSCM extends SCM {
 	}
 	
 	@DataBoundConstructor
-	public BuildBoostSCM() {
+	public BuildBoostSCM(String rootRepositoryURL) {
 		super();
+		this.rootRepositoryURL = rootRepositoryURL;
 	}
 	
+	public String getRootRepositoryURL() {
+		return rootRepositoryURL;
+	}
+
 	@Override
 	public SCMRevisionState calcRevisionsFromBuild(
 			AbstractBuild<?, ?> build,
@@ -393,8 +408,12 @@ public class BuildBoostSCM extends SCM {
 	}
 	
 	/**
-	 * This method does nothing as the actual check out of project is perfomed
-	 * by BuildBoost during the CloneStage.
+	 * This method does very little as the actual check out of project is 
+	 * performed by BuildBoost during the CloneStage. 
+	 * 
+	 * We simply write the URL of the root repository to a file in the workspace 
+	 * to allow the universal build script to use it. Also, we download the
+	 * lastest version of the universal build script.
 	 */
 	@Override
 	public boolean checkout(
@@ -404,8 +423,32 @@ public class BuildBoostSCM extends SCM {
 			BuildListener listener, 
 			File changelogFile)
 			throws IOException, InterruptedException {
+		
 		logger.info("checkout()");
+		
+		if (rootRepositoryURL != null) {
+			FilePath rootRepositoryFile = workspace.child(ROOT_REPOSITORIES_FILE);
+			rootRepositoryFile.write(rootRepositoryURL, "UTF-8");
+		}
+		
+		downloadUniversalBuildScript(workspace);
+        
 		return true;
+	}
+
+	private void downloadUniversalBuildScript(FilePath workspace)
+			throws MalformedURLException, IOException, InterruptedException {
+		StringBuilder scriptContent = new StringBuilder();
+		URL url = new URL(UNIVERSAL_BUILD_SCRIPT_URL);
+		InputStream stream = url.openStream();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        String inputLine;
+        while ((inputLine = reader.readLine()) != null) {
+            scriptContent.append(inputLine);
+        }
+        reader.close();
+        FilePath mainBuildFile = workspace.child(MAIN_BUILD_SCRIPT);
+        mainBuildFile.write(scriptContent.toString(), "UTF-8");
 	}
 
 	@Override
