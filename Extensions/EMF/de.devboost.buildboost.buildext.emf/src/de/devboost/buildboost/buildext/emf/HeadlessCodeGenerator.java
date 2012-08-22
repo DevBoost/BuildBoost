@@ -76,22 +76,58 @@ public class HeadlessCodeGenerator {
 		
 		GenModel genModel = loadGenModel(pathToGenModel, rs);
 		registerCodeGenAdapter();
-		generateCode(genModel);
+		generateCode(genModel, projectPath);
 	}
 
-	private void generateCode(GenModel genModel) {
+	private void generateCode(GenModel genModel, String projectPath) {
 		// Create the generator and set the model-level input object.
 		Generator generator = new Generator();
 		generator.setInput(genModel);
 		genModel.setFacadeHelperClass(getClass().getName());
 		
 		// Generator model code.
+		// EMF 2.8: This logs an exception to the console which is not a problem in our case.
+		// The logging was introduced in 2.8: https://bugs.eclipse.org/bugs/show_bug.cgi?id=359551
 		Diagnostic result = generator.generate(
 			genModel, 
 			GenBaseGeneratorAdapter.MODEL_PROJECT_TYPE,
 			new BasicMonitor.Printing(System.out)
 		);
 		printDiagnostic(result);
+		
+		if (generateEditCode(genModel, projectPath)) {
+			result = generator.generate(
+					genModel, 
+					GenBaseGeneratorAdapter.EDIT_PROJECT_TYPE,
+					new BasicMonitor.Printing(System.out)
+				);
+				printDiagnostic(result);
+		}
+	}
+
+	private boolean generateEditCode(GenModel genModel, String projectPath) {
+		File workDir = new File(projectPath).getParentFile();
+		String editDirectory = genModel.getEditDirectory();
+		if (!editDirectory.endsWith("src-gen")) {
+			return false;
+		}
+		
+		if (editDirectory.startsWith("/")) {
+			editDirectory = editDirectory.substring(1);
+		}
+		String editProjectName = editDirectory.substring(0, editDirectory.indexOf("/"));
+		File editProjectDir = new File(workDir, editProjectName);
+		if (!editProjectDir.exists()) {
+			return false;
+		}
+		
+		EcorePlugin.getPlatformResourceMap().put(
+				editProjectName,
+				URI.createFileURI(editProjectDir.getAbsolutePath() + File.separator)
+			);
+			
+		
+		return editProjectDir.exists();
 	}
 
 	private void registerCodeGenAdapter() {
