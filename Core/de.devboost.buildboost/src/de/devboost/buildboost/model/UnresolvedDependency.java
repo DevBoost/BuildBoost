@@ -15,6 +15,8 @@
  ******************************************************************************/
 package de.devboost.buildboost.model;
 
+import java.io.Serializable;
+
 /**
  * An UnresolvedDependency is a pair consisting of a symbolic artifact 
  * identifier and a version. UnresolvedDependency objects are used to represent 
@@ -22,7 +24,9 @@ package de.devboost.buildboost.model;
  * During the analysis process performed by BuildBoost, UnresolvedDependency 
  * objects are replaced by links to actual artifact objects.
  */
-public class UnresolvedDependency {
+public class UnresolvedDependency implements Serializable {
+
+	private static final long serialVersionUID = 7284232444651755786L;
 
 	private Class<?> type;
 	private String identifier;

@@ -28,6 +28,7 @@ import de.devboost.buildboost.util.EclipsePluginHelper;
  * used by the Eclipse Modeling Framework (EMF) to configure code generation for
  * Ecore models.
  */
+@SuppressWarnings("serial")
 public class GeneratorModel extends AbstractArtifact {
 
 	private File file;

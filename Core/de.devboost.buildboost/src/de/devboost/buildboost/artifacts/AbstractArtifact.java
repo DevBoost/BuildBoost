@@ -15,6 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +33,9 @@ import de.devboost.buildboost.model.UnresolvedDependency;
  * 
  * This class is intended to be subclasses by clients.
  */
-public abstract class AbstractArtifact implements IArtifact {
+public abstract class AbstractArtifact implements IArtifact, Serializable {
+
+	private static final long serialVersionUID = -2834855155135559568L;
 
 	private String identifier;
 	private Collection<IDependable> dependencies = new LinkedHashSet<IDependable>();

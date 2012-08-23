@@ -25,6 +25,7 @@ import de.devboost.buildboost.artifacts.AbstractArtifact;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
 
+@SuppressWarnings("serial")
 public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 
 	private File file;

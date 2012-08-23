@@ -33,6 +33,7 @@ import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.AbstractXMLReader;
 
+@SuppressWarnings("serial")
 public class EclipseUpdateSite extends AbstractArtifact {
 
 	private File file;

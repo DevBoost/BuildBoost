@@ -19,6 +19,8 @@ import java.io.File;
 
 public class CompiledPlugin extends Plugin {
 
+	private static final long serialVersionUID = -5844414998060907175L;
+
 	public CompiledPlugin(File location) throws Exception {
 		super(location);
 	}
@@ -48,5 +50,4 @@ public class CompiledPlugin extends Plugin {
 			location = newLocation;
 		}
 	}
-
 }

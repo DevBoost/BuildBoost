@@ -28,6 +28,7 @@ import de.devboost.buildboost.util.EclipsePluginHelper;
  * A ConcreteSyntaxDefinition represents an EMFText syntax specification (a
  * file with extension 'cs').
  */
+@SuppressWarnings("serial")
 public class ConcreteSyntaxDefinition extends AbstractArtifact {
 
 	private File file;

@@ -15,7 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
 
-
+@SuppressWarnings("serial")
 public class Package extends AbstractArtifact {
 
 	private final Plugin exportingPlugin;

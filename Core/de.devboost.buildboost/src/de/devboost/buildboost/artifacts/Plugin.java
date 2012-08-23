@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -40,7 +41,9 @@ import de.devboost.buildboost.model.UnresolvedDependency;
  * found in a target platform (e.g., an Eclipse distribution) or that is part
  * of the workspace that is subject to the build process.
  */
-public class Plugin extends AbstractArtifact implements IFileArtifact {
+public class Plugin extends AbstractArtifact implements IFileArtifact, Serializable {
+
+	private static final long serialVersionUID = 7995849293974638695L;
 
 	/**
 	 * The set of plug-in fragments that complement this plug-in.

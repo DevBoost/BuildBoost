@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -37,7 +38,9 @@ import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.AbstractXMLReader;
 
-public class EclipseFeature extends AbstractArtifact {
+public class EclipseFeature extends AbstractArtifact implements Serializable {
+
+	private static final long serialVersionUID = 8136940018246598015L;
 
 	private static final String FEATURE_XML = "feature.xml";
 	

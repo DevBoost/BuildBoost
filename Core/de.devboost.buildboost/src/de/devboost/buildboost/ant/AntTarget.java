@@ -29,6 +29,8 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class AntTarget extends AbstractArtifact {
 
+	private static final long serialVersionUID = -7935166108004658132L;
+	
 	private String name;
 	private String content;
 	private Collection<String> dependencies;
@@ -43,19 +45,11 @@ public class AntTarget extends AbstractArtifact {
 		this(name, content.toString(), dependencies);
 	}
 
-	/**
-	 * Use {@link #AntTarget(String, XMLContent)} instead.
-	 */
-	@Deprecated
-	public AntTarget(String name, String content) {
+	private AntTarget(String name, String content) {
 		this(name, content, new LinkedHashSet<String>());
 	}
 
-	/**
-	 * Use {@link #AntTarget(String, XMLContent, Collection)} instead.
-	 */
-	@Deprecated
-	public AntTarget(String name, String content, Collection<String> dependencies) {
+	private AntTarget(String name, String content, Collection<String> dependencies) {
 		this.name = name;
 		this.content = content;
 		this.dependencies = dependencies;

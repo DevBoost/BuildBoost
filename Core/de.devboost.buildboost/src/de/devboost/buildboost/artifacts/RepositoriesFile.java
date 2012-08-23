@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("serial")
 public class RepositoriesFile extends AbstractArtifact {
 	
 	public static String SUB_DIR_SEPARATOR = "!";

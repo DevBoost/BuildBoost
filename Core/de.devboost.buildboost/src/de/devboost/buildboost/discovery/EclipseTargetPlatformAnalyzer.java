@@ -17,6 +17,12 @@ package de.devboost.buildboost.discovery;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -39,6 +45,8 @@ import de.devboost.buildboost.util.ArtifactUtil;
 //TODO is there a overlap with FeatureFinder?
 public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
+	private static final String ARTIFACT_CACHE_FILE_NAME = "artifact_cache.ser";
+
 	private interface IArtifactCreator {
 		
 		public IArtifact create(File file) throws Exception;
@@ -56,7 +64,13 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		IBuildListener buildListener = context.getBuildListener();
 		buildListener.handleBuildEvent(BuildEventType.INFO, "Analyzing target platform...");
 		
-		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
+		Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
+		if (cachedArtifacts != null) {
+			buildListener.handleBuildEvent(BuildEventType.INFO, "Loaded cached target platform info: " + cachedArtifacts);
+			return cachedArtifacts;
+		}
+		
+		LinkedHashSet<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		
 		// first, find plug-ins
 		Set<File> pluginJarsAndDirs = findJarFilesAndPluginDirs(targetPlatform, new FileFilter() {
@@ -81,13 +95,14 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				return false;
 			}
 		});
-		artifacts.addAll(analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new IArtifactCreator() {
+		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new IArtifactCreator() {
 			
 			@Override
 			public IArtifact create(File file) throws Exception {
 				return new CompiledPlugin(file);
 			}
-		}));
+		});
+		artifacts.addAll(foundPlugins);
 		
 		// second, find features
 		Set<File> featureJarsAndDirs = findJarFilesAndPluginDirs(targetPlatform, new FileFilter() {
@@ -102,7 +117,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 		});
 		
-		artifacts.addAll(analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new IArtifactCreator() {
+		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new IArtifactCreator() {
 			
 			@Override
 			public IArtifact create(File fileDirectoryOrJar) throws Exception {
@@ -112,9 +127,54 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 					return new EclipseFeature(fileDirectoryOrJar);
 				}
 			}
-		}));
+		});
 		
+		artifacts.addAll(foundFeatures);
+		saveDiscoveredArtifacts(artifacts);
 		return artifacts;
+	}
+
+	private void saveDiscoveredArtifacts(LinkedHashSet<IArtifact> artifacts) {
+		try {
+			FileOutputStream fos = new FileOutputStream(new File(targetPlatform, ARTIFACT_CACHE_FILE_NAME));
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(artifacts);
+			fos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<IArtifact> loadDiscoveredArtifacts() {
+		File cacheFile = new File(targetPlatform, ARTIFACT_CACHE_FILE_NAME);
+		if (!cacheFile.exists()) {
+			return null;
+		}
+		try {
+			FileInputStream fis = new FileInputStream(cacheFile);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			Object object = ois.readObject();
+			fis.close();
+			
+			if (object instanceof Set) {
+				return (Set<IArtifact>) object;
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private Set<File> findJarFilesAndPluginDirs(File directory, FileFilter fileFilter) {

@@ -21,6 +21,7 @@ import java.io.File;
  * A ConcreteSyntaxDefinition represents an EMFText syntax specification (a
  * file with extension 'cs').
  */
+@SuppressWarnings("serial")
 public class TargetPlatformZip extends AbstractArtifact {
 
 	private File zipFile;
