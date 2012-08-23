@@ -28,6 +28,10 @@ import de.devboost.buildboost.steps.compile.ExtractPluginZipStepProvider;
 public class ExtractPluginsStage extends AbstractBuildStage implements IUniversalBuildStage {
 
 	private String artifactsFolder;
+	
+	public void setArtifactsFolder(String artifactsFolder) {
+		this.artifactsFolder = artifactsFolder;
+	}
 
 	public AntScript getScript() throws BuildException {
 		File buildDir = new File(artifactsFolder);
@@ -35,7 +39,10 @@ public class ExtractPluginsStage extends AbstractBuildStage implements IUniversa
 		File targetPlatform = new File(artifactsFolder);
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(targetPlatform));
 		context.addBuildParticipant(new ExtractPluginZipStepProvider(new File(
-				buildDir, EclipseTargetPlatformAnalyzer.ARTIFACT_CACHE_FILE_NAME)));		
+				buildDir, EclipseTargetPlatformAnalyzer.ARTIFACT_CACHE_FILE_NAME)));
+		
+		context.setIgnoreUnresolvedDependencies(true);
+		
 		AutoBuilder builder = new AutoBuilder(context);
 		
 		AntScript script = new AntScript();

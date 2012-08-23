@@ -64,11 +64,12 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		IBuildListener buildListener = context.getBuildListener();
 		buildListener.handleBuildEvent(BuildEventType.INFO, "Analyzing target platform...");
 		
-		Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
+		//TODO activate cache
+		/*Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
 		if (cachedArtifacts != null) {
 			buildListener.handleBuildEvent(BuildEventType.INFO, "Loaded cached target platform info: " + cachedArtifacts);
 			return cachedArtifacts;
-		}
+		}*/
 		
 		LinkedHashSet<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		
