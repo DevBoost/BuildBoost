@@ -31,7 +31,6 @@ import de.devboost.buildboost.filters.IdentifierFilter;
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.stages.AbstractBuildStage;
 import de.devboost.buildboost.steps.compile.CompileProjectStepProvider;
-import de.devboost.buildboost.steps.compile.ExtractPluginZipStepProvider;
 
 public class CompileEMFTextStage extends AbstractBuildStage implements IUniversalBuildStage {
 
@@ -69,7 +68,6 @@ public class CompileEMFTextStage extends AbstractBuildStage implements IUniversa
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(artifactsFolder)));
 		context.addBuildParticipant(new PluginFinder(new File(artifactsFolder)));
 		
-		context.addBuildParticipant(new ExtractPluginZipStepProvider());
 		context.addBuildParticipant(new CompileProjectStepProvider());
 		
 		context.addBuildParticipant(new IdentifierFilter(EMFTEXT_SDK_PLUGIN_IDENTIFIERS).or(
