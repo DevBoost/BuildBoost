@@ -83,6 +83,29 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 		return null;
 	}
 	
+
+	public String getFeatureVendor(String featureID) {
+		String featureVendor =  getValue("feature", featureID, "vendor");
+		if (featureVendor == null) {
+			featureVendor =  getValue("site", "vendor");
+		}
+		if (featureVendor == null) {
+			featureVendor = "Unknown vendor";
+		}
+		return featureVendor;
+	}
+
+	public String getFeatureVersion(String featureID) {
+		String featureVersion = getValue("feature", featureID, "version");
+		if (featureVersion == null) {
+			featureVersion =  getValue("site", "version");
+		}
+		if (featureVersion == null) {
+			featureVersion = "0.0.1";
+		}
+		return featureVersion;
+	}
+	
 	@Override
 	public long getTimestamp() {
 		return file.lastModified();
