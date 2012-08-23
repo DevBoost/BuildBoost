@@ -15,6 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.steps.compile;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,11 +27,18 @@ import de.devboost.buildboost.model.IBuildContext;
 
 public class ExtractPluginZipStepProvider extends AbstractAntTargetGeneratorProvider {
 
+	private File targetPlatformCache;
+	
+	public ExtractPluginZipStepProvider(File targetPlatformCache) {
+		super();
+		this.targetPlatformCache = targetPlatformCache;
+	}
+
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof CompiledPlugin) {
 			CompiledPlugin plugin = (CompiledPlugin) artifact;
 			if (plugin.isZipped() && !plugin.getLibs().isEmpty()) {
-				IAntTargetGenerator step = new ExtractPluginZipStep(plugin);
+				IAntTargetGenerator step = new ExtractPluginZipStep(plugin, targetPlatformCache);
 				return Collections.singletonList(step);
 			}
 		}

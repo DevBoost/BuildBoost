@@ -45,7 +45,7 @@ import de.devboost.buildboost.util.ArtifactUtil;
 //TODO is there a overlap with FeatureFinder?
 public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
-	private static final String ARTIFACT_CACHE_FILE_NAME = "artifact_cache.ser";
+	public static final String ARTIFACT_CACHE_FILE_NAME = "artifact_cache.ser";
 
 	private interface IArtifactCreator {
 		

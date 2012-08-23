@@ -27,9 +27,11 @@ import de.devboost.buildboost.util.XMLContent;
 public class ExtractPluginZipStep extends AbstractAntTargetGenerator {
 
 	private CompiledPlugin plugin;
+	private File targetPlatformCache;
 
-	public ExtractPluginZipStep(CompiledPlugin plugin) {
+	public ExtractPluginZipStep(CompiledPlugin plugin, File targetPlatformCache) {
 		this.plugin = plugin;
+		this.targetPlatformCache = targetPlatformCache;
 	}
 
 	public Collection<AntTarget> generateAntTargets() {
@@ -39,6 +41,8 @@ public class ExtractPluginZipStep extends AbstractAntTargetGenerator {
 		File unzippedLocation = plugin.getLocation();
 		content.append("<unzip src=\"" + zippedLocation.getAbsolutePath() + "\" dest=\"" + unzippedLocation.getAbsolutePath() + "\" />");
 		content.append("<delete file=\"" + zippedLocation.getAbsolutePath() + "\" />");
+		//delete cache file because target platform has changed
+		content.append("<delete file=\"" + targetPlatformCache.getAbsolutePath() + "\" />");
 		return Collections.singleton(new AntTarget("unzip-plugin-with-libs-" + plugin.getIdentifier(), content));
 	}
 
