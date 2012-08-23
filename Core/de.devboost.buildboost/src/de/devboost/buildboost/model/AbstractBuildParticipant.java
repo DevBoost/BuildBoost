@@ -26,4 +26,9 @@ public abstract class AbstractBuildParticipant implements IBuildParticipant {
 	public boolean isReqiredFor(IBuildParticipant otherParticipant) {
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return this.getClass().getName();
+	}
 }
