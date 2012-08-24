@@ -25,6 +25,7 @@ import de.devboost.buildboost.genext.emf.artifacts.GeneratorModel;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.util.ArtifactUtil;
+import de.devboost.buildboost.util.EclipsePluginHelper;
 
 /**
  * A {@link GenModelFinder} can be used to discover EMF generator models (i.e.,
@@ -51,7 +52,8 @@ public class GenModelFinder extends AbstractFileFinder<GeneratorModel> {
 	protected FileFilter getFileFilter() {
 		return new FileFilter() {		
 			public boolean accept(File file) {
-				return file.getName().endsWith(".genmodel") && file.isFile();
+				return file.getName().endsWith(".genmodel") && file.isFile() &&
+						new EclipsePluginHelper().findProjectDir(file) != null;
 			}
 		};
 	}
