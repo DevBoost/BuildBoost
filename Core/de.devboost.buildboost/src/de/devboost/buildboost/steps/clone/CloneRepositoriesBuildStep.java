@@ -62,13 +62,13 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		writeRepositoryList(locationURL, content, isGit, isSVN, localRepositoryPath);
 		if (isGit) {
 			if (localRepo.exists()) {
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
 				content.append("<arg value=\"pull\"/>");
 				content.append("</exec>");
 			} else {
 				content.append("<mkdir dir=\"" + localRepositoryPath + "\">");
 				content.append("</mkdir>");
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"false\">");
 				content.append("<arg value=\"clone\"/>");
 				content.append("<arg value=\"" + locationURL + "\"/>");
 				content.append("<arg value=\"" + localRepositoryPath + "\"/>");
@@ -76,7 +76,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			}
 			if (!location.getSubDirectories().isEmpty()) {
 				//enable sparse checkout
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
 				content.append("<arg value=\"config\"/>");
 				content.append("<arg value=\"core.sparsecheckout\"/>");
 				content.append("<arg value=\"true\"/>");
@@ -87,7 +87,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 					dirList += "${line.separator}";
 				}
 				content.append("<echo message=\"" + dirList + "\" file=\"" + localRepositoryPath + "/.git/info/sparse-checkout\"/>");
-				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
 				content.append("<arg value=\"read-tree\"/>");
 				content.append("<arg value=\"-mu\"/>");
 				content.append("<arg value=\"HEAD\"/>");
@@ -96,12 +96,12 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		} else if (isSVN) {
 			if (localRepo.exists()) {
 				// execute update
-				content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
 				content.append("<arg value=\"update\"/>");
 				content.append("</exec>");
 			} else {
 				// execute checkout
-				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\" failonerror=\"true\">");
+				content.append("<exec executable=\"svn\" dir=\"" + reposFolder + "\" failonerror=\"false\">");
 				content.append("<arg value=\"co\"/>");
 				content.append("<arg value=\"" + locationURL + "\"/>");
 				content.append("<arg value=\"" + localRepositoryPath + "\"/>");
