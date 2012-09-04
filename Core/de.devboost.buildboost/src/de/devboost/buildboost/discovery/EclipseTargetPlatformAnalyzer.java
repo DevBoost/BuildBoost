@@ -150,7 +150,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private Set<IArtifact> loadDiscoveredArtifacts() {
 		File cacheFile = new File(targetPlatform, ARTIFACT_CACHE_FILE_NAME);
 		if (!cacheFile.exists()) {
