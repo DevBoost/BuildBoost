@@ -13,7 +13,7 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package org.dropsbox.autobuild.genext.webapps.util;
+package de.devboost.buildboost.genext.webapps.util;
 
 import de.devboost.buildboost.artifacts.Plugin;
 

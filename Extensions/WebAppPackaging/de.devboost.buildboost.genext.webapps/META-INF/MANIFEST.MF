@@ -5,7 +5,7 @@ Bundle-SymbolicName: de.devboost.buildboost.genext.webapps
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: de.devboost.buildboost
-Export-Package: org.dropsbox.autobuild.genext.webapps.discovery,
- org.dropsbox.autobuild.genext.webapps.stages,
- org.dropsbox.autobuild.genext.webapps.steps,
- org.dropsbox.autobuild.genext.webapps.util
+Export-Package: de.devboost.buildboost.genext.webapps.discovery,
+ de.devboost.buildboost.genext.webapps.stages,
+ de.devboost.buildboost.genext.webapps.steps,
+ de.devboost.buildboost.genext.webapps.util

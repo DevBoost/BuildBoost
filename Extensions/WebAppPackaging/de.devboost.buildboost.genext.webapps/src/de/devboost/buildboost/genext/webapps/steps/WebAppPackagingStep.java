@@ -13,7 +13,7 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package org.dropsbox.autobuild.genext.webapps.steps;
+package de.devboost.buildboost.genext.webapps.steps;
 
 import java.io.File;
 import java.util.Collection;

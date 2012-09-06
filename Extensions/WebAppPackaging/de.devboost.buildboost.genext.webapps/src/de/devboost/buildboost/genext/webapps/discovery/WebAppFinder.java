@@ -13,16 +13,16 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package org.dropsbox.autobuild.genext.webapps.discovery;
+package de.devboost.buildboost.genext.webapps.discovery;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import org.dropsbox.autobuild.genext.webapps.util.WebAppUtil;
 
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.discovery.AbstractArtifactDiscoverer;
 import de.devboost.buildboost.discovery.PluginFinder;
+import de.devboost.buildboost.genext.webapps.util.WebAppUtil;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.UnresolvedDependency;
