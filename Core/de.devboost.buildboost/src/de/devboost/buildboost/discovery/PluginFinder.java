@@ -16,6 +16,7 @@
 package de.devboost.buildboost.discovery;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -131,7 +132,7 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 					UnresolvedDependency tomcatDependency = new UnresolvedDependency(Plugin.class, "org.apache.tomcat_6_0_32", null, true, null, true, false, false);
 					newPlugin.getUnresolvedDependencies().add(tomcatDependency);
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				throw new RuntimeException(e.getMessage());
 			}
 			if (newPlugin.isExperimental()) {

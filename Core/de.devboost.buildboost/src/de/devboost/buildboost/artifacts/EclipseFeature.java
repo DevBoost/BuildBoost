@@ -18,6 +18,7 @@ package de.devboost.buildboost.artifacts;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Collection;
@@ -64,7 +65,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 				ZipEntry entry = jar.getEntry(FEATURE_XML);
 				InputStream is = jar.getInputStream(entry);
 				readFeatureInputStream(is);
-			} catch (Exception e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}

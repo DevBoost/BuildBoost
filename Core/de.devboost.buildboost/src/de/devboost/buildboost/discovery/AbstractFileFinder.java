@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildParticipant;
@@ -41,7 +42,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 
 	protected void traverse(
 			IBuildContext context, 
-			Collection<ArtifactType> artifacts) {
+			Collection<ArtifactType> artifacts) throws BuildException {
 		traverse(context, directory, artifacts);
 	}
 
@@ -54,11 +55,12 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 	 * @param context the context this build is performed in
 	 * @param directory the root directory where to start the traversal
 	 * @param artifacts a collection that is used to store the found artifacts
+	 * @throws BuildException 
 	 */
 	protected void traverse(
 			IBuildContext context, 
 			File directory,
-			Collection<ArtifactType> artifacts) {
+			Collection<ArtifactType> artifacts) throws BuildException {
 		
 		findFiles(directory, artifacts);
 		
@@ -71,7 +73,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 		}
 	}
 
-	private void findFiles(File directory, Collection<ArtifactType> artifacts) {
+	private void findFiles(File directory, Collection<ArtifactType> artifacts) throws BuildException {
 		File[] files = directory.listFiles(getFileFilter());
 		if (files == null) {
 			return;
@@ -91,7 +93,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 		return getClass().getSimpleName() + "[" + directory.getAbsolutePath() + "]";
 	}
 
-	protected abstract ArtifactType createArtifactFromFile(File file);
+	protected abstract ArtifactType createArtifactFromFile(File file) throws BuildException;
 
 	protected FileFilter getDirectoryFilter() {
 		return new FileFilter() {	

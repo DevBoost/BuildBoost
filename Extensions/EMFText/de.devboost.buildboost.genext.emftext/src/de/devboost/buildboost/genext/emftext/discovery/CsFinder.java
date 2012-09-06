@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.discovery.AbstractFileFinder;
 import de.devboost.buildboost.genext.emftext.artifacts.ConcreteSyntaxDefinition;
 import de.devboost.buildboost.model.IArtifact;
@@ -38,7 +39,7 @@ public class CsFinder extends AbstractFileFinder<ConcreteSyntaxDefinition> {
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		Collection<ConcreteSyntaxDefinition> csDefinitions = new ArrayList<ConcreteSyntaxDefinition>();
 		traverse(context, csDefinitions);
 		return new ArtifactUtil().getSetOfArtifacts(csDefinitions);

@@ -17,6 +17,8 @@ package de.devboost.buildboost.model;
 
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
+
 /**
  * An IArtifactDiscoverer can be used to discover artifacts that are required 
  * while performing a build. Prominent examples of such discoverers are project
@@ -30,5 +32,5 @@ import java.util.Collection;
  */
 public interface IArtifactDiscoverer extends IBuildParticipant {
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context);
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException;
 }

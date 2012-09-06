@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.TargetPlatformZip;
 import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IArtifact;
@@ -33,7 +34,7 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		IBuildListener buildListener = context.getBuildListener();
 
 		Collection<TargetPlatformZip> zipFiles = new ArrayList<TargetPlatformZip>();
@@ -46,7 +47,7 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 
 	@Override
 	protected void traverse(IBuildContext context, File directory,
-			Collection<TargetPlatformZip> artifacts) {
+			Collection<TargetPlatformZip> artifacts) throws BuildException {
 		//ignore projects and things inside projects
 		File dotProject = new File(directory, ".project");
 		if (dotProject.exists()) {

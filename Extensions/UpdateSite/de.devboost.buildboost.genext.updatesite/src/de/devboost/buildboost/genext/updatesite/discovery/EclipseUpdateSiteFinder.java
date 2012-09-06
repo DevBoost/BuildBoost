@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.discovery.AbstractFileFinder;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.model.BuildEventType;
@@ -36,7 +37,7 @@ public class EclipseUpdateSiteFinder extends AbstractFileFinder<EclipseUpdateSit
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		buildListener = context.getBuildListener();
 		Collection<EclipseUpdateSite> updateSites = new ArrayList<EclipseUpdateSite>();
 		traverse(context, updateSites);

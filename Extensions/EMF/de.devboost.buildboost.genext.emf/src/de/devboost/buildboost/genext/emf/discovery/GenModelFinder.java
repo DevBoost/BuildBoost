@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.discovery.AbstractFileFinder;
 import de.devboost.buildboost.genext.emf.artifacts.GeneratorModel;
 import de.devboost.buildboost.model.IArtifact;
@@ -39,7 +40,7 @@ public class GenModelFinder extends AbstractFileFinder<GeneratorModel> {
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		Collection<GeneratorModel> genModels = new ArrayList<GeneratorModel>();
 		traverse(context, genModels);
 		return new ArtifactUtil().getSetOfArtifacts(genModels);

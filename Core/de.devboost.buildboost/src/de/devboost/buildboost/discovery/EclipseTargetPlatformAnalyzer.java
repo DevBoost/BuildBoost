@@ -49,7 +49,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	private interface IArtifactCreator {
 		
-		public IArtifact create(File file) throws Exception;
+		public IArtifact create(File file) throws IOException;
 	}
 	
 	private File targetPlatform;
@@ -99,7 +99,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new IArtifactCreator() {
 			
 			@Override
-			public IArtifact create(File file) throws Exception {
+			public IArtifact create(File file) throws IOException {
 				return new CompiledPlugin(file);
 			}
 		});
@@ -121,7 +121,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new IArtifactCreator() {
 			
 			@Override
-			public IArtifact create(File fileDirectoryOrJar) throws Exception {
+			public IArtifact create(File fileDirectoryOrJar) throws IOException {
 				if (fileDirectoryOrJar.isDirectory()) {
 					return new EclipseFeature(new File(fileDirectoryOrJar, "feature.xml"));
 				} else {
@@ -212,7 +212,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			IArtifact artifact;
 			try {
 				artifact = creator.create(targetPlatformFile);
-			} catch (Exception e) {
+			} catch (IOException e) {
 				buildListener.handleBuildEvent(BuildEventType.WARNING, "Exception while analyzing target platform " + type + " " + targetPlatformFile.toString() + ": " + e.getMessage());
 				continue;
 			}

@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.RepositoriesFile;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
@@ -33,14 +34,14 @@ public class RepositoriesFileFinder extends AbstractFileFinder<RepositoriesFile>
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		Collection<RepositoriesFile> boostFiles = new ArrayList<RepositoriesFile>();
 		traverse(context, boostFiles);
 		// TODO merge all repository files as one artifact
 		return new ArtifactUtil().getSetOfArtifacts(boostFiles);
 	}
 
-	protected RepositoriesFile createArtifactFromFile(File file) {
+	protected RepositoriesFile createArtifactFromFile(File file) throws BuildException {
 		return new RepositoriesFile(file);
 	}
 

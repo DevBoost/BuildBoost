@@ -16,12 +16,13 @@
 package de.devboost.buildboost.artifacts;
 
 import java.io.File;
+import java.io.IOException;
 
+
+@SuppressWarnings("serial")
 public class CompiledPlugin extends Plugin {
 
-	private static final long serialVersionUID = -5844414998060907175L;
-
-	public CompiledPlugin(File location) throws Exception {
+	public CompiledPlugin(File location) throws IOException {
 		super(location);
 	}
 	

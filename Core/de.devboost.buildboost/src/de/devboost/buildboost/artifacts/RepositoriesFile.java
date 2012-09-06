@@ -20,12 +20,15 @@ import static de.devboost.buildboost.IConstants.BUILD_BOOST_REPOSITORY_URL;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import de.devboost.buildboost.BuildException;
 
 @SuppressWarnings("serial")
 public class RepositoriesFile extends AbstractArtifact {
@@ -68,19 +71,22 @@ public class RepositoriesFile extends AbstractArtifact {
 	private File file;
 	private Map<String, Location> locations;
 
-	public RepositoriesFile(File file) {
+	public RepositoriesFile(File file) throws BuildException {
 		this.file = file;
 		setIdentifier(file.getName());
 		readContent(file);
 	}
 
-	private void readContent(File file) {
+	private void readContent(File file) throws BuildException {
 		locations = new LinkedHashMap<String, RepositoriesFile.Location>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String locationString;
-			while((locationString = reader.readLine()) != null) {
+			readLine: while((locationString = reader.readLine()) != null) {
 				locationString = locationString.trim();
+				if (isComment(locationString)) {
+					continue readLine;
+				}
 				for (String supportedType : SUPPORTED_TYPES) {
 					if (locationString.startsWith(supportedType)) {
 						String type = supportedType.substring(0, supportedType.length() - 1);
@@ -99,13 +105,27 @@ public class RepositoriesFile extends AbstractArtifact {
 						if (subDirectory != null) {
 							location.getSubDirectories().add(subDirectory);
 						}
+						continue readLine;
 					}
 				}
+				
+				reader.close();
+				throw new BuildException("Cannot handle repository location: " + locationString);
 			}
 			reader.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private boolean isComment(String locationString) {
+		if (locationString.isEmpty()) {
+			return true;
+		}
+		if (locationString.startsWith("//")) {
+			return true;
+		}
+		return false;
 	}
 
 	public File getFile() {

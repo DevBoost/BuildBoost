@@ -85,16 +85,17 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	 * manifest and class path information if available.
 	 * 
 	 * @param location
+	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public Plugin(File location) throws Exception {
+	public Plugin(File location) throws IOException {
 		super();
 		this.location = location;
 		analyzeManifest();
 		analyzeClassPath();
 	}
 	
-	private void analyzeManifest() throws Exception {
+	private void analyzeManifest() throws IOException {
 		InputStream manifestInputStream = getManifestInputStream();
 		if (manifestInputStream == null) {
 			setIdentifier(location.getName());
@@ -358,7 +359,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	/**
 	 * Returns an input stream to access the manifest of this plug-in.
 	 */
-	private InputStream getManifestInputStream() throws Exception {
+	private InputStream getManifestInputStream() throws IOException {
 		File pluginLocation = getLocation();
 		if (pluginLocation.isFile()) {
 			ZipFile zipFile = new ZipFile(pluginLocation);
