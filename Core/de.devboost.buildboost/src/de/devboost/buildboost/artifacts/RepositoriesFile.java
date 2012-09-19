@@ -87,6 +87,7 @@ public class RepositoriesFile extends AbstractArtifact {
 			String locationString;
 			while ((locationString = reader.readLine()) != null) {
 				locationString = locationString.trim();
+				System.out.println("Process Location:" + locationString);
 				if (!isComment(locationString)) {
 					addSupportedLocation(locations, locationString);
 				}
