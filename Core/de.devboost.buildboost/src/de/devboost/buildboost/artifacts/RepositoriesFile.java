@@ -30,25 +30,27 @@ import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
 
+
 @SuppressWarnings("serial")
 public class RepositoriesFile extends AbstractArtifact {
-	
+
 	public static String SUB_DIR_SEPARATOR = "!";
-	
+
 	public static String[] SUPPORTED_TYPES = { "svn:", "git:", "get:" };
-	
+
 	public class Location {
 		private String type;
 		private String url;
 		private Set<String> subDirectories;
-		
+
 		public Location(String type, String url) {
 			super();
 			this.type = type;
 			this.url = url;
 			this.subDirectories = new LinkedHashSet<String>();
-			//TODO we wouldn't need this if we create an extra repository for extensions
-			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) { 
+			// TODO we wouldn't need this if we create an extra repository for
+			// extensions
+			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) {
 				subDirectories.add("Core/");
 				subDirectories.add("Universal/");
 			}
@@ -57,15 +59,15 @@ public class RepositoriesFile extends AbstractArtifact {
 		public String getType() {
 			return type;
 		}
-		
+
 		public String getUrl() {
 			return url;
 		}
-		
+
 		public Set<String> getSubDirectories() {
 			return subDirectories;
 		}
-		
+
 	}
 
 	private File file;
@@ -82,41 +84,48 @@ public class RepositoriesFile extends AbstractArtifact {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String locationString;
-			readLine: while((locationString = reader.readLine()) != null) {
+			while ((locationString = reader.readLine()) != null) {
 				locationString = locationString.trim();
-				if (isComment(locationString)) {
-					continue readLine;
+				if (!isComment(locationString)) {
+					addSupportedLocation(locations, locationString);
 				}
-				for (String supportedType : SUPPORTED_TYPES) {
-					if (locationString.startsWith(supportedType)) {
-						String type = supportedType.substring(0, supportedType.length() - 1);
-						String url = locationString.substring(supportedType.length()).trim();
-						String subDirectory = null;
-						int idx = url.lastIndexOf(SUB_DIR_SEPARATOR);
-						if (idx != -1) {
-							subDirectory = url.substring(idx + 1);
-							url = url.substring(0, idx);
-						}
-						Location location = locations.get(url);
-						if (location == null) {
-							location = new Location(type, url);
-							locations.put(url, location);
-						}
-						if (subDirectory != null) {
-							location.getSubDirectories().add(subDirectory);
-						}
-						continue readLine;
-					}
-				}
-				
-				reader.close();
-				System.out.println("INVALID Location:>"+locationString+"<");
-				//throw new BuildException("Cannot handle repository location: " + locationString);
 			}
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void addSupportedLocation(Map<String, Location> locationsMap,
+			String locationString) throws BuildException {
+
+		for (String supportedType : SUPPORTED_TYPES) {
+			if (locationString.startsWith(supportedType)) {
+				String type = supportedType.substring(0,
+						supportedType.length() - 1);
+				String url = locationString.substring(supportedType.length())
+						.trim();
+				String subDirectory = null;
+				int idx = url.lastIndexOf(SUB_DIR_SEPARATOR);
+				if (idx != -1) {
+					subDirectory = url.substring(idx + 1);
+					url = url.substring(0, idx);
+				}
+				Location location = locationsMap.get(url);
+				if (location == null) {
+					location = new Location(type, url);
+					locationsMap.put(url, location);
+				}
+				if (subDirectory != null) {
+					location.getSubDirectories().add(subDirectory);
+				}
+				// if valid location then return
+				return;
+			}
+		}
+		System.out.println("INVALID Location:>" + locationString + "<");
+		throw new BuildException("Cannot handle repository location: "
+				+ locationString);
 	}
 
 	private boolean isComment(String locationString) {
