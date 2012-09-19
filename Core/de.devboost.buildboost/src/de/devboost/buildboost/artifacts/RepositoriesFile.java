@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.artifacts.RepositoriesFile.Location;
 
 
 @SuppressWarnings("serial")
@@ -95,6 +96,7 @@ public class RepositoriesFile extends AbstractArtifact {
 			e.printStackTrace();
 		}
 	}
+
 
 	private void addSupportedLocation(Map<String, Location> locationsMap,
 			String locationString) throws BuildException {

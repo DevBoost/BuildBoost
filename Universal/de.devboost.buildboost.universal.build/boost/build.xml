@@ -2,7 +2,7 @@
 <project default="boost" name="Boost!">
 	<property environment="env"/>
 	<property name="env.WORKSPACE" value="${basedir}"/>
-	<property name="build_boost_repo_remote" value="https://github.com/DevBoost/BuildBoost.git"/>
+	<property name="build_boost_repo_remote" value="https://github.com/FunThomas424242/BuildBoost.git"/>
 	<property name="build_boost_repo_local" value="github.com_DevBoost_BuildBoost.git/BuildBoost.git"/>
 	<property name="build_plugin_ID" value="de.devboost.buildboost.universal.build"/>
 
