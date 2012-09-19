@@ -110,6 +110,7 @@ public class RepositoriesFile extends AbstractArtifact {
 				}
 				
 				reader.close();
+				System.out.println("INVALID Location:>"+locationString+"<");
 				//throw new BuildException("Cannot handle repository location: " + locationString);
 			}
 			reader.close();
