@@ -110,7 +110,7 @@ public class RepositoriesFile extends AbstractArtifact {
 				}
 				
 				reader.close();
-				throw new BuildException("Cannot handle repository location: " + locationString);
+				//throw new BuildException("Cannot handle repository location: " + locationString);
 			}
 			reader.close();
 		} catch (IOException e) {
