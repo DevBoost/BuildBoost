@@ -27,13 +27,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import de.devboost.buildboost.BuildException;
-import de.devboost.buildboost.artifacts.RepositoriesFile.Location;
+
 
 
 @SuppressWarnings("serial")
 public class RepositoriesFile extends AbstractArtifact {
+	
+	private static final Logger logger = Logger.getLogger(RepositoriesFile.class.getName());
 
 	public static String SUB_DIR_SEPARATOR = "!";
 
@@ -87,7 +90,7 @@ public class RepositoriesFile extends AbstractArtifact {
 			String locationString;
 			while ((locationString = reader.readLine()) != null) {
 				locationString = locationString.trim();
-				System.out.println("Process Location:" + locationString);
+				logger.info("Process Location:>" + locationString+"<");
 				if (!isComment(locationString)) {
 					addSupportedLocation(locations, locationString);
 				}
@@ -126,7 +129,7 @@ public class RepositoriesFile extends AbstractArtifact {
 				return;
 			}
 		}
-		System.out.println("INVALID Location:>" + locationString + "<");
+		logger.log(Level.SEVERE,"INVALID Location:>" + locationString + "<");
 		throw new BuildException("Cannot handle repository location: "
 				+ locationString);
 	}
