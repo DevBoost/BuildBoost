@@ -45,11 +45,9 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		if (usernameProperty == null) {
 			usernameProperty = updateSiteSpec.getValue("site", "usernameProperty");
-			System.out.println("Using user: " + usernameProperty);
 		}
 		if (passwordProperty == null) {
 			passwordProperty = updateSiteSpec.getValue("site", "passwordProperty");
-			System.out.println("Using password: " + passwordProperty);
 		}
 		
 		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
@@ -163,28 +161,30 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		}
 		
 		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
-		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
-		// should figure out a way to provide this JAR together with BuildBoost.
-		content.append("<!-- Copy new version of update site to server -->");
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-		content.append("<fileset dir=\"" + updateSiteDir + "\">");
-		content.append("<include name=\"features/**\"/>");
-		content.append("<include name=\"plugins/**\"/>");
-		content.append("<include name=\"associateSites.xml\"/>");
-		content.append("<include name=\"digest.zip\"/>");
-		content.append("<include name=\"COPYING\"/>");
-		content.append("</fileset>");
-		content.append("</scp>");
-		content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
-		content.append("are the lasts file that are replaced. Otherwise the files might point to JARs that ");
-		content.append("have not been uploaded yet. -->");
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-		content.append("<fileset dir=\"" + updateSiteDir + "\">");
-		content.append("<include name=\"artifacts.jar\"/>");
-		content.append("<include name=\"content.jar\"/>");
-		content.append("<include name=\"site.xml\"/>");
-		content.append("</fileset>");
-		content.append("</scp>");
+		if (targetPath != null) {
+			// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
+			// should figure out a way to provide this JAR together with BuildBoost.
+			content.append("<!-- Copy new version of update site to server -->");
+			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+			content.append("<fileset dir=\"" + updateSiteDir + "\">");
+			content.append("<include name=\"features/**\"/>");
+			content.append("<include name=\"plugins/**\"/>");
+			content.append("<include name=\"associateSites.xml\"/>");
+			content.append("<include name=\"digest.zip\"/>");
+			content.append("<include name=\"COPYING\"/>");
+			content.append("</fileset>");
+			content.append("</scp>");
+			content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
+			content.append("are the lasts file that are replaced. Otherwise the files might point to JARs that ");
+			content.append("have not been uploaded yet. -->");
+			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+			content.append("<fileset dir=\"" + updateSiteDir + "\">");
+			content.append("<include name=\"artifacts.jar\"/>");
+			content.append("<include name=\"content.jar\"/>");
+			content.append("<include name=\"site.xml\"/>");
+			content.append("</fileset>");
+			content.append("</scp>");
+		}
 		
 		AntTarget target = new AntTarget("build-update-site", content);
 		return target;
