@@ -34,16 +34,16 @@
 			<arg value="HEAD"/>
 		</exec>
 		
-		<echo message="Working with repositories in: ${repos_dir}" />
-		<echo message="Building in: ${build_dir}" />
+		<echo message="Working with repositories in: ${repos_dir}"/>
+		<echo message="Building in: ${build_dir}"/>
 		<mkdir dir="${build_dir}"/>
 
 		<first id="bootstrap-script-location">
-			<fileset dir="${repos_dir}" includes="**/buildboost_bootstrap.xml" />
+			<fileset dir="${repos_dir}" includes="**/buildboost_bootstrap.xml"/>
 		</first>
-		<echo message="Found BuildBoost bootstrap Script: ${toString:bootstrap-script-location}" />
+		<echo message="Found BuildBoost bootstrap Script: ${toString:bootstrap-script-location}"/>
 
-		<echo message="Bootstrapping BuildBoost tool" />
+		<echo message="Bootstrapping BuildBoost tool"/>
 		<ant antfile="${toString:bootstrap-script-location}" dir="${toString:bootstrap-script-location}/..">
 			<property name="build_plugin_path" value="${toString:bootstrap-script-location}/../${build_plugin_ID}"/>
 			<property name="build_plugin_id" value="${build_plugin_ID}"/>
@@ -59,10 +59,32 @@
 				<isset property="rootRepository"/>
 			</or>
 		</condition>
-		<fail unless="root_repo_defined" 
-			message="No root repository defined to build! usage: ant -DrootRepository='git:https://github.com/DevBoost/MyRepository.git!MySubPath'"/>		
+		<!-- Custom error messages for different OS -->
+		<fail message="No root repository defined to build! usage: ant -DrootRepository='git:https://github.com/DevBoost/MyRepository.git!MySubPath'">
+			<condition>
+				<and>
+					<not>
+						<os family="windows"/>
+					</not>
+					<not>
+						<isset property="root_repo_defined"/>
+					</not>
+				</and>
+			</condition>
+		</fail>
+		<fail message="No root repository defined to build! usage: ant -DrootRepository=&quot;git:https://github.com/DevBoost/MyRepository.git!MySubPath&quot;">
+			<condition>
+				<and>
+					<os family="windows"/>
+					<not>
+						<isset property="root_repo_defined"/>
+					</not>
+				</and>
+			</condition>
+		</fail>
+
 		<condition property="build_boost_repo_exists">
-			<available file="${repos_dir}/${build_boost_repo_local}" type="dir" />
+			<available file="${repos_dir}/${build_boost_repo_local}" type="dir"/>
 		</condition>
 	</target>
 		
