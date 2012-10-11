@@ -64,7 +64,8 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 		return new FileFilter() {
 			
 			public boolean accept(File file) {
-				return !file.isDirectory() && file.getName().endsWith(".zip");
+				return !file.isDirectory() && 
+						(file.getName().endsWith(".zip") || file.getName().endsWith(".tar.gz"));
 			}
 		};
 	}

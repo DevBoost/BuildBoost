@@ -16,8 +16,12 @@
 package de.devboost.buildboost.steps.copy;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
@@ -38,7 +42,37 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		XMLContent content = new XMLContent();
-		content.append("<unzip src=\"" + zip.getZipFile().getAbsolutePath() + "\" dest=\"" + targetDir.getAbsolutePath() + "\" />");
+		File file = zip.getZipFile();
+		String targetPathPrefix = determineEclipseTargetStructurePrefix(file);
+		if (file.getName().endsWith(".zip")) {
+			content.append("<unzip src=\"" + file.getAbsolutePath() + "\" dest=\"" + targetDir.getAbsolutePath() + targetPathPrefix + "\" />");			
+		} else {
+			content.append("<gunzip src=\"" + file.getAbsolutePath() + "\"/>");						
+			content.append("<untar src=\"" + file.getAbsolutePath().substring(
+					0, file.getAbsolutePath().length() - ".gz".length()) + "\" dest=\"" + targetDir.getAbsolutePath() + targetPathPrefix + "\" />");						
+		}
 		return Collections.singleton(new AntTarget("unzip-target-platform-" + zip.getIdentifier(), content));
+	}
+
+	public String determineEclipseTargetStructurePrefix(File file) {
+		if (!file.getName().endsWith(".zip")) {
+			return "";
+		}
+		try {
+			Enumeration<? extends ZipEntry> entries = new ZipFile(file).entries();
+			while (entries.hasMoreElements()) {
+				String entryName = entries.nextElement().getName();
+				if (entryName.equals("eclipse/plugins/")) {
+					return "";
+				}
+				if (entryName.equals("plugins/")) {
+					return "/eclipse";
+				}
+			}
+		} catch (IOException e) { 
+			//ignore
+			e.printStackTrace();
+		}
+		return "/eclipse/plugins";
 	}
 }
