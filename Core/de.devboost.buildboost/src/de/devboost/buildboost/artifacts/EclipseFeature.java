@@ -120,12 +120,16 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 
 			private void findFeatureDependencies(Document document, XPath xpath)
 					throws XPathExpressionException {
-				findDependencies(document, xpath, "//import", "feature", null, EclipseFeature.class);
+				// TODO deactivated, because this information only becomes important at installation time
+				//      and installation is (currently) always performed against external p2-repositories
+				//      and not against the artifacts that are discovered in the build process
+				//findDependencies(document, xpath, "//import", "feature", null, EclipseFeature.class);
 			}
 
 			private void findPluginDependencies(Document document, XPath xpath)
 					throws XPathExpressionException {
-				findDependencies(document, xpath, "//import", "plugin", null, Plugin.class);
+				// TODO deactivated (see above)
+				//findDependencies(document, xpath, "//import", "plugin", null, Plugin.class);
 			}
 		};
 		
