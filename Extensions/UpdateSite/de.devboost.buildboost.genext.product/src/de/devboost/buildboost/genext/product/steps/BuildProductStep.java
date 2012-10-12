@@ -61,7 +61,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		content.append("</condition>");
 		content.appendLineBreak();
 		
-		//TODO this is not good, because the tstamp is stage dependent
+		//TODO this is not good, because the tstamp should not be stage dependent
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
@@ -78,8 +78,8 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		tempDirFile.mkdir();
 		String tempDir = tempDirFile.getAbsolutePath();
 		String eclipseDir = new File(new File(targetDir, "target-platform"), "eclipse").getAbsolutePath();
-		String p2ProductRepo = new File(repoBaseFolder, updateSiteID + "-products-p2").getAbsolutePath();
-		String productsDir = new File(repoBaseFolder, updateSiteID + "-products-zip").getAbsolutePath();
+		String p2ProductRepo = new File(new File(repoBaseFolder.getParentFile(), "products-p2"), updateSiteID).getAbsolutePath();
+		String productsDir = new File(repoBaseFolder.getParentFile() + "products-zip").getAbsolutePath();
 		
 		//call PDE product build
 		content.append("<exec executable=\"eclipse\" failonerror=\"true\">"); //TODO this is a platform dependent executable in the PATH
