@@ -61,12 +61,12 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 		}
 		try {
 			Enumeration<? extends ZipEntry> entries = new ZipFile(file).entries();
-			while (entries.hasMoreElements()) {
+			while (entries.hasMoreElements()) {			
 				String entryName = entries.nextElement().getName();
-				if (entryName.equals("eclipse/plugins/")) {
+				if (entryName.startsWith("eclipse/plugins/")) {
 					return "";
 				}
-				if (entryName.equals("plugins/")) {
+				if (entryName.startsWith("plugins/")) {
 					return "/eclipse";
 				}
 			}
