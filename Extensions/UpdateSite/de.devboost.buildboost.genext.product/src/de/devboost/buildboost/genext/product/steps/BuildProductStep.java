@@ -79,7 +79,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		String tempDir = tempDirFile.getAbsolutePath();
 		String eclipseDir = new File(new File(targetDir, "target-platform"), "eclipse").getAbsolutePath();
 		String p2ProductRepo = new File(new File(repoBaseFolder.getParentFile(), "products-p2"), updateSiteID).getAbsolutePath();
-		String productsDir = new File(repoBaseFolder.getParentFile() + "products-zip").getAbsolutePath();
+		String productsDir = new File(repoBaseFolder.getParentFile(), "products-zip").getAbsolutePath();
 		
 		//call PDE product build
 		content.append("<exec executable=\"eclipse\" failonerror=\"true\">"); //TODO this is a platform dependent executable in the PATH
