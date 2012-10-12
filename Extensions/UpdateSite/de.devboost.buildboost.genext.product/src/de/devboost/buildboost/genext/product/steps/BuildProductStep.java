@@ -82,6 +82,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		
 		//call PDE product build
 		content.append("<exec executable=\"eclipse\" failonerror=\"true\">"); //TODO this is a platform dependent executable in the PATH
+		content.append("<arg value=\"--launcher.suppressErrors\"/>");
 		content.append("<arg value=\"-noSplash\"/>");
 		content.append("<arg value=\"-application\"/>");
 		content.append("<arg value=\"org.eclipse.ant.core.antRunner\"/>");
@@ -125,6 +126,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 			String productFileName = productSpec.getIdentifier() + "-" + os + "-" + ws + "-" + arch;
 			
 			content.append("<exec executable=\"eclipse\" failonerror=\"true\">");
+			content.append("<arg value=\"--launcher.suppressErrors\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
 			content.append("<arg value=\"-application\"/>");
 			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
