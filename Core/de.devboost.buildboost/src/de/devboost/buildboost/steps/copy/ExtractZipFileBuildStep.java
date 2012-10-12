@@ -47,9 +47,10 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 		if (file.getName().endsWith(".zip")) {
 			content.append("<unzip src=\"" + file.getAbsolutePath() + "\" dest=\"" + targetDir.getAbsolutePath() + targetPathPrefix + "\" />");			
 		} else {
-			content.append("<gunzip src=\"" + file.getAbsolutePath() + "\"/>");						
-			content.append("<untar src=\"" + file.getAbsolutePath().substring(
-					0, file.getAbsolutePath().length() - ".gz".length()) + "\" dest=\"" + targetDir.getAbsolutePath() + targetPathPrefix + "\" />");						
+			content.append("<exec executable=\"tar\" dir=\"" + targetDir.getAbsolutePath() + targetPathPrefix +  "\" failonerror=\"true\">");
+			content.append("<arg value=\"-zxf\"/>");
+			content.append("<arg value=\"" + file.getAbsolutePath() + "\"/>");
+			content.append("</exec>");
 		}
 		return Collections.singleton(new AntTarget("unzip-target-platform-" + zip.getIdentifier(), content));
 	}
