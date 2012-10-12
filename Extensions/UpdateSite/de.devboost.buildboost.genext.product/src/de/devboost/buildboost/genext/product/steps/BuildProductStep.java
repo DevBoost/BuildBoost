@@ -70,15 +70,16 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		//set version in product file
 		content.append("<replace file=\"" + productSpecPath + "\" token=\"0.0.0\" value=\"" + siteVersion + ".v${buildid}\"/>");
 		
-
+		String updateSiteID = deploymentSpec.getUpdateSite().getIdentifier();
+		
 		File repoBaseFolder = deploymentSpec.getUpdateSite().getFile().getParentFile().getParentFile();
 		
 		File tempDirFile = new File(targetDir.getParentFile(), "pde-build-temp");
 		tempDirFile.mkdir();
 		String tempDir = tempDirFile.getAbsolutePath();
 		String eclipseDir = new File(new File(targetDir, "target-platform"), "eclipse").getAbsolutePath();
-		String p2ProductRepo = new File(repoBaseFolder, deploymentSpec.getUpdateSite().getIdentifier() + "-products-p2").getAbsolutePath();
-		String productsDir = new File(repoBaseFolder, deploymentSpec.getUpdateSite().getIdentifier() + "-products-zip").getAbsolutePath();
+		String p2ProductRepo = new File(repoBaseFolder, updateSiteID + "-products-p2").getAbsolutePath();
+		String productsDir = new File(repoBaseFolder, updateSiteID + "-products-zip").getAbsolutePath();
 		
 		//call PDE product build
 		content.append("<exec executable=\"eclipse\" failonerror=\"true\">"); //TODO this is a platform dependent executable in the PATH
@@ -160,7 +161,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 			content.append("</exec>");	
 		}
 		
-		AntTarget target = new AntTarget("build-eclipse-product", content);
+		AntTarget target = new AntTarget("build-eclipse-product-" + updateSiteID, content);
 		return target;
 	}
 
