@@ -186,7 +186,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("</scp>");
 		}
 		
-		AntTarget target = new AntTarget("build-update-site", content);
+		AntTarget target = new AntTarget("build-update-site-" + updateSiteID, content);
 		return target;
 	}
 

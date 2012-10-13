@@ -44,14 +44,17 @@ public class BuildProductStage extends AbstractBuildStage implements IUniversalB
 		File buildDir = new File(artifactsFolder);
 
 		BuildContext context = createContext(false);
-		
+
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
 
 		context.addBuildParticipant(new PluginFinder(buildDir));
 		context.addBuildParticipant(new EclipseFeatureFinder(buildDir));
 		context.addBuildParticipant(new EclipseProductFinder(buildDir));
-		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildDir));
+
 		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildDir));
+		
+		File distDir = new File(buildDir, "dist");
+		context.addBuildParticipant(new EclipseUpdateSiteFinder(distDir));
 		
 		context.addBuildParticipant(new BuildProductStepProvider(buildDir));
 		

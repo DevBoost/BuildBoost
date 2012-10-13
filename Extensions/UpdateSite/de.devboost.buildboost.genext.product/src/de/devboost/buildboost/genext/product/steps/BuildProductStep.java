@@ -61,7 +61,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		content.append("</condition>");
 		content.appendLineBreak();
 		
-		//TODO this is not good, because the tstamp is stage dependent
+		//TODO this is not good, because the tstamp should not be stage dependent
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
@@ -70,18 +70,20 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		//set version in product file
 		content.append("<replace file=\"" + productSpecPath + "\" token=\"0.0.0\" value=\"" + siteVersion + ".v${buildid}\"/>");
 		
-
+		String updateSiteID = deploymentSpec.getUpdateSite().getIdentifier();
+		
 		File repoBaseFolder = deploymentSpec.getUpdateSite().getFile().getParentFile().getParentFile();
 		
 		File tempDirFile = new File(targetDir.getParentFile(), "pde-build-temp");
 		tempDirFile.mkdir();
 		String tempDir = tempDirFile.getAbsolutePath();
 		String eclipseDir = new File(new File(targetDir, "target-platform"), "eclipse").getAbsolutePath();
-		String p2ProductRepo = new File(repoBaseFolder, deploymentSpec.getUpdateSite().getIdentifier() + "-products-p2").getAbsolutePath();
-		String productsDir = new File(repoBaseFolder, deploymentSpec.getUpdateSite().getIdentifier() + "-products-zip").getAbsolutePath();
+		String p2ProductRepo = new File(new File(repoBaseFolder.getParentFile(), "products-p2"), updateSiteID).getAbsolutePath();
+		String productsDir = new File(repoBaseFolder.getParentFile(), "products-zip").getAbsolutePath();
 		
 		//call PDE product build
 		content.append("<exec executable=\"eclipse\" failonerror=\"true\">"); //TODO this is a platform dependent executable in the PATH
+		content.append("<arg value=\"--launcher.suppressErrors\"/>");
 		content.append("<arg value=\"-noSplash\"/>");
 		content.append("<arg value=\"-application\"/>");
 		content.append("<arg value=\"org.eclipse.ant.core.antRunner\"/>");
@@ -125,6 +127,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 			String productFileName = productSpec.getIdentifier() + "-" + os + "-" + ws + "-" + arch;
 			
 			content.append("<exec executable=\"eclipse\" failonerror=\"true\">");
+			content.append("<arg value=\"--launcher.suppressErrors\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
 			content.append("<arg value=\"-application\"/>");
 			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
@@ -158,7 +161,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 			content.append("</exec>");	
 		}
 		
-		AntTarget target = new AntTarget("build-eclipse-product", content);
+		AntTarget target = new AntTarget("build-eclipse-product-" + updateSiteID, content);
 		return target;
 	}
 
