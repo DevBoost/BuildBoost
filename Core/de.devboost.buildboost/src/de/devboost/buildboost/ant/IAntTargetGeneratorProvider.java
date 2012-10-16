@@ -15,19 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.ant;
 
-import java.util.List;
-
-import de.devboost.buildboost.model.IArtifact;
-import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildParticipant;
 
 public interface IAntTargetGeneratorProvider extends IBuildParticipant {
-
-	/**
-	 * Returns all build steps that are required to build
-	 * the given artifact.
-	 * 
-	 * @param context the context in which the artifact is built
-	 */
-	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact);
 }
