@@ -44,4 +44,8 @@ public class BuildBoostRepository {
 	public boolean isSvn() {
 		return "svn".equals(type);
 	}
+	
+	public String toString() {
+		return type + ": " + remoteURL + " - " + localPath;
+	}
 }
