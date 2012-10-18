@@ -92,7 +92,11 @@ public class CloneRepositoriesBuildStepProvider extends AbstractBuildParticipant
 				if (!"svn".equals(location2.getType())) {
 					continue;
 				}
-				if (!location1.equals(location2) && location2.getUrl().startsWith(location1.getUrl())) {
+				String location1URL = location1.getUrl();
+				if (!location1URL.endsWith("/")) {
+					location1URL = location1URL + "/";
+				}
+				if (!location1.equals(location2) && location2.getUrl().startsWith(location1URL)) {
 					i.remove();
 				}
 			}
