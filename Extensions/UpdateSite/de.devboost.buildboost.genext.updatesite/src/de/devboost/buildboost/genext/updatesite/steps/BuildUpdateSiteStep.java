@@ -160,9 +160,9 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
 				content.append("<fileset dir=\"" + pluginPath + "\">");
 				// TODO make this configurable or read the build.properties file for this
-				content.append("<exclude name=\".*\"/>");
+				content.append("<exclude name=\"**/.*/**\"/>");
 				if (Boolean.parseBoolean(excludeSrc)) {
-					content.append("<exclude name=\"src*\"/>");
+					content.append("<exclude name=\"**/src*/**\"/>");
 				}
 				content.append("</fileset>");
 				content.append("</jar>");
