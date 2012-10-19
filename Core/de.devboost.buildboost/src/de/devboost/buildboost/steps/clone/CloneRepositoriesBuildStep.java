@@ -187,7 +187,10 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		if (idx != -1) {
 			folderName = folderName.substring(0, idx);
 		}
+		folderName = folderName.replace(":", "");
+		folderName = folderName.replace("~", "_");
 		folderName = folderName.replace("/", "_");
+		folderName = folderName.replace("\\", "_");
 		folderName = folderName.replace(" ", "-");
 		return folderName;
 	}
