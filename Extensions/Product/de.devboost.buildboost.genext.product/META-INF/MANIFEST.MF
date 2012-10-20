@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Updatesite
+Bundle-SymbolicName: de.devboost.buildboost.genext.product
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: de.devboost.buildboost.genext.product.artifacts,
+ de.devboost.buildboost.genext.product.discovery,
+ de.devboost.buildboost.genext.product.stages,
+ de.devboost.buildboost.genext.product.steps
+Require-Bundle: de.devboost.buildboost,
+ de.devboost.buildboost.genext.updatesite
