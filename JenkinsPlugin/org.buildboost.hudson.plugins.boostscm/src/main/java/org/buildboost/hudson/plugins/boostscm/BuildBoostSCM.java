@@ -73,8 +73,8 @@ public class BuildBoostSCM extends SCM {
 	private static final String LOCAL_PREFIX = "BuildBoost-Repository-Local: ";
 
 	private static final String COMMIT_PREFIX = "commit ";
-	private static final String SVN_REVISION_PREFIX = "Revision: ";
-	private static final String SVN_REVISION_REGEX = "^r[0-9]+ ";
+	private static final String SVN_REVISION_PREFIX = " Rev: ";
+	private static final String SVN_REVISION_REGEX = "^r[0-9]+ .*";
 
 	public static class DescriptorImpl extends SCMDescriptor<BuildBoostSCM> {
 
@@ -336,11 +336,11 @@ public class BuildBoostSCM extends SCM {
 		command.add("info");
 		
 		final String[] revision = new String[1];
-		executeNativeBinary(null, command, new IFunction<Boolean, String>() {
+		executeNativeBinary(localPath, command, new IFunction<Boolean, String>() {
 			
 			public Boolean call(String line) {
-				if (line.startsWith(SVN_REVISION_PREFIX)) {
-					revision[0] = line.substring(0, line.indexOf(" "));
+				if (line.contains(SVN_REVISION_PREFIX)) {
+					revision[0] = "r" + line.substring(line.indexOf(SVN_REVISION_PREFIX) + SVN_REVISION_PREFIX.length());
 					return false;
 				}
 				return true;

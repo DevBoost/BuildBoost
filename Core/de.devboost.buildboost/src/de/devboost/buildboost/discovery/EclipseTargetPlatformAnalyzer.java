@@ -78,9 +78,6 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			
 			@Override
 			public boolean accept(File file) {
-				if (!file.getParentFile().getName().equals("plugins")) {
-					return false;
-				}
 				// exclude JUnit 3, because this requires to check the bundle
 				// version when resolving dependencies
 				// TODO remove this once the versions are checked

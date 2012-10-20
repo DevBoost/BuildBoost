@@ -54,4 +54,7 @@ public abstract class AbstractAntTargetGeneratorProvider
 		}
 		return false;
 	}
+	
+	public abstract Collection<? extends IArtifact> getAntTargetGenerators(
+			IBuildContext context, IArtifact artifact);
 }

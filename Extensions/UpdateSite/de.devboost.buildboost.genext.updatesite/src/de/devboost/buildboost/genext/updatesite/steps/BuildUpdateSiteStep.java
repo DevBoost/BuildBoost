@@ -45,11 +45,9 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		if (usernameProperty == null) {
 			usernameProperty = updateSiteSpec.getValue("site", "usernameProperty");
-			System.out.println("Using user: " + usernameProperty);
 		}
 		if (passwordProperty == null) {
 			passwordProperty = updateSiteSpec.getValue("site", "passwordProperty");
-			System.out.println("Using password: " + passwordProperty);
 		}
 		
 		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
@@ -97,6 +95,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		if (updateSiteVendor == null) {
 			updateSiteVendor = "Unknown vendor";
 		}
+		String excludeSrc = updateSiteSpec.getValue("site", "excludeSources");
+		if (excludeSrc == null) {
+			excludeSrc = "false";
+		}
 
 		Collection<EclipseFeature> features = updateSite.getFeatures();
 		for (EclipseFeature feature : features) {
@@ -114,6 +116,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
 			content.append("<!-- set version in copy -->");
 			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\"0.0.0\" value=\"" + featureVersion + ".v${buildid}\"/>");
+			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
 			content.append("<!-- create empty file 'feature.properties' -->");
 			content.append("<touch file=\"feature.properties\"/>");
 			content.append("<!-- create feature JAR -->");
@@ -144,6 +147,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				if (pluginName == null) {
 					pluginName = "Unknown";
 				}
+				
 				// package plugin(s)
 				content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
 				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
@@ -154,38 +158,45 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("</manifest>");
 				content.appendLineBreak();
 				content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				// TODO make this configurable / or read the build.properties file for this
-				content.append("<fileset dir=\"" + pluginPath + "\" excludes=\".*\"/>");
+				content.append("<fileset dir=\"" + pluginPath + "\">");
+				// TODO make this configurable or read the build.properties file for this
+				content.append("<exclude name=\"**/.*/**\"/>");
+				if (Boolean.parseBoolean(excludeSrc)) {
+					content.append("<exclude name=\"**/src*/**\"/>");
+				}
+				content.append("</fileset>");
 				content.append("</jar>");
 				content.appendLineBreak();
 			}
 		}
 		
 		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
-		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
-		// should figure out a way to provide this JAR together with BuildBoost.
-		content.append("<!-- Copy new version of update site to server -->");
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-		content.append("<fileset dir=\"" + updateSiteDir + "\">");
-		content.append("<include name=\"features/**\"/>");
-		content.append("<include name=\"plugins/**\"/>");
-		content.append("<include name=\"associateSites.xml\"/>");
-		content.append("<include name=\"digest.zip\"/>");
-		content.append("<include name=\"COPYING\"/>");
-		content.append("</fileset>");
-		content.append("</scp>");
-		content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
-		content.append("are the lasts file that are replaced. Otherwise the files might point to JARs that ");
-		content.append("have not been uploaded yet. -->");
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-		content.append("<fileset dir=\"" + updateSiteDir + "\">");
-		content.append("<include name=\"artifacts.jar\"/>");
-		content.append("<include name=\"content.jar\"/>");
-		content.append("<include name=\"site.xml\"/>");
-		content.append("</fileset>");
-		content.append("</scp>");
+		if (targetPath != null) {
+			// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
+			// should figure out a way to provide this JAR together with BuildBoost.
+			content.append("<!-- Copy new version of update site to server -->");
+			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+			content.append("<fileset dir=\"" + updateSiteDir + "\">");
+			content.append("<include name=\"features/**\"/>");
+			content.append("<include name=\"plugins/**\"/>");
+			content.append("<include name=\"associateSites.xml\"/>");
+			content.append("<include name=\"digest.zip\"/>");
+			content.append("<include name=\"COPYING\"/>");
+			content.append("</fileset>");
+			content.append("</scp>");
+			content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
+			content.append("are the lasts file that are replaced. Otherwise the files might point to JARs that ");
+			content.append("have not been uploaded yet. -->");
+			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+			content.append("<fileset dir=\"" + updateSiteDir + "\">");
+			content.append("<include name=\"artifacts.jar\"/>");
+			content.append("<include name=\"content.jar\"/>");
+			content.append("<include name=\"site.xml\"/>");
+			content.append("</fileset>");
+			content.append("</scp>");
+		}
 		
-		AntTarget target = new AntTarget("build-update-site", content);
+		AntTarget target = new AntTarget("build-update-site-" + updateSiteID, content);
 		return target;
 	}
 

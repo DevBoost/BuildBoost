@@ -109,11 +109,20 @@ public class UnresolvedDependency implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		UnresolvedDependency other = (UnresolvedDependency) obj;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		}
 		if (identifier == null) {
 			if (other.identifier != null)
 				return false;
-		} else if (!identifier.equals(other.identifier))
+		}
+		if (!type.equals(other.type)) {
 			return false;
+		}
+		if (!identifier.equals(other.identifier)) {
+			return false;
+		}
 		if (minVersion == null) {
 			if (other.minVersion != null)
 				return false;
