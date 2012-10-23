@@ -100,7 +100,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		content.append("<arg value=\"-DpluginPath=" + eclipseDir + "\"/>");
 
 		content.append("<arg value=\"-DbuildDirectory=" + tempDir + "/build\"/>");
-		content.append("<arg value=\"-DbaseLocation=" + tempDir + "/build\"/>");
+		content.append("<arg value=\"-DbaseLocation=" + eclipseDir + "\"/>");
 		content.append("<arg value=\"-DbuildLabel=BuildBoost\"/>");
 		content.append("<arg value=\"-DcollectingFolder=collectingFolder\"/>");
 
