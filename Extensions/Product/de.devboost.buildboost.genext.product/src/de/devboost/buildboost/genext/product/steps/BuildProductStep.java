@@ -95,12 +95,12 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		content.append("<arg value=\"-Dproduct=" + productSpecPath + "\"/>");
 
 		content.append("<arg value=\"-DrepoBaseLocation=" + repoBaseFolder.getAbsolutePath() + "\"/>");
+		content.append("<arg value=\"-DbaseLocation=" + deploymentSpec.getUpdateSite().getFile().getParentFile().getAbsolutePath() + "\"/>");
 		content.append("<arg value=\"-DtransformedRepoLocation=" + tempDir + "/transformedRepo\"/>");
 
 		content.append("<arg value=\"-DpluginPath=" + eclipseDir + "\"/>");
 
 		content.append("<arg value=\"-DbuildDirectory=" + tempDir + "/build\"/>");
-		content.append("<arg value=\"-DbaseLocation=" + tempDir + "/build\"/>");
 		content.append("<arg value=\"-DbuildLabel=BuildBoost\"/>");
 		content.append("<arg value=\"-DcollectingFolder=collectingFolder\"/>");
 
@@ -110,7 +110,8 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		content.append("<arg value=\"-Dp2.flavor=tooling\"/>");
 		content.append("<arg value=\"-DskipDirector=true\"/>");
 		content.append("<arg value=\"-DskipBase=true\"/>");
-
+		content.append("<arg value=\"-DallowBinaryCycles=true\"/>");
+		
 		String configs = deploymentSpec.getValue("site", "configs");
 		content.append("<arg value=\"-Dconfigs=" + configs.replaceAll("\\&", "&amp;") + "\"/>");
 		
