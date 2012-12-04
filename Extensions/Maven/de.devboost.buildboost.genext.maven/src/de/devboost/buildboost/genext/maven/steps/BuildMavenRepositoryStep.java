@@ -224,12 +224,14 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		
 		if (deployedSomething) {
 			String targetPath = updateSiteSpec.getValue("site", "uploadPath");
-			String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
-			
-			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-			content.append("<fileset dir=\"" + mavenRespoitoryDir + "\">");
-			content.append("</fileset>");
-			content.append("</scp>");
+			if (targetPath != null) {
+				String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
+				
+				content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+				content.append("<fileset dir=\"" + mavenRespoitoryDir + "\">");
+				content.append("</fileset>");
+				content.append("</scp>");
+			}
 		}
 		
 		AntTarget target = new AntTarget("build-maven-repository", content);
