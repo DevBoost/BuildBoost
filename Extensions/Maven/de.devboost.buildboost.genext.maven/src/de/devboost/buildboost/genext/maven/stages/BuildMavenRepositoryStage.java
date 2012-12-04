@@ -40,18 +40,20 @@ public class BuildMavenRepositoryStage extends AbstractBuildStage implements IUn
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		File buildDir = new File(artifactsFolder);
+		File buildProjectsDir = new File(new File(artifactsFolder), "projects");
+		File buildTargetPlatformDir = new File(new File(artifactsFolder), "target-platform");
 
 		BuildContext context = createContext(false);
 		
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildTargetPlatformDir));
 
-		context.addBuildParticipant(new PluginFinder(buildDir));
-		context.addBuildParticipant(new EclipseFeatureFinder(buildDir));
-		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildDir));
-		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildDir));
+		context.addBuildParticipant(new PluginFinder(buildProjectsDir));
+		context.addBuildParticipant(new EclipseFeatureFinder(buildProjectsDir));
+		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildProjectsDir));
+		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildProjectsDir));
 		
-		context.addBuildParticipant(new BuildMavenRepositoryStepProvider(buildDir));
+		context.addBuildParticipant(new BuildMavenRepositoryStepProvider(
+				buildProjectsDir.getParentFile()));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		
