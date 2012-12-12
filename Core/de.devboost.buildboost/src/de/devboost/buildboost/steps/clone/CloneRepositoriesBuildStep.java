@@ -22,6 +22,7 @@ import java.util.Collection;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.RepositoriesFile.Location;
+import de.devboost.buildboost.util.AntScriptUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 
@@ -132,7 +133,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 							}	
 						}
 					} else {
-						content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
+						AntScriptUtil.addDownloadFileScript(content, locationURL, localRepositoryPath);
 					}
 				}
 			}
