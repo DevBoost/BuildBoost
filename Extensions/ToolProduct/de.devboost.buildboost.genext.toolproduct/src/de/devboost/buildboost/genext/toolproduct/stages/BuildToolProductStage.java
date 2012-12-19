@@ -13,7 +13,7 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package de.devboost.buildboost.genext.maven.stages;
+package de.devboost.buildboost.genext.toolproduct.stages;
 
 import java.io.File;
 
@@ -24,13 +24,13 @@ import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.discovery.EclipseFeatureFinder;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
-import de.devboost.buildboost.genext.maven.steps.BuildMavenRepositoryStepProvider;
+import de.devboost.buildboost.genext.toolproduct.steps.BuildToolProductStepProvider;
 import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteDeploymentSpecFinder;
 import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteFinder;
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.stages.AbstractBuildStage;
 
-public class BuildMavenRepositoryStage extends AbstractBuildStage implements IUniversalBuildStage {
+public class BuildToolProductStage extends AbstractBuildStage implements IUniversalBuildStage {
 
 	private String artifactsFolder;
 
@@ -40,25 +40,26 @@ public class BuildMavenRepositoryStage extends AbstractBuildStage implements IUn
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		File buildProjectsDir = new File(new File(artifactsFolder), "projects");
-		File buildTargetPlatformDir = new File(new File(artifactsFolder), "target-platform");
+		File buildDir = new File(artifactsFolder);
 
 		BuildContext context = createContext(false);
-		
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildTargetPlatformDir));
 
-		context.addBuildParticipant(new PluginFinder(buildProjectsDir));
-		context.addBuildParticipant(new EclipseFeatureFinder(buildProjectsDir));
-		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildProjectsDir));
-		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildProjectsDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
+
+		context.addBuildParticipant(new PluginFinder(buildDir));
+		context.addBuildParticipant(new EclipseFeatureFinder(buildDir));
+
+		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildDir));
 		
-		context.addBuildParticipant(new BuildMavenRepositoryStepProvider(
-				buildProjectsDir.getParentFile()));
+		File distDir = new File(buildDir, "dist");
+		context.addBuildParticipant(new EclipseUpdateSiteFinder(distDir));
+		
+		context.addBuildParticipant(new BuildToolProductStepProvider(buildDir));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		
 		AntScript script = new AntScript();
-		script.setName("Build maven repository");
+		script.setName("Build Eclipse product(s)");
 		script.addTargets(builder.generateAntTargets());
 		
 		return script;
@@ -66,6 +67,6 @@ public class BuildMavenRepositoryStage extends AbstractBuildStage implements IUn
 	
 	@Override
 	public int getPriority() {
-		return 10100;
+		return 15000;
 	}
 }

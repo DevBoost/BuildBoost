@@ -28,6 +28,7 @@ import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.TargetPlatformZip;
 import de.devboost.buildboost.util.XMLContent;
+import de.devboost.buildboost.util.AntScriptUtil;
 
 public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 
@@ -43,17 +44,11 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		XMLContent content = new XMLContent();
 		File file = zip.getZipFile();
-		String targetPathPrefix = determineEclipseTargetStructurePrefix(file);
-		if (file.getName().endsWith(".zip")) {
-			content.append("<unzip src=\"" + file.getAbsolutePath() + "\" dest=\"" + targetDir.getAbsolutePath() + targetPathPrefix + "\" />");			
-		} else {
-			content.append("<exec executable=\"tar\" dir=\"" + targetDir.getAbsolutePath() + targetPathPrefix +  "\" failonerror=\"true\">");
-			content.append("<arg value=\"-zxf\"/>");
-			content.append("<arg value=\"" + file.getAbsolutePath() + "\"/>");
-			content.append("</exec>");
-		}
+		AntScriptUtil.addZipFileExtractionScript(content, file, new File(targetDir, determineEclipseTargetStructurePrefix(file)));
 		return Collections.singleton(new AntTarget("unzip-target-platform-" + zip.getIdentifier(), content));
 	}
+
+
 
 	public String determineEclipseTargetStructurePrefix(File file) {
 		if (!file.getName().endsWith(".zip")) {
@@ -67,13 +62,13 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 					return "";
 				}
 				if (entryName.startsWith("plugins/")) {
-					return "/eclipse";
+					return "eclipse";
 				}
 			}
 		} catch (IOException e) { 
 			//ignore
 			e.printStackTrace();
 		}
-		return "/eclipse/plugins";
+		return "eclipse/plugins";
 	}
 }

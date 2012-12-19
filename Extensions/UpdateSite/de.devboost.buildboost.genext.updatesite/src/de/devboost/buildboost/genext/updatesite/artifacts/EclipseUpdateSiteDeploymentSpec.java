@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import de.devboost.buildboost.artifacts.AbstractArtifact;
@@ -62,7 +64,7 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 		}
 		return getValue(key.toString());
 	}
-
+	
 	private String getValue(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
@@ -72,6 +74,25 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 			return getValue(value.substring(1));
 		}
 		return value;
+	}
+	
+	public Map<String, String> getValues(String... path) {
+		StringBuilder key = new StringBuilder();
+		Map<String, String> values = new LinkedHashMap<String, String>();
+		for (int i = 0; i < path.length; i++) {
+			key.append(path[i]);
+			key.append("/");
+		}
+		for(Map.Entry<Object, Object> entry : properties.entrySet()) {
+			if (entry.getKey().toString().startsWith(key.toString())) {
+				String subKey = entry.getKey().toString().substring(
+						key.toString().length());
+				if (!subKey.contains("/")) {
+					values.put(subKey, entry.getValue().toString());
+				}
+			}
+		}
+		return values;
 	}
 
 	public EclipseUpdateSite getUpdateSite() {
