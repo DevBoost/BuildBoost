@@ -188,9 +188,12 @@ public class TextResourcePluginGenerator {
 				.getExtensionToFactoryMap();
 		extensionToFactoryMap.put("ecore", new EcoreResourceFactoryImpl());
 		extensionToFactoryMap.put("genmodel", new EcoreResourceFactoryImpl());
-		extensionToFactoryMap.put(new CsMetaInformation().getSyntaxName(),
-				new CsResourceFactory());
 
+		// TESTONLY
+		final String syntaxName = new CsMetaInformation().getSyntaxName();
+		System.out.println("SYNTAX-NAME>" + syntaxName + "<");
+
+		extensionToFactoryMap.put(syntaxName, new CsResourceFactory());
 		GenModelPackage genModelPackage = GenModelPackage.eINSTANCE;
 		EcorePackage ecorePackage = EcorePackage.eINSTANCE;
 
