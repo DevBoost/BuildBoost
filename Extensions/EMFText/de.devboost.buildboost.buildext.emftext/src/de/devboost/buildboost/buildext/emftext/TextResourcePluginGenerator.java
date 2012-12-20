@@ -62,10 +62,6 @@ public class TextResourcePluginGenerator {
 		String projectName = args[1];
 		String buildDirPath = args[2];
 		List<String> pluginPaths = readPluginPaths(args[3]);
-		// TODO remove before pull request
-		// for (int i = 3; i < args.length; i++) {
-		// pluginPaths.add(args[i]);
-		// }
 		new TextResourcePluginGenerator().run(pathToCsFile, projectName,
 				buildDirPath, pluginPaths);
 	}
@@ -161,8 +157,9 @@ public class TextResourcePluginGenerator {
 		Map<URI, URI> uriMap = URIConverter.URI_MAP;
 		for (String pluginPath : pluginPaths) {
 			File pluginFile = new File(pluginPath);
-			if (pluginFile.isDirectory() && !pluginPath.endsWith("/")) {
-				pluginPath = pluginPath + "/";
+			if (pluginFile.isDirectory()
+					&& !pluginPath.endsWith(File.separator)) {
+				pluginPath = pluginPath + File.separator;
 			}
 			Plugin plugin = new Plugin(pluginFile);
 			String identifier = plugin.getIdentifier();
@@ -188,12 +185,8 @@ public class TextResourcePluginGenerator {
 				.getExtensionToFactoryMap();
 		extensionToFactoryMap.put("ecore", new EcoreResourceFactoryImpl());
 		extensionToFactoryMap.put("genmodel", new EcoreResourceFactoryImpl());
-
-		// TESTONLY
-		final String syntaxName = new CsMetaInformation().getSyntaxName();
-		System.out.println("SYNTAX-NAME>" + syntaxName + "<");
-
-		extensionToFactoryMap.put(syntaxName, new CsResourceFactory());
+		extensionToFactoryMap.put(new CsMetaInformation().getSyntaxName(),
+				new CsResourceFactory());
 		GenModelPackage genModelPackage = GenModelPackage.eINSTANCE;
 		EcorePackage ecorePackage = EcorePackage.eINSTANCE;
 
