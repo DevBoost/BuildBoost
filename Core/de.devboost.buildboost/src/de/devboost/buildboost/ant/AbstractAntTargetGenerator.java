@@ -15,9 +15,14 @@
  ******************************************************************************/
 package de.devboost.buildboost.ant;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
@@ -26,6 +31,25 @@ public abstract class AbstractAntTargetGenerator implements IAntTargetGenerator 
 
 	final public static String JVMARG_MX = "-Xmx1024m";
 	final public static String JVMARG_MAXPERM = "-XX:MaxPermSize=256m";
+
+	protected void writeParaFile(final String fileName,
+			final List<Plugin> plugins) {
+		final File paraPropFile = new File(fileName);
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(paraPropFile);
+			for (Plugin plugin : plugins) {
+				pw.println(plugin.getAbsolutePath());
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			if (pw != null) {
+				pw.close();
+			}
+		}
+
+	}
 
 	@Override
 	public String getIdentifier() {

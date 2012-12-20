@@ -18,8 +18,6 @@ package de.devboost.buildboost.genext.emf.steps;
 import static de.devboost.buildboost.IConstants.NL;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -98,21 +96,4 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 				sb));
 	}
 
-	private void writeParaFile(final String fileName, final List<Plugin> plugins) {
-		final File paraPropFile = new File(fileName);
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(paraPropFile);
-			for (Plugin plugin : plugins) {
-				pw.println(plugin.getAbsolutePath());
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-			if (pw != null) {
-				pw.close();
-			}
-		}
-
-	}
 }

@@ -30,6 +30,7 @@ import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.emftext.artifacts.ConcreteSyntaxDefinition;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.steps.ClasspathHelper;
+import de.devboost.buildboost.steps.clone.CloneRepositoriesBuildStep;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
@@ -73,16 +74,24 @@ public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 		content.append("<arg value=\""
 				+ syntaxDefinition.getProjectDir().getParentFile()
 						.getAbsolutePath() + "\"/>");
-		for (Plugin plugin : plugins) {
-			content.append("<arg value=\"" + plugin.getAbsolutePath() + "\"/>");
-		}
+
+		String csID = csFilePath.replace(File.separator, "-");
+		String paraFileName = CloneRepositoriesBuildStep
+				.encodeFileOrFolderName(csID + ".properties");
+		content.append("<arg value=\"" + paraFileName + "\"/>");
+
+		// for (Plugin plugin : plugins) {
+		// content.append("<arg value=\"" + plugin.getAbsolutePath() + "\"/>");
+		// }
+
 		content.append("<classpath>");
 		content.append(classpath);
 		content.append("</classpath>");
 		content.append("</java>");
 		content.append(IConstants.NL);
 
-		String csID = csFilePath.replace(File.separator, "-");
+		writeParaFile(paraFileName, plugins);
+
 		return Collections.singleton(new AntTarget("emftext-codegen-" + csID,
 				content));
 	}
