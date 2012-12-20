@@ -18,6 +18,8 @@ package de.devboost.buildboost.genext.emf.steps;
 import static de.devboost.buildboost.IConstants.NL;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -34,26 +36,30 @@ import de.devboost.buildboost.util.XMLContent;
 
 /**
  * The {@link GenerateGenModelCodeStep} generates a script that calls the EMF
- * code generators to obtain code from Ecore models. 
+ * code generators to obtain code from Ecore models.
  */
 public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 
 	public final static String MAIN_TASK = "generate-emf-code";
 
-	private List<Plugin> plugins;
-	private GeneratorModel generatorModel;
+	private final List<Plugin> plugins;
+	private final GeneratorModel generatorModel;
 
-	public GenerateGenModelCodeStep(List<Plugin> plugins, GeneratorModel generatorModel) {
+	public GenerateGenModelCodeStep(List<Plugin> plugins,
+			GeneratorModel generatorModel) {
 		this.plugins = plugins;
 		this.generatorModel = generatorModel;
 	}
 
+	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		Collection<IDependable> dependencies = generatorModel.getDependencies();
 		if (dependencies.isEmpty()) {
-			throw new BuildException("Generator models are expected to have a dependency to the BuildBoost EMF plug-in.");
+			throw new BuildException(
+					"Generator models are expected to have a dependency to the BuildBoost EMF plug-in.");
 		}
-		XMLContent classpath = new ClasspathHelper().getClasspath(generatorModel, true);
+		XMLContent classpath = new ClasspathHelper().getClasspath(
+				generatorModel, true);
 
 		File genModelFile = generatorModel.getFile();
 		String genModelPath = genModelFile.getAbsolutePath();
@@ -62,26 +68,50 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		sb.append("<delete dir=\"temp_eclipse_workspace\" />");
 		sb.append("<mkdir dir=\"temp_eclipse_workspace\" />");
 		sb.append(NL);
-		
-		sb.append("<echo message=\"Generating EMF model code for generator model " + genModelPath + "\" />");
+
+		sb.append("<echo message=\"Generating EMF model code for generator model "
+				+ genModelPath + "\" />");
 		// TODO use constant here
-		sb.append("<java fork=\"true\" classname=\"" + IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
+		sb.append("<java fork=\"true\" classname=\""
+				+ IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
 		sb.append("<jvmarg value=\"-Xmx2048m\"/>");
 		sb.append("<arg value=\"" + genModelPath + "\"/>");
-		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName() + "\"/>");
+		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName()
+				+ "\"/>");
 		sb.append("<arg value=\"" + generatorModel.getProjectDir() + "\"/>");
-		for (Plugin plugin : plugins) {
-			sb.append("<arg value=\"" + plugin.getAbsolutePath()+ "\"/>");
-		}
+		String genModelID = genModelPath.toString()
+				.replace(File.separator, "-");
+		String paraFileName = genModelID + ".properties";
+		sb.append("<arg value=\"" + paraFileName + "\"/>");
 		sb.append("<classpath>");
 		sb.append(classpath);
 		sb.append("</classpath>");
 		sb.append("</java>");
 		sb.append(NL);
-		
-		String genModelID = genModelPath.toString().replace(File.separator, "-");
-		
-		return Collections.singleton(new AntTarget("emf-codegen-" + genModelID, sb));
+
+		writeParaFile(paraFileName, plugins);
+
+		return Collections.singleton(new AntTarget("emf-codegen-" + genModelID,
+				sb));
+	}
+
+	private void writeParaFile(final String fileName,
+			final List<Plugin> plugins) {
+		final File paraPropFile = new File(fileName);
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(paraPropFile);
+			for (Plugin plugin : plugins) {
+				pw.println(plugin.getAbsolutePath());
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			if (pw != null) {
+				pw.close();
+			}
+		}
+
 	}
 }
