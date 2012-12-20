@@ -24,11 +24,14 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 
 public abstract class AbstractAntTargetGenerator implements IAntTargetGenerator {
 
+	final public static String JVMARG_MX = "-Xmx1024m";
+	final public static String JVMARG_MAXPERM = "-XX:MaxPermSize=256m";
+
 	@Override
 	public String getIdentifier() {
 		return toString();
 	}
-	
+
 	@Override
 	public Collection<IDependable> getDependencies() {
 		return Collections.emptySet();
@@ -43,7 +46,7 @@ public abstract class AbstractAntTargetGenerator implements IAntTargetGenerator 
 	public Collection<UnresolvedDependency> getUnresolvedDependencies() {
 		return Collections.emptySet();
 	}
-	
+
 	@Override
 	public long getTimestamp() {
 		return -1;
