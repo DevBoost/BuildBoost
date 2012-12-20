@@ -32,6 +32,7 @@ import de.devboost.buildboost.genext.emf.IConstants;
 import de.devboost.buildboost.genext.emf.artifacts.GeneratorModel;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.steps.ClasspathHelper;
+import de.devboost.buildboost.steps.clone.CloneRepositoriesBuildStep;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
@@ -82,7 +83,8 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		sb.append("<arg value=\"" + generatorModel.getProjectDir() + "\"/>");
 		String genModelID = genModelPath.toString()
 				.replace(File.separator, "-");
-		String paraFileName = genModelID + ".properties";
+		String paraFileName = CloneRepositoriesBuildStep
+				.encodeFileOrFolderName(genModelID + ".properties");
 		sb.append("<arg value=\"" + paraFileName + "\"/>");
 		sb.append("<classpath>");
 		sb.append(classpath);
@@ -96,8 +98,7 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 				sb));
 	}
 
-	private void writeParaFile(final String fileName,
-			final List<Plugin> plugins) {
+	private void writeParaFile(final String fileName, final List<Plugin> plugins) {
 		final File paraPropFile = new File(fileName);
 		PrintWriter pw = null;
 		try {
