@@ -68,6 +68,7 @@ public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 				+ "\" failonerror=\"true\">");
 		content.append("<jvmarg value=\"" + JVMARG_MAXPERM + "\"/>");
 		content.append("<jvmarg value=\"" + JVMARG_MX + "\"/>");
+		content.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
 		content.append("<arg value=\"" + csFilePath + "\"/>");
 		content.append("<arg value=\""
 				+ syntaxDefinition.getProjectDir().getName() + "\"/>");
