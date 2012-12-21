@@ -138,11 +138,10 @@ public class HeadlessCodeGenerator {
 			return false;
 		}
 
-		if (editDirectory.startsWith(File.separator)) {
+		if (editDirectory.startsWith("/")) {
 			editDirectory = editDirectory.substring(1);
 		}
-		String editProjectName = editDirectory.substring(0,
-				editDirectory.indexOf(File.separator));
+		String editProjectName = editDirectory.substring(0, editDirectory.indexOf("/"));
 		File editProjectDir = new File(workDir, editProjectName);
 		if (!editProjectDir.exists()) {
 			return false;
@@ -180,9 +179,8 @@ public class HeadlessCodeGenerator {
 		Map<URI, URI> uriMap = rs.getURIConverter().getURIMap();
 		for (String pluginPath : pluginPaths) {
 			File pluginFile = new File(pluginPath);
-			if (pluginFile.isDirectory()
-					&& !pluginPath.endsWith(File.separator)) {
-				pluginPath = pluginPath + File.separator;
+			if (pluginFile.isDirectory() && !pluginPath.endsWith("/")) {
+				pluginPath = pluginPath + "/";
 			}
 			Plugin plugin = new Plugin(pluginFile);
 			String identifier = plugin.getIdentifier();
