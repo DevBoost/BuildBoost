@@ -31,7 +31,8 @@ public class GlobalBuildConfiguration {
 	}
 
 	private void setDefaultValues() {
-		userProperties.setProperty(GlobalBuildConfiguration.DEBUG, "0");
+		userProperties.setProperty(GlobalBuildConfiguration.DEBUG,
+				GlobalBuildConfiguration.DEBUG_DEFAULT);
 	}
 
 	private static void readGlobalConfiguration() {
@@ -84,7 +85,11 @@ public class GlobalBuildConfiguration {
 	}
 
 	/* static constants for standard global entries and defaults */
+
+	// remote debugging support
 	public static final String DEBUG = "debug";
-	public static final String DEBUG_DEFAULT = "0"; // 0=disabled
+	// 0=disabled, >0=remote debugging support && loglevel
+	// 1 = log level 1, 2 = log level 2, ...
+	public static final String DEBUG_DEFAULT = "0";
 
 }
