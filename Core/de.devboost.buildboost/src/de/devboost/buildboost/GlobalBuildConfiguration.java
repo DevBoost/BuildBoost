@@ -24,10 +24,6 @@ public class GlobalBuildConfiguration {
 	// lazy init by static holder class
 	private static class Holder {
 		private static final GlobalBuildConfiguration INSTANCE = new GlobalBuildConfiguration();
-
-		private Holder() {
-
-		}
 	}
 
 	public static GlobalBuildConfiguration getInstance() {
