@@ -77,16 +77,11 @@ public class GlobalBuildConfiguration {
 	}
 
 	public String getConfigItem(final String key) {
-
-		readGlobalConfiguration();
 		return userProperties.getProperty(key);
-
 	}
 
 	public String getConfigItem(final String key, final String defaultValue) {
-		readGlobalConfiguration();
 		return userProperties.getProperty(key, defaultValue);
-
 	}
 
 	public boolean isDebugEnabled() {
