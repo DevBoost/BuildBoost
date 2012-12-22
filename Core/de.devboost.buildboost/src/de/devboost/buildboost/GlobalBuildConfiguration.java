@@ -1,8 +1,8 @@
 package de.devboost.buildboost;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -35,13 +35,22 @@ public class GlobalBuildConfiguration {
 			if (globalConfigFile.exists() && globalConfigFile.length() > 1) {
 				System.out
 						.println("Loading user defined global configuration from .buildboost file.");
-				InputStream in = this.getClass().getClassLoader()
-						.getResourceAsStream(globalConfigFileName);
+				FileReader reader = null;
 				try {
-					userProperties.load(in);
+					reader = new FileReader(globalConfigFile);
+					userProperties.load(reader);
 					this.wasRead = Boolean.TRUE;
 				} catch (IOException e) {
 					e.printStackTrace();
+				} finally {
+					if (reader != null) {
+						try {
+							reader.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 				}
 			} else {
 				System.out
