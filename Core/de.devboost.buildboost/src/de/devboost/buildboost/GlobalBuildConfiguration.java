@@ -78,7 +78,13 @@ public class GlobalBuildConfiguration {
 
 	}
 
-	/* static constants for default global entries */
+	public boolean isDebugEnabled() {
+		return DEBUG_DEFAULT
+				.equals(getConfigItem(GlobalBuildConfiguration.DEBUG));
+	}
+
+	/* static constants for standard global entries and defaults */
 	public static final String DEBUG = "debug";
+	public static final String DEBUG_DEFAULT = "0"; // 0=disabled
 
 }

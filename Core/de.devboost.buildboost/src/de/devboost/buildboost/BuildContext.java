@@ -33,14 +33,6 @@ import de.devboost.buildboost.util.SystemOutListener;
  */
 public class BuildContext implements IBuildContext {
 
-	// singleton only one instance in one jvm
-	private static GlobalBuildConfiguration globalBuildConfiguration = GlobalBuildConfiguration
-			.getInstance();
-
-	public static GlobalBuildConfiguration getGlobalBuildConfiguration() {
-		return globalBuildConfiguration;
-	}
-
 	private final Collection<IArtifact> discoveredArtifacts = new LinkedHashSet<IArtifact>();
 	private IBuildListener buildListener;
 	private boolean ignoreUnresolvedDependencies;

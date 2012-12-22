@@ -56,9 +56,6 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 
 		final GlobalBuildConfiguration globalConfig = GlobalBuildConfiguration
 				.getInstance();
-		final String debugConfig = globalConfig
-				.getConfigItem(GlobalBuildConfiguration.DEBUG);
-		System.out.println("DEBUG-FLAG:" + debugConfig);
 
 		Collection<IDependable> dependencies = generatorModel.getDependencies();
 		if (dependencies.isEmpty()) {
@@ -83,7 +80,9 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 				+ IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
 		sb.append("<jvmarg value=\"" + JVMARG_MAXPERM + "\"/>");
 		sb.append("<jvmarg value=\"" + JVMARG_MX + "\"/>");
-		sb.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
+		if (globalConfig.isDebugEnabled()) {
+			sb.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
+		}
 		sb.append("<arg value=\"" + genModelPath + "\"/>");
 		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName()
 				+ "\"/>");

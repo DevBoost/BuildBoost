@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.GlobalBuildConfiguration;
 import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
@@ -50,6 +51,10 @@ public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
+
+		final GlobalBuildConfiguration globalConfig = GlobalBuildConfiguration
+				.getInstance();
+
 		Collection<IDependable> dependencies = syntaxDefinition
 				.getDependencies();
 		if (dependencies.isEmpty()) {
@@ -68,7 +73,9 @@ public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 				+ "\" failonerror=\"true\">");
 		content.append("<jvmarg value=\"" + JVMARG_MAXPERM + "\"/>");
 		content.append("<jvmarg value=\"" + JVMARG_MX + "\"/>");
-		content.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
+		if (globalConfig.isDebugEnabled()) {
+			content.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
+		}
 		content.append("<arg value=\"" + csFilePath + "\"/>");
 		content.append("<arg value=\""
 				+ syntaxDefinition.getProjectDir().getName() + "\"/>");
