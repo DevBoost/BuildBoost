@@ -32,7 +32,7 @@ public class GlobalBuildConfiguration {
 		// but it is ok, because changes of configuration are permitted
 		if (Boolean.FALSE.equals(this.wasRead)) {
 
-			if (globalConfigFile.exists()) {
+			if (globalConfigFile.exists() && globalConfigFile.length() > 1) {
 				System.out
 						.println("Loading user defined global configuration from .buildboost file.");
 				InputStream in = this.getClass().getClassLoader()
