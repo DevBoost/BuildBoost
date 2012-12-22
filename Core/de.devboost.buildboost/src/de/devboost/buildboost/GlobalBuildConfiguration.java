@@ -16,7 +16,9 @@ public class GlobalBuildConfiguration {
 	// none extern instance creation support
 	private GlobalBuildConfiguration() {
 		System.out.println("GlobalUserConfig: set defaults");
-		userProperties.setProperty("debug", "0");
+		setDefaultValues();
+		System.out.println("GlobalUserConfig: read config file");
+		readGlobalConfiguration();
 	}
 
 	// lazy init by static holder class
@@ -24,13 +26,16 @@ public class GlobalBuildConfiguration {
 		private static final GlobalBuildConfiguration INSTANCE = new GlobalBuildConfiguration();
 
 		private Holder() {
-			System.out.println("GlobalUserConfig: read config file");
-			readGlobalConfiguration();
+
 		}
 	}
 
 	public static GlobalBuildConfiguration getInstance() {
 		return Holder.INSTANCE;
+	}
+
+	private void setDefaultValues() {
+		userProperties.setProperty("debug", "0");
 	}
 
 	private static void readGlobalConfiguration() {
