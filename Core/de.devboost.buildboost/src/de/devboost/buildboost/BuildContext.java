@@ -33,11 +33,20 @@ import de.devboost.buildboost.util.SystemOutListener;
  */
 public class BuildContext implements IBuildContext {
 
+	// Singleton: only one instance in a jvm is needed (user changes during the build are not permitted)
+	private static GlobalBuildConfiguration globalBuildConfiguration=new GlobalBuildConfiguration();
+	
+	public static GlobalBuildConfiguration getGlobalBuildConfiguration() {
+		return globalBuildConfiguration;
+	}
+
 	private Collection<IArtifact> discoveredArtifacts = new LinkedHashSet<IArtifact>();
 	private IBuildListener buildListener;
 	private boolean ignoreUnresolvedDependencies;
 	private List<IBuildParticipant> buildParticipants = new ArrayList<IBuildParticipant>();
 
+	
+	
 	public BuildContext() {
 		super();
 		// add default participants
