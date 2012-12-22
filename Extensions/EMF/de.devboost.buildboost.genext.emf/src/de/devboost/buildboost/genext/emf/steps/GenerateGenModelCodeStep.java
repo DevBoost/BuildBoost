@@ -78,10 +78,19 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		// TODO use constant here
 		sb.append("<java fork=\"true\" classname=\""
 				+ IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
-		sb.append("<jvmarg value=\"" + JVMARG_MAXPERM + "\"/>");
-		sb.append("<jvmarg value=\"" + JVMARG_MX + "\"/>");
+		sb.append("<jvmarg value=\""
+				+ globalConfig
+						.getConfigItem(GlobalBuildConfiguration.JVMARG_MAXPERM)
+				+ "\"/>");
+		sb.append("<jvmarg value=\""
+				+ globalConfig
+						.getConfigItem(GlobalBuildConfiguration.JVMARG_MX)
+				+ "\"/>");
 		if (globalConfig.isDebugEnabled()) {
-			sb.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
+			sb.append("<jvmarg line=\""
+					+ globalConfig
+							.getConfigItem(GlobalBuildConfiguration.JVMARG_DEBUG)
+					+ "\"/>");
 		}
 		sb.append("<arg value=\"" + genModelPath + "\"/>");
 		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName()

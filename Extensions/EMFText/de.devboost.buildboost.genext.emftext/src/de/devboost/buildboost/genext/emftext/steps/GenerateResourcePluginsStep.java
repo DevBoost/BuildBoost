@@ -71,10 +71,19 @@ public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 				+ csFilePath + "\" />");
 		content.append("<java fork=\"true\" classname=\"" + BUILDEXT_EXECUTABLE
 				+ "\" failonerror=\"true\">");
-		content.append("<jvmarg value=\"" + JVMARG_MAXPERM + "\"/>");
-		content.append("<jvmarg value=\"" + JVMARG_MX + "\"/>");
+		content.append("<jvmarg value=\""
+				+ globalConfig
+						.getConfigItem(GlobalBuildConfiguration.JVMARG_MAXPERM)
+				+ "\"/>");
+		content.append("<jvmarg value=\""
+				+ globalConfig
+						.getConfigItem(GlobalBuildConfiguration.JVMARG_MX)
+				+ "\"/>");
 		if (globalConfig.isDebugEnabled()) {
-			content.append("<jvmarg line=\"" + JVMARG_DEBUG + "\"/>");
+			content.append("<jvmarg line=\""
+					+ globalConfig
+							.getConfigItem(GlobalBuildConfiguration.JVMARG_DEBUG)
+					+ "\"/>");
 		}
 		content.append("<arg value=\"" + csFilePath + "\"/>");
 		content.append("<arg value=\""

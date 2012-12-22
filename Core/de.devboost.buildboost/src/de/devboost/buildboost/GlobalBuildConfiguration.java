@@ -31,8 +31,18 @@ public class GlobalBuildConfiguration {
 	}
 
 	private void setDefaultValues() {
+		// debugging support
 		userProperties.setProperty(GlobalBuildConfiguration.DEBUG,
 				GlobalBuildConfiguration.DEBUG_DEFAULT);
+		// remote debug option line
+		userProperties.setProperty(GlobalBuildConfiguration.JVMARG_DEBUG,
+				GlobalBuildConfiguration.JVMARG_DEBUG_DEFAULT);
+		// jvm mx para
+		userProperties.setProperty(GlobalBuildConfiguration.JVMARG_MX,
+				GlobalBuildConfiguration.JVMARG_MX_DEFAULT);
+		// jvm maxperm para
+		userProperties.setProperty(GlobalBuildConfiguration.JVMARG_MAXPERM,
+				GlobalBuildConfiguration.JVMARG_MAXPERM_DEFAULT);
 	}
 
 	private static void readGlobalConfiguration() {
@@ -91,5 +101,17 @@ public class GlobalBuildConfiguration {
 	// 0=disabled, >0=remote debugging support && loglevel
 	// 1 = log level 1, 2 = log level 2, ...
 	public static final String DEBUG_DEFAULT = "0";
+
+	// jvm remote debug option line
+	final public static String JVMARG_DEBUG = "jvm_debugoption_line";
+	final public static String JVMARG_DEBUG_DEFAULT = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000";
+
+	// jvm mx arg
+	final public static String JVMARG_MX = "jvmarg_mx";
+	final public static String JVMARG_MX_DEFAULT = "-Xmx2048m";
+
+	// jvm maxperm arg
+	final public static String JVMARG_MAXPERM = "jvm_maxperm";
+	final public static String JVMARG_MAXPERM_DEFAULT = "-XX:MaxPermSize=256m";
 
 }

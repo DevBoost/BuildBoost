@@ -29,10 +29,6 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 
 public abstract class AbstractAntTargetGenerator implements IAntTargetGenerator {
 
-	final public static String JVMARG_MX = "-Xmx1024m";
-	final public static String JVMARG_MAXPERM = "-XX:MaxPermSize=256m";
-	final public static String JVMARG_DEBUG = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8001";
-
 	protected void writeParaFile(final String fileName,
 			final List<Plugin> plugins) {
 		final File paraPropFile = new File(fileName);
