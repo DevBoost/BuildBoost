@@ -35,7 +35,7 @@ public class GlobalBuildConfiguration {
 	}
 
 	private void setDefaultValues() {
-		userProperties.setProperty("debug", "0");
+		userProperties.setProperty(GlobalBuildConfiguration.DEBUG, "0");
 	}
 
 	private static void readGlobalConfiguration() {
@@ -81,5 +81,8 @@ public class GlobalBuildConfiguration {
 		return userProperties.getProperty(key, defaultValue);
 
 	}
+
+	/* static constants for default global entries */
+	public static final String DEBUG = "debug";
 
 }

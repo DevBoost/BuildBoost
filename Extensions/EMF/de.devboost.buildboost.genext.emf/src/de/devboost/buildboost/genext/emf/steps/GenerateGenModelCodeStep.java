@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.GlobalBuildConfiguration;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.Plugin;
@@ -52,6 +53,13 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
+
+		final GlobalBuildConfiguration globalConfig = GlobalBuildConfiguration
+				.getInstance();
+		final String debugConfig = globalConfig
+				.getConfigItem(GlobalBuildConfiguration.DEBUG);
+		System.out.println("DEBUG-FLAG:" + debugConfig);
+
 		Collection<IDependable> dependencies = generatorModel.getDependencies();
 		if (dependencies.isEmpty()) {
 			throw new BuildException(
