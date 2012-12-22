@@ -80,7 +80,7 @@ public class GlobalBuildConfiguration {
 	}
 
 	public boolean isDebugEnabled() {
-		return DEBUG_DEFAULT
+		return !DEBUG_DEFAULT
 				.equals(getConfigItem(GlobalBuildConfiguration.DEBUG));
 	}
 
