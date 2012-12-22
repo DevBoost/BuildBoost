@@ -33,20 +33,19 @@ import de.devboost.buildboost.util.SystemOutListener;
  */
 public class BuildContext implements IBuildContext {
 
-	// Singleton: only one instance in a jvm is needed (user changes during the build are not permitted)
-	private static GlobalBuildConfiguration globalBuildConfiguration=new GlobalBuildConfiguration();
-	
+	// singleton only one instance in one jvm
+	private static GlobalBuildConfiguration globalBuildConfiguration = GlobalBuildConfiguration
+			.getInstance();
+
 	public static GlobalBuildConfiguration getGlobalBuildConfiguration() {
 		return globalBuildConfiguration;
 	}
 
-	private Collection<IArtifact> discoveredArtifacts = new LinkedHashSet<IArtifact>();
+	private final Collection<IArtifact> discoveredArtifacts = new LinkedHashSet<IArtifact>();
 	private IBuildListener buildListener;
 	private boolean ignoreUnresolvedDependencies;
-	private List<IBuildParticipant> buildParticipants = new ArrayList<IBuildParticipant>();
+	private final List<IBuildParticipant> buildParticipants = new ArrayList<IBuildParticipant>();
 
-	
-	
 	public BuildContext() {
 		super();
 		// add default participants
@@ -55,11 +54,13 @@ public class BuildContext implements IBuildContext {
 		addBuildParticipant(new ArtifactSorter());
 		addBuildParticipant(new AntTargetGeneratorRunner());
 	}
-	
+
+	@Override
 	public Collection<IArtifact> getDiscoveredArtifacts() {
 		return Collections.unmodifiableCollection(discoveredArtifacts);
 	}
 
+	@Override
 	public IBuildListener getBuildListener() {
 		if (buildListener == null) {
 			buildListener = new SystemOutListener();
@@ -71,26 +72,33 @@ public class BuildContext implements IBuildContext {
 		this.buildListener = buildListener;
 	}
 
+	@Override
 	public boolean ignoreUnresolvedDependencies() {
 		return ignoreUnresolvedDependencies;
 	}
 
-	public void setIgnoreUnresolvedDependencies(boolean ignoreUnresolvedDependencies) {
+	public void setIgnoreUnresolvedDependencies(
+			boolean ignoreUnresolvedDependencies) {
 		this.ignoreUnresolvedDependencies = ignoreUnresolvedDependencies;
 	}
 
+	@Override
 	public void addDiscoveredArtifacts(Collection<IArtifact> artifactsToAdd) {
 		discoveredArtifacts.addAll(artifactsToAdd);
 	}
-	
-	public void removeDiscoveredArtifacts(Collection<IArtifact> artifactsToRemove) {
+
+	@Override
+	public void removeDiscoveredArtifacts(
+			Collection<IArtifact> artifactsToRemove) {
 		discoveredArtifacts.removeAll(artifactsToRemove);
 	}
 
+	@Override
 	public void addBuildParticipant(IBuildParticipant participant) {
 		buildParticipants.add(participant);
 	}
 
+	@Override
 	public List<IBuildParticipant> getBuildParticipants() {
 		return buildParticipants;
 	}
