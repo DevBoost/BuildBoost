@@ -20,12 +20,12 @@ package de.devboost.buildboost;
  * system.
  */
 public interface IConstants {
-	
+
 	String BUILD_BOOST_REPOSITORY_URL = "https://github.com/DevBoost/BuildBoost.git";
 	String BUILD_BOOST_CORE_PROJECT_ID = "de.devboost.buildboost";
 	String BUILD_BOOST_GENEXT_PROJECT_ID_PATTERN = "de\\.devboost\\.buildboost\\.genext\\..*";
 	String BUILD_BOOST_BUILD_PROJECT_ID_PATTERN = ".*\\.build";
-	
+
 	String REPOS_FOLDER = "repos";
 	String BUILD_FOLDER = "build";
 	String ARTIFACTS_FOLDER = "artifacts";

@@ -5,3 +5,4 @@ Bundle-SymbolicName: de.devboost.buildboost.genext.emftext
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: de.devboost.buildboost
+Export-Package: de.devboost.buildboost.genext.emftext.steps

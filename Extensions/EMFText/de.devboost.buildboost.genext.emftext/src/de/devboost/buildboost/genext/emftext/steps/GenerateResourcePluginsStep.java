@@ -15,14 +15,15 @@
  ******************************************************************************/
 package de.devboost.buildboost.genext.emftext.steps;
 
+import static de.devboost.buildboost.genext.emftext.IConstants.BUILDEXT_EXECUTABLE;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static de.devboost.buildboost.genext.emftext.IConstants.*;
-
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.GlobalBuildConfiguration;
 import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
@@ -30,6 +31,7 @@ import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.emftext.artifacts.ConcreteSyntaxDefinition;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.steps.ClasspathHelper;
+import de.devboost.buildboost.steps.clone.CloneRepositoriesBuildStep;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
@@ -38,41 +40,76 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
 
-	private ConcreteSyntaxDefinition syntaxDefinition;
-	private List<Plugin> plugins;
+	private final ConcreteSyntaxDefinition syntaxDefinition;
+	private final List<Plugin> plugins;
 
-	public GenerateResourcePluginsStep(List<Plugin> plugins, ConcreteSyntaxDefinition syntaxDefinition) {
+	public GenerateResourcePluginsStep(List<Plugin> plugins,
+			ConcreteSyntaxDefinition syntaxDefinition) {
 		this.plugins = plugins;
 		this.syntaxDefinition = syntaxDefinition;
 	}
 
+	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
-		Collection<IDependable> dependencies = syntaxDefinition.getDependencies();
+
+		final GlobalBuildConfiguration globalConfig = GlobalBuildConfiguration
+				.getInstance();
+
+		Collection<IDependable> dependencies = syntaxDefinition
+				.getDependencies();
 		if (dependencies.isEmpty()) {
-			throw new BuildException("Concrete syntax definitions are expected to have a dependency to the EMFText SDK.");
+			throw new BuildException(
+					"Concrete syntax definitions are expected to have a dependency to the EMFText SDK.");
 		}
-		XMLContent classpath = new ClasspathHelper().getClasspath(syntaxDefinition, true);
+		XMLContent classpath = new ClasspathHelper().getClasspath(
+				syntaxDefinition, true);
 
 		String csFilePath = syntaxDefinition.getFile().getAbsolutePath();
 
 		XMLContent content = new XMLContent();
-		content.append("<echo message=\"Generating text resource plug-ins for concrete syntax definition " + csFilePath + "\" />");
-		content.append("<java fork=\"true\" classname=\""+ BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
-		content.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
-		content.append("<jvmarg value=\"-Xmx2048m\"/>");
-		content.append("<arg value=\"" + csFilePath + "\"/>");
-		content.append("<arg value=\"" + syntaxDefinition.getProjectDir().getName() + "\"/>");
-		content.append("<arg value=\"" + syntaxDefinition.getProjectDir().getParentFile().getAbsolutePath() + "\"/>");
-		for (Plugin plugin : plugins) {
-			content.append("<arg value=\"" + plugin.getAbsolutePath()+ "\"/>");
+		content.append("<echo message=\"Generating text resource plug-ins for concrete syntax definition "
+				+ csFilePath + "\" />");
+		content.append("<java fork=\"true\" classname=\"" + BUILDEXT_EXECUTABLE
+				+ "\" failonerror=\"true\">");
+		content.append("<jvmarg value=\""
+				+ globalConfig
+						.getConfigItem(GlobalBuildConfiguration.JVMARG_MAXPERM)
+				+ "\"/>");
+		content.append("<jvmarg value=\""
+				+ globalConfig
+						.getConfigItem(GlobalBuildConfiguration.JVMARG_MX)
+				+ "\"/>");
+		if (globalConfig.isDebugEnabled()) {
+			content.append("<jvmarg line=\""
+					+ globalConfig
+							.getConfigItem(GlobalBuildConfiguration.JVMARG_DEBUG)
+					+ "\"/>");
 		}
+		content.append("<arg value=\"" + csFilePath + "\"/>");
+		content.append("<arg value=\""
+				+ syntaxDefinition.getProjectDir().getName() + "\"/>");
+		content.append("<arg value=\""
+				+ syntaxDefinition.getProjectDir().getParentFile()
+						.getAbsolutePath() + "\"/>");
+
+		String csID = csFilePath.replace(File.separator, "-");
+		String paraFileName = CloneRepositoriesBuildStep
+				.encodeFileOrFolderName(csID + ".properties");
+		content.append("<arg value=\"" + paraFileName + "\"/>");
+
+		// for (Plugin plugin : plugins) {
+		// content.append("<arg value=\"" + plugin.getAbsolutePath() + "\"/>");
+		// }
+
 		content.append("<classpath>");
 		content.append(classpath);
 		content.append("</classpath>");
 		content.append("</java>");
 		content.append(IConstants.NL);
-		
-		String csID = csFilePath.replace(File.separator, "-");
-		return Collections.singleton(new AntTarget("emftext-codegen-" + csID, content));
+
+		writeParaFile(paraFileName, plugins);
+
+		return Collections.singleton(new AntTarget("emftext-codegen-" + csID,
+				content));
 	}
 }
