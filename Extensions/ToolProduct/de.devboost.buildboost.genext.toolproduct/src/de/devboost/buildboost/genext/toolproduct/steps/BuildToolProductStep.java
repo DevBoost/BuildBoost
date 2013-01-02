@@ -91,9 +91,11 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			content.appendLineBreak();
 			
-			File productInstallationFolder = new File(productFolder, productType);
-			productInstallationFolder.mkdir();
-			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder);
+			File productInstallationFolder = new File(productFolder, productType + "/eclipse");
+			File brandedProductFolder = new File(productFolder, productType + "/" + productName);
+			
+			productInstallationFolder.getParentFile().mkdir();
+			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
 			
 			content.append("<exec executable=\"eclipse\" failonerror=\"true\">");
@@ -111,25 +113,75 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"-tag\"/>");
 			content.append("<arg value=\"InstallationOf" + productName + "\"/>");
 			content.append("<arg value=\"-destination\"/>");
-			content.append("<arg value=\"" + productInstallationFolder.getAbsolutePath() + "/eclipse\"/>");
+			content.append("<arg value=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
 			content.append("<arg value=\"-profile\"/>");
 			content.append("<arg value=\"SDKProfile\"/>");
 			
 			content.append("</exec>");
 			content.appendLineBreak();
 			
-			//TODO do more stuff:
-			// - rename "eclipse" base folder
-			// - add workspace (put 'osgi.instance.area.default=../../../workspace' into config.ini)
-			// - replace eclipse launcher file/folder by custom launcher (or rename launcher)
-			// - configure splash screen
 			
+			File splashScreenFile = new File(updateSiteFolder, "splash.bmp");
+			File pluginFolder = new File(productInstallationFolder, "plugins");
+
+			File osxIconFile = new File(updateSiteFolder, "Eclipse.icns");
+			File osxAppFolder = new File(productInstallationFolder, "Eclipse.app");
+			File osxBrandedAppFolder = new File(productInstallationFolder, productName + ".app");
+			File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
+			
+			File windowsExe = new File(productInstallationFolder, "eclipse.exe");
+			File windowsBrandedExe = new File(productInstallationFolder, productName + ".exe");
+			
+			File workspace = new File(updateSiteFolder, "workspace");
+			File configIni = new File(productInstallationFolder, "configuration/config.ini");
+			
+			
+			//copy splash
+			content.append("<first id=\"platformPlugin\">");
+			content.append("<fileset dir=\"" + pluginFolder.getAbsolutePath() + "\" includes=\"org.eclipse.platform_*\"/>");
+			content.append("</first>");
+			
+			content.append("<echo message=\"${toString:platformPlugin}\" />");
+			
+			content.append("<copy overwrite=\"true\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+			
+			
+			//copy icon osx
+			if (productType.startsWith("osx")) {
+				//copy icon osx
+				content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
+				//rename app folder
+				content.append("<move file=\"" + osxAppFolder.getAbsolutePath() + "\" tofile=\"" + osxBrandedAppFolder.getAbsolutePath() +"\"/>");
+			} else if (productType.startsWith("win")) {
+				//TODO copy a prepared exe with branded icon? (provide 64/32 bit versions)
+				
+				//rename exe
+				content.append("<move file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");				
+			} else {
+				//TODO do some launcher branding for linux?
+			}
+			
+			//copy workspace
+			content.append("<copy todir=\"" + productInstallationFolder.getAbsolutePath() + "\">");
+			content.append("<fileset dir=\""+ workspace.getAbsolutePath() + "\"/>");
+			content.append("</copy>");
+			
+			//change default workspace
+			content.append("<replaceregexp file=\"" + configIni.getAbsolutePath() + "\" match='osgi.instance.area.default=.*\n' replace='osgi.instance.area.default=.../../../workspace'/>");
+
+			//rename base folder
+			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
 			File productsDistFolder = new File(updateSiteFolder.getParentFile().getParentFile(), "products");
-			String productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + ".zip").getAbsolutePath();
+			String zipType;
+			if (productType.startsWith("win")) {
+				zipType = "zip";
+			} else {
+				zipType = "tar.gz";
+			}
+			String productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + "." + zipType).getAbsolutePath();
 			productsDistFolder.mkdir();
-			//TODO this needs to use native tar.gz for unix systems in order to preserve file flags
-			content.append("<zip destfile=\"" + productZipPath  + "\" basedir=\""+ productInstallationFolder.getAbsolutePath() + "\" />");
+			AntScriptUtil.addZipFileCompressionScript(content, productZipPath,  brandedProductFolder.getParentFile().getAbsolutePath());
 			content.appendLineBreak();
 			
 			//TODO upload ZIP
@@ -139,7 +191,5 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		AntTarget target = new AntTarget("build-eclipse-tool-product-" + updateSiteID, content);
 		return target;
 	}
-
-
 
 }
