@@ -41,6 +41,10 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 		setIdentifier(identifier);
 		getUnresolvedDependencies().add(new UnresolvedDependency(EclipseUpdateSite.class, identifier, null, true, null, true, false, false));
 	}
+	
+	public File getFile() {
+		return file;
+	}
 
 	private void readVersionFile() {
 		properties = new Properties();

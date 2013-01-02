@@ -64,8 +64,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
 		
-		File updateSiteFolder = deploymentSpec.getUpdateSite().getFile().getParentFile();
-		
+		File deployedUpdateSiteFolder = deploymentSpec.getUpdateSite().getFile().getParentFile();
+		File updateSiteFolder = deploymentSpec.getFile().getParentFile();
 		File productBuildDir = new File(targetDir, "products");
 		productBuildDir.mkdir();
 		
@@ -107,7 +107,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			content.append("<arg value=\"-repository\"/>");
 			//TODO Juno and Feedback update-sites are hard coded as dependency here
-			content.append("<arg value=\"file:" + updateSiteFolder.getAbsolutePath() + ",http://download.eclipse.org/releases/juno,http://www.devboost.de/eclipse-feedback/update\"/>");
+			content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + ",http://download.eclipse.org/releases/juno,http://www.devboost.de/eclipse-feedback/update\"/>");
 			content.append("<arg value=\"-installIU\"/>");
 			content.append("<arg value=\"" + productFeatureID + ".feature.group\"/>");
 			content.append("<arg value=\"-tag\"/>");
@@ -132,19 +132,19 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File windowsExe = new File(productInstallationFolder, "eclipse.exe");
 			File windowsBrandedExe = new File(productInstallationFolder, productName + ".exe");
 			
-			File workspace = new File(updateSiteFolder, "workspace");
-			File configIni = new File(productInstallationFolder, "configuration/config.ini");
+			File linuxIconFile = new File(updateSiteFolder, "icon.xpm");
+			File linuxExe = new File(productInstallationFolder, "eclipse");
+			File linuxBrandedExe = new File(productInstallationFolder, productName);
 			
+			File workspace = new File(updateSiteFolder, "workspace");
+			File configIni = new File(productInstallationFolder, "configuration/config.ini");		
 			
 			//copy splash
 			content.append("<first id=\"platformPlugin\">");
-			content.append("<fileset dir=\"" + pluginFolder.getAbsolutePath() + "\" includes=\"org.eclipse.platform_*\"/>");
+			content.append("<dirset dir=\"" + pluginFolder.getAbsolutePath() + "\" includes=\"org.eclipse.platform_*\"/>");
 			content.append("</first>");
 			
-			content.append("<echo message=\"${toString:platformPlugin}\" />");
-			
 			content.append("<copy overwrite=\"true\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
-			
 			
 			//copy icon osx
 			if (productType.startsWith("osx")) {
@@ -158,21 +158,33 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				//rename exe
 				content.append("<move file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");				
 			} else {
-				//TODO do some launcher branding for linux?
+				//copy icon linux
+				content.append("<copy overwrite=\"true\" file=\"" + linuxIconFile.getAbsolutePath() + "\" todir=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
+				//rename exe
+				content.append("<move file=\"" + linuxExe.getAbsolutePath() + "\" tofile=\"" + linuxBrandedExe.getAbsolutePath() +"\"/>");				
 			}
 			
 			//copy workspace
-			content.append("<copy todir=\"" + productInstallationFolder.getAbsolutePath() + "\">");
+			content.append("<copy todir=\"" + new File(productInstallationFolder, "workspace").getAbsolutePath() + "\">");
 			content.append("<fileset dir=\""+ workspace.getAbsolutePath() + "\"/>");
 			content.append("</copy>");
 			
+			String userHomeWorkspace;
+			String appRelativeWorkspace;
+			if (productType.equals("osx")) {
+				userHomeWorkspace = "osgi.instance.area.default=@user.home/Documents/workspace";
+				appRelativeWorkspace = "osgi.instance.area.default=../../../workspace";
+			} else {
+				userHomeWorkspace = "osgi.instance.area.default=@user.home/workspace";
+				appRelativeWorkspace = "osgi.instance.area.default=./workspace";
+			}
 			//change default workspace
-			content.append("<replaceregexp file=\"" + configIni.getAbsolutePath() + "\" match='osgi.instance.area.default=.*\n' replace='osgi.instance.area.default=.../../../workspace'/>");
+			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"" + userHomeWorkspace + "\" value=\"" + appRelativeWorkspace + "\"/>");
 
 			//rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
-			File productsDistFolder = new File(updateSiteFolder.getParentFile().getParentFile(), "products");
+			File productsDistFolder = new File(deployedUpdateSiteFolder.getParentFile().getParentFile(), "products");
 			String zipType;
 			if (productType.startsWith("win")) {
 				zipType = "zip";

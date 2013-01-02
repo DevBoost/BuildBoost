@@ -38,10 +38,10 @@ public class AntScriptUtil {
 		if (zipFile.endsWith(".zip")) {
 			content.append("<zip destfile=\"" + zipFile  + "\" basedir=\""+ folderToZip + "\" />");
 		} else {
-			content.append("<exec executable=\"tar\" dir=\".\" failonerror=\"true\">");
+			content.append("<exec executable=\"tar\" dir=\""+ folderToZip + "\" failonerror=\"true\">");
 			content.append("<arg value=\"cvzf\"/>");
 			content.append("<arg value=\"" + zipFile + "\"/>");
-			content.append("<arg value=\"" + folderToZip + "\"/>");
+			content.append("<arg value=\".\"/>");
 			content.append("</exec>");
 		}
 	}
