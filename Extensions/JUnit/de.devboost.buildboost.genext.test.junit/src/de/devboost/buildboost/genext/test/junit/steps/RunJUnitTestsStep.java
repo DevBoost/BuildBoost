@@ -98,6 +98,8 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 		sb.append("<jvmarg value=\"-ea\" />");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\" />");
 		sb.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
+		//disable GC overhead limit to avoid OutOfMemory exceptions
+		sb.append("<jvmarg value=\"-XX:-UseGCOverheadLimit\"/>");
 		sb.append("<classpath>");
 		sb.append("<path path=\"test-classpath.jar\"/>");
 		sb.append("</classpath>");
