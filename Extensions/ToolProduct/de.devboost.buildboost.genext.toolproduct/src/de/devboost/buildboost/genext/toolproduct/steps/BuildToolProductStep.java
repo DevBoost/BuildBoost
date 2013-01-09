@@ -129,7 +129,12 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File osxBrandedAppFolder = new File(productInstallationFolder, productName + ".app");
 			File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
 			
-			File windowsExe = new File(productInstallationFolder, "eclipse.exe");
+			File windowsExe = null;
+			if (productType.contains("64")) {
+				windowsExe = new File(updateSiteFolder, "eclipse64.exe");
+			} else {
+				windowsExe = new File(updateSiteFolder, "eclipse32.exe");
+			}
 			File windowsBrandedExe = new File(productInstallationFolder, productName + ".exe");
 			
 			File linuxIconFile = new File(updateSiteFolder, "icon.xpm");
@@ -156,9 +161,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				//remove command line "eclipse"
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse").getAbsolutePath() + "\"/>");
 			} else if (productType.startsWith("win")) {
-				//TODO copy a prepared exe with branded icon? (provide 64/32 bit versions)
-				
-				//rename exe
+				//use prepared exe
 				content.append("<move file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
 				//remove command line "eclipse"
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
