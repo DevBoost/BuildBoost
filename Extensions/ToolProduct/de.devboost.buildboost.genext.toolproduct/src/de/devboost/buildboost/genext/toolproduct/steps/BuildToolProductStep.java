@@ -137,7 +137,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File linuxBrandedExe = new File(productInstallationFolder, productName);
 			
 			File workspace = new File(updateSiteFolder, "workspace");
-			File configIni = new File(productInstallationFolder, "configuration/config.ini");		
+			File configIni = new File(productInstallationFolder, "configuration/config.ini");	
+			File uiPrefs = new File(productInstallationFolder, "configuration/.settings/org.eclipse.ui.ide.prefs");	
 			
 			//copy splash
 			content.append("<first id=\"platformPlugin\">");
@@ -152,16 +153,20 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
 				//rename app folder
 				content.append("<move file=\"" + osxAppFolder.getAbsolutePath() + "\" tofile=\"" + osxBrandedAppFolder.getAbsolutePath() +"\"/>");
+				//remove command line "eclipse"
+				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse").getAbsolutePath() + "\"/>");
 			} else if (productType.startsWith("win")) {
 				//TODO copy a prepared exe with branded icon? (provide 64/32 bit versions)
 				
 				//rename exe
-				content.append("<move file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");				
+				content.append("<move file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
+				//remove command line "eclipse"
+				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
 			} else {
 				//copy icon linux
 				content.append("<copy overwrite=\"true\" file=\"" + linuxIconFile.getAbsolutePath() + "\" todir=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
 				//rename exe
-				content.append("<move file=\"" + linuxExe.getAbsolutePath() + "\" tofile=\"" + linuxBrandedExe.getAbsolutePath() +"\"/>");				
+				content.append("<move file=\"" + linuxExe.getAbsolutePath() + "\" tofile=\"" + linuxBrandedExe.getAbsolutePath() +"\"/>");
 			}
 			
 			//copy workspace
@@ -180,7 +185,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			//change default workspace
 			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"" + userHomeWorkspace + "\" value=\"" + appRelativeWorkspace + "\"/>");
-
+			content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
+			content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
+			
 			//rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
