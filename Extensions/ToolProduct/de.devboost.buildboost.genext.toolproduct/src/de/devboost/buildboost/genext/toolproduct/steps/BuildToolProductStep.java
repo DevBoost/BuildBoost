@@ -123,11 +123,13 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			File splashScreenFile = new File(updateSiteFolder, "splash.bmp");
 			File pluginFolder = new File(productInstallationFolder, "plugins");
+			File iconFolder = new File(updateSiteFolder, "icons");
 
-			File osxIconFile = new File(updateSiteFolder, "Eclipse.icns");
+			File osxIconFile = new File(iconFolder, "Eclipse.icns");
 			File osxAppFolder = new File(productInstallationFolder, "Eclipse.app");
 			File osxBrandedAppFolder = new File(productInstallationFolder, productName + ".app");
 			File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
+			String[] iconFormats = new String[] { "16.gif", "16.png", "32.gif", "32.png", "48.gif", "48.png", "256.png" };
 			
 			File windowsExe = null;
 			if (productType.contains("64")) {
@@ -137,7 +139,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			File windowsBrandedExe = new File(productInstallationFolder, productName + ".exe");
 			
-			File linuxIconFile = new File(updateSiteFolder, "icon.xpm");
+			File linuxIconFile = new File(iconFolder, "icon.xpm");
 			File linuxExe = new File(productInstallationFolder, "eclipse");
 			File linuxBrandedExe = new File(productInstallationFolder, productName);
 			
@@ -151,6 +153,12 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("</first>");
 			
 			content.append("<copy overwrite=\"true\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+			//copy icons
+			for (String iconFormat : iconFormats) {
+				content.append("<copy overwrite=\"true\" file=\"" + new File(iconFolder, "eclipse" + iconFormat).getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+			}
+			
+			content.append("<copy overwrite=\"true\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
 			
 			//copy icon osx
 			if (productType.startsWith("osx")) {
@@ -162,7 +170,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse").getAbsolutePath() + "\"/>");
 			} else if (productType.startsWith("win")) {
 				//use prepared exe
-				content.append("<move file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
+				content.append("<copy overwrite=\"true\" file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
 				//remove command line "eclipse"
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
 			} else {
