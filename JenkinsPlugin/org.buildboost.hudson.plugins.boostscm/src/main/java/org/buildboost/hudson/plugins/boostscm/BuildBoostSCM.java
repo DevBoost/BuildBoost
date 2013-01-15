@@ -29,6 +29,7 @@ import hudson.scm.SCM;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -380,9 +381,10 @@ public class BuildBoostSCM extends SCM {
 		if (localPath != null) {
 			pb.directory(new File(localPath));
 		}
+		Process process = null;
 		try {
 			logger.info("executing " + command + " in " + localPath);
-			Process process = pb.start();
+			process = pb.start();
 			InputStream inputStream = process.getInputStream();
 			BufferedReader isr = new BufferedReader(new InputStreamReader(inputStream));
 			String line;
@@ -404,16 +406,37 @@ public class BuildBoostSCM extends SCM {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			closeStreams(process);
 		}
 	}
 	
+    private void closeStreams(Process process) {
+    	if (process == null) {
+			return;
+		}
+    	closeStream(process.getInputStream());
+    	closeStream(process.getOutputStream());
+    	closeStream(process.getErrorStream());
+    }
+    
+    private void closeStream(Closeable closable) {
+		if (closable != null) {
+			try {
+				closable.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
 	/**
 	 * This method does very little as the actual check out of project is 
 	 * performed by BuildBoost during the CloneStage. 
 	 * 
 	 * We simply write the URL of the root repository to a file in the workspace 
 	 * to allow the universal build script to use it. Also, we download the
-	 * lastest version of the universal build script.
+	 * latest version of the universal build script.
 	 */
 	@Override
 	public boolean checkout(
