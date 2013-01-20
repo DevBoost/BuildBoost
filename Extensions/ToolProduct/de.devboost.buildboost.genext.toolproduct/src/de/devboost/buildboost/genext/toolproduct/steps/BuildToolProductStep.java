@@ -172,6 +172,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				//use prepared exe
 				content.append("<copy overwrite=\"true\" file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
 				//remove command line "eclipse"
+				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse.exe").getAbsolutePath() + "\"/>");
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
 			} else {
 				//copy icon linux
