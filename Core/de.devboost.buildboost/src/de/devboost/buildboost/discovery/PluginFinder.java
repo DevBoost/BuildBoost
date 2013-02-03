@@ -127,11 +127,15 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 			Plugin newPlugin;
 			try {
 				newPlugin = new Plugin(projectDir);
+				/*
 				// TODO this belongs somewhere else
+				// Do not add dependency to Tomcat, WebApps must declare a 
+				// dependency to javax.servlet on their own
 				if (projectDir.getName().endsWith(".webapp")) {
 					UnresolvedDependency tomcatDependency = new UnresolvedDependency(Plugin.class, "org.apache.tomcat_6_0_32", null, true, null, true, false, false);
 					newPlugin.getUnresolvedDependencies().add(tomcatDependency);
 				}
+				*/
 			} catch (IOException e) {
 				throw new RuntimeException(e.getMessage());
 			}
