@@ -16,9 +16,7 @@
 package de.devboost.buildboost.genext.webapps.steps;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
 
 import de.devboost.buildboost.ant.AbstractAntTargetGeneratorProvider;
 import de.devboost.buildboost.ant.IAntTargetGenerator;
@@ -26,15 +24,11 @@ import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.webapps.util.WebAppUtil;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
-import de.devboost.buildboost.model.UnresolvedDependency;
 
 public class WebAppPackagingStepProvider extends AbstractAntTargetGeneratorProvider {
 
-	private Collection<UnresolvedDependency> webAppDependencies;
-	
-	public WebAppPackagingStepProvider(Collection<UnresolvedDependency> webAppDependencies) {
+	public WebAppPackagingStepProvider() {
 		super();
-		this.webAppDependencies = webAppDependencies;
 	}
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
@@ -43,7 +37,7 @@ public class WebAppPackagingStepProvider extends AbstractAntTargetGeneratorProvi
 			Plugin plugin = (Plugin) artifact;
 			if (plugin.isProject()) {
 				if (new WebAppUtil().isWebApp(plugin)) {
-					steps.add(new WebAppPackagingStep(plugin, webAppDependencies));
+					steps.add(new WebAppPackagingStep(plugin));
 				}
 			}
 		}

@@ -18,39 +18,26 @@ package de.devboost.buildboost.genext.webapps.discovery;
 import java.util.Collection;
 import java.util.Collections;
 
-
-import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.discovery.AbstractArtifactDiscoverer;
 import de.devboost.buildboost.discovery.PluginFinder;
-import de.devboost.buildboost.genext.webapps.util.WebAppUtil;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
-import de.devboost.buildboost.model.UnresolvedDependency;
 
 /**
  * A {@link WebAppFinder} can be used to find web applications among the set
  * of previously discovered projects. Thus, it must be used after the 
  * {@link PluginFinder}.
+ * 
+ * TODO Remove this class? It was previously used to add a dependency to Tomcat,
+ * but this is obsolete now.
  */
 public class WebAppFinder extends AbstractArtifactDiscoverer {
 
-	private Collection<UnresolvedDependency> webAppDependencies;
-	
-	public WebAppFinder(Collection<UnresolvedDependency> webAppDependencies) {
+	public WebAppFinder() {
 		super();
-		this.webAppDependencies = webAppDependencies;
 	}
 
 	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
-		Collection<IArtifact> discoveredArtifacts = context.getDiscoveredArtifacts();
-		for (IArtifact artifact : discoveredArtifacts) {
-			if (artifact instanceof Plugin) {
-				Plugin plugin = (Plugin) artifact;
-				if (plugin.isProject() && new WebAppUtil().isWebApp(plugin)) {
-					plugin.getUnresolvedDependencies().addAll(webAppDependencies);
-				}
-			}
-		}
 		return Collections.emptySet();
 	}
 }

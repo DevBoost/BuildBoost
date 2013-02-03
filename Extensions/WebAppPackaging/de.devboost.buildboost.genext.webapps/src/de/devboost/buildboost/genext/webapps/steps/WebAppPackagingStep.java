@@ -24,19 +24,16 @@ import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.Plugin;
-import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.steps.ClasspathHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 
 	private Plugin plugin;
-	private Collection<UnresolvedDependency> webAppDependencies;
 
-	public WebAppPackagingStep(Plugin plugin, Collection<UnresolvedDependency> webAppDependencies) {
+	public WebAppPackagingStep(Plugin plugin) {
 		super();
 		this.plugin = plugin;
-		this.webAppDependencies = webAppDependencies;
 	}
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
@@ -51,18 +48,12 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 	    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(plugin) + "\" />");
 	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    for (Plugin dependency : dependencies) {
-	    	boolean isArtificalDependency = false;
-	    	for (UnresolvedDependency webAppDependency : webAppDependencies) {
-				if (webAppDependency.isFulfilledBy(dependency)) {
-			    	isArtificalDependency = true;
-					break;
-				}
-			}
 	    	// we do not include artificial dependencies that have been only 
 	    	// added to compile correctly
-			if (isArtificalDependency) {
+			if (dependency.getIdentifier().startsWith("java.servlet")) {
 				continue;
 			}
+			
 	    	File location = dependency.getLocation();
 			if (dependency.isProject()) {
 			    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(dependency) + "\" >");

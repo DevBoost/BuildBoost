@@ -16,21 +16,16 @@
 package de.devboost.buildboost.genext.webapps.stages;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-
 
 import de.devboost.buildboost.AutoBuilder;
 import de.devboost.buildboost.BuildContext;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AntScript;
-import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
 import de.devboost.buildboost.genext.webapps.discovery.WebAppFinder;
 import de.devboost.buildboost.genext.webapps.steps.WebAppPackagingStepProvider;
 import de.devboost.buildboost.model.IUniversalBuildStage;
-import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.stages.AbstractBuildStage;
 
 public class WebAppPackagingStage extends AbstractBuildStage implements IUniversalBuildStage {
@@ -43,14 +38,12 @@ public class WebAppPackagingStage extends AbstractBuildStage implements IUnivers
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		Collection<UnresolvedDependency> webAppDendencies = getWebAppDendencies();
-
 		BuildContext context = createContext(false);
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(artifactsFolder)));
 		context.addBuildParticipant(new PluginFinder(new File(artifactsFolder)));
-		context.addBuildParticipant(new WebAppFinder(webAppDendencies));
+		context.addBuildParticipant(new WebAppFinder());
 		
-		context.addBuildParticipant(new WebAppPackagingStepProvider(webAppDendencies));
+		context.addBuildParticipant(new WebAppPackagingStepProvider());
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		AntScript script = new AntScript();
@@ -58,19 +51,6 @@ public class WebAppPackagingStage extends AbstractBuildStage implements IUnivers
 		script.addTargets(builder.generateAntTargets());
 		
 		return script;
-	}
-
-	private Collection<UnresolvedDependency> getWebAppDendencies() {
-		UnresolvedDependency dependency = new UnresolvedDependency(
-				Plugin.class, 
-				"org.apache.tomcat_6_0_32", // TODO make this configurable 
-				null,
-				true,
-				null, 
-				true,
-				false, 
-				false);
-		return Collections.singletonList(dependency);
 	}
 
 	@Override
