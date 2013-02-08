@@ -18,6 +18,7 @@ package de.devboost.buildboost.genext.webapps.steps;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
@@ -29,6 +30,8 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 
+	private static final String WEB_CONTENT_DIR_NAME = "WebContent";
+	
 	private Plugin plugin;
 
 	public WebAppPackagingStep(Plugin plugin) {
@@ -39,37 +42,45 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		XMLContent content = new XMLContent();
 
-		File webContentDir = new File(plugin.getLocation(), "WebContent");
+		File webContentDir = new File(plugin.getLocation(), WEB_CONTENT_DIR_NAME);
 		File webXmlFile = new File(new File(webContentDir, "WEB-INF"), "web.xml");
 		
+		// this is the directory where we copy all the dependencies of the
+		// web application together because actually creating the WAR file
+		String webAppDir = "dist/webapps/temp_" + plugin.getIdentifier();
+		
 		content.append("<mkdir dir=\"dist/webapps\" />");
+		content.append("<mkdir dir=\"" + webAppDir + "\" />");
+		
+	    Set<Plugin> dependencies = plugin.getAllDependencies();
+	    removeContainerLibraries(dependencies);
+	    
+	    for (Plugin dependency : dependencies) {
+			// each project the WebApp depends on is packaged as individual JAR
+			// file
+			if (dependency.isProject()) {
+			    String jarFile = webAppDir + "/" + dependency.getIdentifier() + ".jar";
+			    String binPath = new ClasspathHelper().getBinPath(dependency);
+			    
+				content.append("<jar destfile=\"" + jarFile + "\">"); 
+				content.append("<fileset dir=\"" + binPath + "\" />");
+			    content.append("<fileset dir=\"" + dependency.getAbsolutePath() + "\" >");
+			    content.append("<include name=\"metamodel/**\" />");
+			    content.append("<include name=\"META-INF/**\" />");
+			    content.append("</fileset>");
+			    content.append("</jar>");
+			} else {
+			}
+		}
 		content.append("<war destfile=\"dist/webapps/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
+		content.append("<fileset dir=\"" + webAppDir + "\" />");
 		content.append("<fileset dir=\"" + webContentDir.getAbsolutePath() + "\" />");
 	    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(plugin) + "\" />");
-	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    for (Plugin dependency : dependencies) {
-	    	// we do not include artificial dependencies that have been only 
-	    	// added to compile correctly
-			if (dependency.getIdentifier().startsWith("java.servlet")) {
-				continue;
-			}
-			
-	    	File location = dependency.getLocation();
-			if (dependency.isProject()) {
-			    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(dependency) + "\" >");
-			    content.append("<exclude name=\"META-INF/MANIFEST.MF\" />");
-			    content.append("</classes>");
-			    content.append("<classes dir=\"" + dependency.getAbsolutePath() + "\" >");
-			    content.append("<include name=\"metamodel/**\" />");
-			    content.append("</classes>");
-			    for (String lib : dependency.getLibs()) {
-			    	String absoluteLibPath = dependency.getAbsoluteLibPath(lib);
-			    	File libFile = new File(absoluteLibPath);
-				    content.append("<lib dir=\"" + libFile.getParentFile().getAbsolutePath() + "\">");
-				    content.append("<include name=\"" + libFile.getName() + "\" />");
-				    content.append("</lib>");
-				}
+	    	if (!dependency.isProject()) {
+				// TODO add packaged dependency
 			} else {
+		    	File location = dependency.getLocation();
 				if (location.isFile()) {
 					// target platform plug-ins must be included as whole JAR
 				    content.append("<lib dir=\"" + location.getParentFile().getAbsolutePath() + "\">");
@@ -79,10 +90,25 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 					// TODO handle plug-in dependencies that are extracted
 				}
 			}
-		}
+	    }
+	    
 	    content.append("</war>");
+	    
+	    // TODO remove webAppDir?
 		
 		AntTarget target = new AntTarget("package-webapp-" + plugin.getIdentifier(), content);
 		return Collections.singleton(target);
+	}
+
+	private void removeContainerLibraries(Set<Plugin> dependencies) {
+		Iterator<Plugin> iterator = dependencies.iterator();
+		while (iterator.hasNext()) {
+			Plugin plugin = (Plugin) iterator.next();
+	    	// we do not include artificial dependencies that have been only
+	    	// added to compile correctly
+			if (plugin.getIdentifier().startsWith("java.servlet")) {
+				iterator.remove();
+			}
+		}
 	}
 }
