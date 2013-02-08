@@ -59,7 +59,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 			// each project the WebApp depends on is packaged as individual JAR
 			// file
 			if (dependency.isProject()) {
-			    String jarFile = webAppDir + "/" + dependency.getIdentifier() + ".jar";
+			    String jarFile = getJarFileName(webAppDir, dependency);
 			    String binPath = new ClasspathHelper().getBinPath(dependency);
 			    
 				content.append("<jar destfile=\"" + jarFile + "\">"); 
@@ -78,7 +78,9 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 	    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(plugin) + "\" />");
 	    for (Plugin dependency : dependencies) {
 	    	if (!dependency.isProject()) {
-				// TODO add packaged dependency
+				// add packaged dependency
+			    String jarFile = getJarFileName(webAppDir, dependency);
+			    content.append("<lib file=\"" + jarFile + "\" />");
 			} else {
 		    	File location = dependency.getLocation();
 				if (location.isFile()) {
@@ -98,6 +100,10 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		
 		AntTarget target = new AntTarget("package-webapp-" + plugin.getIdentifier(), content);
 		return Collections.singleton(target);
+	}
+
+	private String getJarFileName(String webAppDir, Plugin dependency) {
+		return webAppDir + "/" + dependency.getIdentifier() + ".jar";
 	}
 
 	private void removeContainerLibraries(Set<Plugin> dependencies) {
