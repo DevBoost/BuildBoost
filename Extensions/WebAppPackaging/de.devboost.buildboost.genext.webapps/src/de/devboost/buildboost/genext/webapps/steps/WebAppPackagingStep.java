@@ -70,6 +70,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 			    content.append("</fileset>");
 			    content.append("</jar>");
 			} else {
+				// TODO?
 			}
 		}
 		content.append("<war destfile=\"dist/webapps/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
@@ -79,11 +80,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		content.append("<fileset dir=\"" + webContentDir.getAbsolutePath() + "\" />");
 	    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(plugin) + "\" />");
 	    for (Plugin dependency : dependencies) {
-	    	if (!dependency.isProject()) {
-				// add packaged dependency
-			    String jarFile = getJarFileName(webAppDir, dependency);
-			    content.append("<lib file=\"" + jarFile + "\" />");
-			} else {
+	    	if (dependency.isProject()) {
 		    	File location = dependency.getLocation();
 				if (location.isFile()) {
 					// target platform plug-ins must be included as whole JAR
@@ -91,12 +88,18 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 				    content.append("<include name=\"" + location.getName() + "\" />");
 				    content.append("</lib>");
 				} else {
-					Set<String> libs = dependency.getLibs();
+				    // add the libraries that are part of the dependency
+				    Set<String> libs = dependency.getLibs();
 					for (String lib : libs) {
 					    content.append("<lib file=\"" + dependency.getAbsoluteLibPath(lib) + "\" />");
 					}
+
 					// TODO handle plug-in dependencies that are extracted
 				}
+			} else {
+				// add packaged dependency
+			    String jarFile = getJarFileName(webAppDir, dependency);
+			    content.append("<lib file=\"" + jarFile + "\" />");
 			}
 	    }
 	    

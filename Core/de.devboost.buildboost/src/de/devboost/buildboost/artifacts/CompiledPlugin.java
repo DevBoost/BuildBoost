@@ -18,7 +18,11 @@ package de.devboost.buildboost.artifacts;
 import java.io.File;
 import java.io.IOException;
 
-
+/**
+ * A {@link CompiledPlugin} is a plug-in that is available from a previously 
+ * packaged target platform. A {@link CompiledPlugin} can be a JAR or a folder
+ * containing the extracted contents of the plug-in.
+ */
 @SuppressWarnings("serial")
 public class CompiledPlugin extends Plugin {
 
