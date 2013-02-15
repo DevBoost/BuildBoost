@@ -118,7 +118,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 			Plugin plugin = (Plugin) iterator.next();
 	    	// we do not include artificial dependencies that have been only
 	    	// added to compile correctly
-			if (plugin.getIdentifier().startsWith("java.servlet")) {
+			if (plugin.getIdentifier().startsWith("javax.servlet")) {
 				iterator.remove();
 			}
 		}
