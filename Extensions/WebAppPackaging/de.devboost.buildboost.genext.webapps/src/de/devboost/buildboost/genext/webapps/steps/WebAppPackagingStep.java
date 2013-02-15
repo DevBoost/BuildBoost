@@ -73,7 +73,9 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 			}
 		}
 		content.append("<war destfile=\"dist/webapps/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
-		content.append("<fileset dir=\"" + webAppDir + "\" />");
+	    content.append("<lib dir=\"" + webAppDir + "\">");
+	    content.append("<include name=\"*.jar\" />");
+	    content.append("</lib>");
 		content.append("<fileset dir=\"" + webContentDir.getAbsolutePath() + "\" />");
 	    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(plugin) + "\" />");
 	    for (Plugin dependency : dependencies) {
