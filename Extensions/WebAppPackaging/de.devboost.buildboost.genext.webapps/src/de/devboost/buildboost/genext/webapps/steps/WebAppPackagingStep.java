@@ -46,7 +46,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		File webXmlFile = new File(new File(webContentDir, "WEB-INF"), "web.xml");
 		
 		// this is the directory where we copy all the dependencies of the
-		// web application together because actually creating the WAR file
+		// web application before actually creating the WAR file
 		String webAppDir = "dist/webapps/temp_" + plugin.getIdentifier();
 		
 		content.append("<mkdir dir=\"dist/webapps\" />");
