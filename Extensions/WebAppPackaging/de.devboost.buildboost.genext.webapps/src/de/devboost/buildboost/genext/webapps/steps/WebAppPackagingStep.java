@@ -91,6 +91,10 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 				    content.append("<include name=\"" + location.getName() + "\" />");
 				    content.append("</lib>");
 				} else {
+					Set<String> libs = dependency.getLibs();
+					for (String lib : libs) {
+					    content.append("<lib file=\"" + dependency.getAbsoluteLibPath(lib) + "\" />");
+					}
 					// TODO handle plug-in dependencies that are extracted
 				}
 			}
