@@ -411,6 +411,11 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		return new File(getAbsolutePath(), "EXPERIMENTAL").exists();
 	}
 
+	/**
+	 * Returns true if this plug-in is a project that is built. If the plug-in
+	 * was obtained from another location (e.g., as a JAR from an Eclipse
+	 * distribution), this method will return false.
+	 */
 	public boolean isProject() {
 		return true;
 	}
