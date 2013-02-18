@@ -133,7 +133,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 				//      and not against the artifacts that are discovered in the build process
 				
 				// mseifert: reactivated discovery of feature dependencies, because they are required
-				// to update the minimal required verson
+				// to update the minimal required version
 				findDependencies(document, xpath, "//import", "feature", null, EclipseFeature.class);
 			}
 
