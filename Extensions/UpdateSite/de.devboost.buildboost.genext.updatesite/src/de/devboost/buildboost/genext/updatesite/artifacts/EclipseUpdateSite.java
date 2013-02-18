@@ -89,4 +89,13 @@ public class EclipseUpdateSite extends AbstractArtifact {
 	public long getTimestamp() {
 		return file.lastModified();
 	}
+
+	public EclipseFeature getFeature(String featureID) {
+		for (EclipseFeature feature : getFeatures()) {
+			if (featureID.equals(feature.getIdentifier())) {
+				return feature;
+			}
+		}
+		return null;
+	}
 }

@@ -71,7 +71,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		
 		String productName = deploymentSpec.getValue("product", "name");
 		String productFeatureID = deploymentSpec.getValue("product", "feature");
-		String siteVersion = deploymentSpec.getFeatureVersion(productFeatureID);
+		String siteVersion = deploymentSpec.getUpdateSite().getFeature(productFeatureID).getVersion();
 		
 		File sdkFolder = new File(targetDir.getParentFile().getParentFile(), "eclipse-sdks");
 		File productFolder = new File(productBuildDir, productName);

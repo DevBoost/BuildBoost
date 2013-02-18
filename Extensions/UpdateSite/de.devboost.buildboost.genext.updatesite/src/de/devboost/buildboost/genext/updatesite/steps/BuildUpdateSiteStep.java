@@ -106,7 +106,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			File featureFile = feature.getFile();
 			String tempDir = distDir + File.separator + "temp_features";
 			String tempFeatureDir = tempDir + "/" + featureID;
-			String featureVersion = updateSiteSpec.getFeatureVersion(featureID);
+			String featureVersion = feature.getVersion();
 			String featureVendor = updateSiteSpec.getFeatureVendor(featureID);
 
 			content.append("<echo message=\"Building feature '" + featureID + "' for update site '" + updateSiteID + "'\"/>");

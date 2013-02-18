@@ -49,6 +49,8 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 	
 	private Set<String> containedPluginIDs = new LinkedHashSet<String>();
 
+	private String version;
+
 	public EclipseFeature(File file) {
 		super();
 		this.file = file;
@@ -80,6 +82,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 			protected void process(Document document, XPath xpath)
 					throws XPathExpressionException {
 				findIdentifier(document, xpath);
+				findVersion(document, xpath);
 				searchingContainedPlugins = true;
 				findContainedPluginDependencies(document, xpath);
 				searchingContainedPlugins = false;
@@ -113,6 +116,11 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 				setIdentifier(element.getAttribute("id"));
 			}
 
+			private void findVersion(Document document, XPath xpath) throws XPathExpressionException {
+				Element element = (Element) xpath.evaluate("//feature", document, XPathConstants.NODE);
+				setVersion(element.getAttribute("version"));
+			}
+
 			private void findContainedPluginDependencies(Document document, XPath xpath)
 					throws XPathExpressionException {
 				findDependencies(document, xpath, "//plugin", "id", "fragment", Plugin.class);
@@ -134,6 +142,14 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 		};
 		
 		xmlUtil.readXMLStrem(is);
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	private void setVersion(String version) {
+		this.version = version;
 	}
 
 	public Collection<Plugin> getPlugins() {
