@@ -96,7 +96,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
 		Map<String, String> plugin2VersionMap = new LinkedHashMap<String, String>();
 		for (EclipseFeature feature : updateSite.getFeatures()) {
-			String featureVersion = updateSiteSpec.getFeatureVersion(feature.getIdentifier());
+			String featureVersion = feature.getVersion();
 			for (Plugin plugin : feature.getPlugins()) {
 				String pluginID = plugin.getIdentifier();
 				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
@@ -109,7 +109,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		}
 		
 		for (EclipseFeature feature : updateSite.getFeatures()) {
-			String featureVersion = updateSiteSpec.getFeatureVersion(feature.getIdentifier());
+			String featureVersion = feature.getVersion();
 			String featureVendor = updateSiteSpec.getFeatureVendor(feature.getIdentifier());
 			for (Plugin plugin : feature.getPlugins()) {
 				String pluginID = plugin.getIdentifier();
