@@ -115,7 +115,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<mkdir dir=\"" + tempFeatureDir + "\" />");
 			content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
 			content.append("<!-- set version in copy -->");
-			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\"0.0.0\" value=\"" + featureVersion + ".v${buildid}\"/>");
+			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\"" + featureVersion + "\" value=\"" + featureVersion + ".v${buildid}\"/>");
 			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
 			content.append("<!-- create empty file 'feature.properties' -->");
 			content.append("<touch file=\"feature.properties\"/>");
