@@ -26,6 +26,7 @@ import de.devboost.buildboost.artifacts.EclipseFeature;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
+import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
@@ -117,6 +118,15 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<!-- set version in copy -->");
 			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\"" + featureVersion + "\" value=\"" + featureVersion + ".v${buildid}\"/>");
 			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
+
+			Collection<IDependable> dependencies = feature.getDependencies();
+			for (IDependable dependency : dependencies) {
+				if (dependency instanceof EclipseFeature) {
+					EclipseFeature requiredFeature = (EclipseFeature) dependency;
+					content.append("<replaceregexp file=\"" + tempFeatureDir + "/feature.xml\" match='<import feature=\"" + requiredFeature.getIdentifier() + "\"' replace='<import feature=\"" + requiredFeature.getIdentifier() + "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
+				}
+			}
+			
 			content.append("<!-- create empty file 'feature.properties' -->");
 			content.append("<touch file=\"feature.properties\"/>");
 			content.append("<!-- create feature JAR -->");
