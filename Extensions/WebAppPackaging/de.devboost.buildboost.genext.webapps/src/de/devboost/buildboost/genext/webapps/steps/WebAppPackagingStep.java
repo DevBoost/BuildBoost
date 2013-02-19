@@ -47,10 +47,11 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		
 		// this is the directory where we copy all the dependencies of the
 		// web application before actually creating the WAR file
-		String webAppDir = "dist/webapps/temp_" + plugin.getIdentifier();
+		String temporaryWebAppDir = "build/temp/webapps/" + plugin.getIdentifier();
 		
-		content.append("<mkdir dir=\"dist/webapps\" />");
-		content.append("<mkdir dir=\"" + webAppDir + "\" />");
+		String distWebAppsPath = "dist/webapps";
+		content.append("<mkdir dir=\"" + distWebAppsPath + "\" />");
+		content.append("<mkdir dir=\"" + temporaryWebAppDir + "\" />");
 		
 	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    removeContainerLibraries(dependencies);
@@ -59,7 +60,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 			// each project the WebApp depends on is packaged as individual JAR
 			// file
 			if (dependency.isProject()) {
-			    String jarFile = getJarFileName(webAppDir, dependency);
+			    String jarFile = getJarFileName(temporaryWebAppDir, dependency);
 			    String binPath = new ClasspathHelper().getBinPath(dependency);
 			    
 				content.append("<jar destfile=\"" + jarFile + "\">"); 
@@ -73,8 +74,8 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 				// TODO?
 			}
 		}
-		content.append("<war destfile=\"dist/webapps/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
-	    content.append("<lib dir=\"" + webAppDir + "\">");
+		content.append("<war destfile=\"" + distWebAppsPath + "/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
+	    content.append("<lib dir=\"" + temporaryWebAppDir + "\">");
 	    content.append("<include name=\"*.jar\" />");
 	    content.append("</lib>");
 		content.append("<fileset dir=\"" + webContentDir.getAbsolutePath() + "\" />");
@@ -98,7 +99,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 				}
 			} else {
 				// add packaged dependency
-			    String jarFile = getJarFileName(webAppDir, dependency);
+			    String jarFile = getJarFileName(temporaryWebAppDir, dependency);
 			    content.append("<lib file=\"" + jarFile + "\" />");
 			}
 	    }
