@@ -40,21 +40,21 @@ public class BuildToolProductStage extends AbstractBuildStage implements IUniver
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		File buildDir = new File(artifactsFolder);
+		File artifactsDir = new File(artifactsFolder);
 
 		BuildContext context = createContext(false);
 
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsDir));
 
-		context.addBuildParticipant(new PluginFinder(buildDir));
-		context.addBuildParticipant(new EclipseFeatureFinder(buildDir));
+		context.addBuildParticipant(new PluginFinder(artifactsDir));
+		context.addBuildParticipant(new EclipseFeatureFinder(artifactsDir));
 
-		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildDir));
+		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(artifactsDir));
 		
-		File distDir = new File(buildDir, "dist");
+		File distDir = new File(artifactsDir, "dist");
 		context.addBuildParticipant(new EclipseUpdateSiteFinder(distDir));
 		
-		context.addBuildParticipant(new BuildToolProductStepProvider(buildDir));
+		context.addBuildParticipant(new BuildToolProductStepProvider());
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		

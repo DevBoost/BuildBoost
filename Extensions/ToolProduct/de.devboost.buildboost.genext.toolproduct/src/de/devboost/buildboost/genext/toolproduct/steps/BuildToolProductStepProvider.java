@@ -15,7 +15,6 @@
  ******************************************************************************/
 package de.devboost.buildboost.genext.toolproduct.steps;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,17 +26,14 @@ import de.devboost.buildboost.model.IBuildContext;
 
 public class BuildToolProductStepProvider extends AbstractAntTargetGeneratorProvider {
 
-	private File targetDir;
-	
-	public BuildToolProductStepProvider(File targetDir) {
+	public BuildToolProductStepProvider() {
 		super();
-		this.targetDir = targetDir;
 	}
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof EclipseUpdateSiteDeploymentSpec) {
 			EclipseUpdateSiteDeploymentSpec deploymentSpec = (EclipseUpdateSiteDeploymentSpec) artifact;
-			IAntTargetGenerator step = new BuildToolProductStep(deploymentSpec, targetDir);
+			IAntTargetGenerator step = new BuildToolProductStep(deploymentSpec);
 			return Collections.singletonList(step);
 		}
 		return Collections.emptyList();

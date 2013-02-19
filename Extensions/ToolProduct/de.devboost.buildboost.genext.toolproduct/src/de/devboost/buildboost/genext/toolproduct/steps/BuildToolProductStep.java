@@ -31,12 +31,10 @@ import de.devboost.buildboost.util.AntScriptUtil;
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	
 	private EclipseUpdateSiteDeploymentSpec deploymentSpec;
-	private File targetDir;
 
-	public BuildToolProductStep(EclipseUpdateSiteDeploymentSpec deploymentSpec, File targetDir) {
+	public BuildToolProductStep(EclipseUpdateSiteDeploymentSpec deploymentSpec) {
 		super();
 		this.deploymentSpec = deploymentSpec;
-		this.targetDir = targetDir;
 	}
 	
 	@Override
@@ -66,17 +64,19 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		
 		File deployedUpdateSiteFolder = deploymentSpec.getUpdateSite().getFile().getParentFile();
 		File updateSiteFolder = deploymentSpec.getFile().getParentFile();
-		File productBuildDir = new File(targetDir, "products");
-		productBuildDir.mkdir();
+		
+		String distProductsPath = "dist/products";
+		content.append("<mkdir dir=\"" + distProductsPath + "\" />");
 		
 		String productName = deploymentSpec.getValue("product", "name");
 		String productFeatureID = deploymentSpec.getValue("product", "feature");
 		String siteVersion = deploymentSpec.getUpdateSite().getFeature(productFeatureID).getVersion();
 		
-		File sdkFolder = new File(targetDir.getParentFile().getParentFile(), "eclipse-sdks");
-		File productFolder = new File(productBuildDir, productName);
-		sdkFolder.mkdir();
-		productFolder.mkdir();
+		String sdkFolderPath = "../eclipse-sdks";
+		content.append("<mkdir dir=\"" + sdkFolderPath + "\" />");
+
+		String productFolderPath = distProductsPath + "/" + productName;
+		content.append("<mkdir dir=\"" + productFolderPath + "\" />");
 		
 		//call director for publishing
 		Map<String, String> configs = deploymentSpec.getValues("product", "type");
@@ -84,15 +84,15 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			String productType = conf.getKey();
 			String url = conf.getValue();
 			String sdkZipName = url.substring(url.lastIndexOf("/") + 1);
-			File sdkZipFile = new File(sdkFolder, sdkZipName);
+			File sdkZipFile = new File(sdkFolderPath, sdkZipName);
 			
 			if (!sdkZipFile.exists()) {
-				AntScriptUtil.addDownloadFileScript(content, url, sdkFolder.getAbsolutePath());
+				AntScriptUtil.addDownloadFileScript(content, url, new File(sdkFolderPath).getAbsolutePath());
 			}
 			content.appendLineBreak();
 			
-			File productInstallationFolder = new File(productFolder, productType + "/eclipse");
-			File brandedProductFolder = new File(productFolder, productType + "/" + productName);
+			File productInstallationFolder = new File(productFolderPath + "/" + productType + "/eclipse");
+			File brandedProductFolder = new File(productFolderPath + "/" + productType + "/" + productName);
 			
 			productInstallationFolder.getParentFile().mkdir();
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
@@ -204,6 +204,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
 			File productsDistFolder = new File(deployedUpdateSiteFolder.getParentFile().getParentFile(), "products");
+			content.append("<mkdir dir=\"" + productsDistFolder.getAbsolutePath() + "\" />");
+
 			String zipType;
 			if (productType.startsWith("win")) {
 				zipType = "zip";
@@ -211,7 +213,6 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				zipType = "tar.gz";
 			}
 			String productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + "." + zipType).getAbsolutePath();
-			productsDistFolder.mkdir();
 			AntScriptUtil.addZipFileCompressionScript(content, productZipPath,  brandedProductFolder.getParentFile().getAbsolutePath());
 			content.appendLineBreak();
 			
@@ -222,5 +223,4 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		AntTarget target = new AntTarget("build-eclipse-tool-product-" + updateSiteID, content);
 		return target;
 	}
-
 }
