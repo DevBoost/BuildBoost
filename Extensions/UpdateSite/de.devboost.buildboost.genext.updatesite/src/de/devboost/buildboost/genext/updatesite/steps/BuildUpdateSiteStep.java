@@ -124,7 +124,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			for (IDependable dependency : dependencies) {
 				if (dependency instanceof EclipseFeature) {
 					EclipseFeature requiredFeature = (EclipseFeature) dependency;
-					content.append("<replaceregexp file=\"" + tempFeatureDir + "/feature.xml\" match='import feature=\"" + requiredFeature.getIdentifier() + "\"' replace='import feature=\"" + requiredFeature.getIdentifier() + "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
+					content.append("<replaceregexp file=\"" + tempFeatureDir + "/feature.xml\" match='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\"' replace='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
 				}
 			}
 			
