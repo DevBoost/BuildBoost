@@ -47,7 +47,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		
 		// this is the directory where we copy all the dependencies of the
 		// web application before actually creating the WAR file
-		String temporaryWebAppDir = "build/temp/webapps/" + plugin.getIdentifier();
+		String temporaryWebAppDir = "temp/webapps/" + plugin.getIdentifier();
 		
 		String distWebAppsPath = "dist/webapps";
 		content.append("<mkdir dir=\"" + distWebAppsPath + "\" />");
