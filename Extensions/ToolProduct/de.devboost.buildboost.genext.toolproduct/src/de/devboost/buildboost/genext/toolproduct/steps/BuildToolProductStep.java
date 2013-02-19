@@ -94,7 +94,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File productInstallationFolder = new File(productFolderPath + "/" + productType + "/eclipse");
 			File brandedProductFolder = new File(productFolderPath + "/" + productType + "/" + productName);
 			
-			productInstallationFolder.getParentFile().mkdir();
+			content.append("<mkdir dir=\"" + productInstallationFolder.getParentFile().getAbsolutePath() + "\" />");
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
 			
