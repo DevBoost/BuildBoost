@@ -43,7 +43,7 @@ public class AntScript {
 		StringBuilder depends = new StringBuilder();
 		List<AntTarget> targets = new ArrayList<AntTarget>(this.targets);
 		targets.add(0, createLogTimeTarget("Start"));
-		targets.add(createLogTimeTarget("End"));
+		targets.add(createLogTimeTarget("End  "));
 
 		for (AntTarget target : targets) {
 			depends.append(target.getName());
