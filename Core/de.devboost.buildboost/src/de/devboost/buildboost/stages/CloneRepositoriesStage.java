@@ -45,11 +45,11 @@ public class CloneRepositoriesStage extends AbstractBuildStage {
 		AutoBuilder builder = new AutoBuilder(context);
 		Collection<AntTarget> targets = builder.generateAntTargets();
 
-		AntScript copyScript = new AntScript();
-		copyScript.setName("Clone repositories stage");
-		copyScript.addTargets(targets);
+		AntScript script = new AntScript();
+		script.setName("Clone repositories stage");
+		script.addTargets(targets);
 		
-		return copyScript;
+		return script;
 	}
 
 }
