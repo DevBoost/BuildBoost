@@ -80,7 +80,7 @@ public class AntScript {
 
 	private AntTarget createLogTimeTarget(String name) {
 		XMLContent content = new XMLContent();
-		content.append("<tstamp><format property=\"time-" + name + "\" pattern=\"yyyy-dd-MM hh:mm:ss\" /></tstamp>");
+		content.append("<tstamp><format property=\"time-" + name + "\" pattern=\"yyyy-dd-MM HH:mm:ss\" /></tstamp>");
 		content.append("<echo file=\"time-log.txt\" append=\"true\">" + name + ": ${time-" + name + "} (" + this.name + ")\n</echo>");
 		AntTarget target = new AntTarget("log-time-" + name, content);
 		return target;
