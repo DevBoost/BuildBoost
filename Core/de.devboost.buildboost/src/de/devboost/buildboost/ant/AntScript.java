@@ -19,6 +19,7 @@ import static de.devboost.buildboost.IConstants.NL;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import de.devboost.buildboost.util.XMLContent;
 
@@ -40,8 +41,8 @@ public class AntScript {
 		script.append(content.toString());
 
 		StringBuilder depends = new StringBuilder();
-		Collection<AntTarget> targets = new ArrayList<AntTarget>(this.targets);
-		targets.add(createLogTimeTarget("Start"));
+		List<AntTarget> targets = new ArrayList<AntTarget>(this.targets);
+		targets.add(0, createLogTimeTarget("Start"));
 		targets.add(createLogTimeTarget("End"));
 
 		for (AntTarget target : targets) {
