@@ -61,6 +61,7 @@ public class ScriptSaver {
 	public void saveMasterScript(File targetDir, List<IBuildStage> stages) throws BuildException {
 		// then create master script that calls the scripts for the stages
 		AntScript masterScript = new AntScript();
+		masterScript.setName("BuildBoostMaster");
 		XMLContent content = new XMLContent();
 		int lastStageNumber = stages.size() + 1;
 		for (int i = 1; i < lastStageNumber; i++) {
