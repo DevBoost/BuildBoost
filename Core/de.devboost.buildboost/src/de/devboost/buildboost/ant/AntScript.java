@@ -40,6 +40,10 @@ public class AntScript {
 		script.append(content.toString());
 
 		StringBuilder depends = new StringBuilder();
+		Collection<AntTarget> targets = new ArrayList<AntTarget>(this.targets);
+		targets.add(createLogTimeTarget("Start"));
+		targets.add(createLogTimeTarget("End"));
+
 		for (AntTarget target : targets) {
 			depends.append(target.getName());
 			depends.append(", ");
@@ -71,6 +75,14 @@ public class AntScript {
 		script.append("</project>");
 
 		return script.toString();
+	}
+
+	private AntTarget createLogTimeTarget(String name) {
+		XMLContent content = new XMLContent();
+		content.append("<tstamp><format property=\"time-" + name + "\" pattern=\"yyyy-dd-MM hh:mm:ss\" /></tstamp>");
+		content.append("<echo file=\"time-log.txt\" append=\"true\">" + name + ": ${time-" + name + "} (" + this.name + ")\n</echo>");
+		AntTarget target = new AntTarget("log-time-" + name, content);
+		return target;
 	}
 
 	public void setName(String name) {
