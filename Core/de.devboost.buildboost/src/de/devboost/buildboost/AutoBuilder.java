@@ -28,6 +28,7 @@ import de.devboost.buildboost.model.IBuildParticipant;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.ArtifactUtil;
 import de.devboost.buildboost.util.Sorter;
+import de.devboost.buildboost.util.XMLContent;
 
 /**
  * The {@link AutoBuilder} is a generic builder that can be configured with sets of
@@ -66,6 +67,7 @@ public class AutoBuilder {
 		}
 		
 		Collection<AntTarget> targets = new ArrayList<AntTarget>();
+		targets.add(createLogTimeTarget("Start"));
 		Collection<IArtifact> discoveredArtifacts = context.getDiscoveredArtifacts();
 		for (IArtifact artifact : discoveredArtifacts) {
 			if (artifact instanceof AntTarget) {
@@ -73,7 +75,16 @@ public class AutoBuilder {
 				targets.add(antTarget);
 			}
 		}
+		targets.add(createLogTimeTarget("End"));
 		return targets;
+	}
+
+	private AntTarget createLogTimeTarget(String name) {
+		XMLContent content = new XMLContent();
+		content.append("<tstamp><format property=\"time-" + name + "\" pattern=\"yyyy-dd-MM hh:mm:ss\" /></tstamp>");
+		content.append("<echo file=\"time-log.txt\" append=\"true\">" + name + ": ${time-" + name + "}</echo>");
+		AntTarget target = new AntTarget("log-time-" + name, content);
+		return target;
 	}
 
 	private List<IBuildParticipant> sort(List<IBuildParticipant> participants) {
