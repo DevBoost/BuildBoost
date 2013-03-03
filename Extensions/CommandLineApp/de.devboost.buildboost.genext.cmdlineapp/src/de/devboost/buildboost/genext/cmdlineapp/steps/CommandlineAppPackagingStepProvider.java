@@ -13,7 +13,7 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package de.devboost.buildboost.buildext.cmdlineapp;
+package de.devboost.buildboost.genext.cmdlineapp.steps;
 
 import java.io.File;
 import java.util.ArrayList;
