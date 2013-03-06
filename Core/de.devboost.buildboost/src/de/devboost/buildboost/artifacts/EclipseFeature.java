@@ -51,9 +51,12 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 
 	private String version;
 
-	public EclipseFeature(File file) {
+	private boolean isTargetPlatformFeature;
+
+	public EclipseFeature(File file, boolean isTargetPlatformFeature) {
 		super();
 		this.file = file;
+		this.isTargetPlatformFeature = isTargetPlatformFeature;
 		if (file.getName().equals(FEATURE_XML)) {
 			try {
 				readFeatureInputStream(new FileInputStream(file));
@@ -171,6 +174,10 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 
 	public File getFile() {
 		return file;
+	}
+
+	public boolean isTargetPlatformFeature() {
+		return isTargetPlatformFeature;
 	}
 
 	@Override

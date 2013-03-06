@@ -83,7 +83,7 @@ public class EclipseFeatureFinder extends AbstractArtifactDiscoverer {
 		
 		Collection<EclipseFeature> features = new ArrayList<EclipseFeature>(featureXmlFiles.length);
 		for (File featureXmlFile : featureXmlFiles) {
-			features.add(new EclipseFeature(featureXmlFile));
+			features.add(new EclipseFeature(featureXmlFile, false));
 		}
 		return features;
 	}

@@ -120,9 +120,9 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			@Override
 			public IArtifact create(File fileDirectoryOrJar) throws IOException {
 				if (fileDirectoryOrJar.isDirectory()) {
-					return new EclipseFeature(new File(fileDirectoryOrJar, "feature.xml"));
+					return new EclipseFeature(new File(fileDirectoryOrJar, "feature.xml"), true);
 				} else {
-					return new EclipseFeature(fileDirectoryOrJar);
+					return new EclipseFeature(fileDirectoryOrJar, true);
 				}
 			}
 		});
