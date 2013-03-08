@@ -24,6 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.TargetPlatformZip;
@@ -38,7 +39,7 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 	public ExtractZipFileBuildStep(TargetPlatformZip zip, File targetDir) {
 		super();
 		this.zip = zip;
-		this.targetDir = new File(targetDir, "target-platform");
+		this.targetDir = new File(targetDir, IConstants.TARGET_PLATFORM_FOLDER);
 	}
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
@@ -47,8 +48,6 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 		AntScriptUtil.addZipFileExtractionScript(content, file, new File(targetDir, determineEclipseTargetStructurePrefix(file)));
 		return Collections.singleton(new AntTarget("unzip-target-platform-" + zip.getIdentifier(), content));
 	}
-
-
 
 	public String determineEclipseTargetStructurePrefix(File file) {
 		if (!file.getName().endsWith(".zip")) {

@@ -20,6 +20,7 @@ import java.io.File;
 import de.devboost.buildboost.AutoBuilder;
 import de.devboost.buildboost.BuildContext;
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.discovery.EclipseFeatureFinder;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
@@ -40,8 +41,8 @@ public class BuildMavenRepositoryStage extends AbstractBuildStage implements IUn
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		File buildProjectsDir = new File(new File(artifactsFolder), "projects");
-		File buildTargetPlatformDir = new File(new File(artifactsFolder), "target-platform");
+		File buildProjectsDir = new File(new File(artifactsFolder), IConstants.PROJECTS_FOLDER);
+		File buildTargetPlatformDir = new File(new File(artifactsFolder), IConstants.TARGET_PLATFORM_FOLDER);
 
 		BuildContext context = createContext(false);
 		

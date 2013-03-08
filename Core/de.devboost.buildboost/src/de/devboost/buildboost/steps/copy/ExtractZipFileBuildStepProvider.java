@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -27,8 +27,8 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 
 /**
- * The {@link ExtractZipFileBuildStepProvider} add a {@link CopyPluginsAndFeaturesBuildStep} 
- * for each bundled plug-in. This provider does not apply to plug-in projects.
+ * The {@link ExtractZipFileBuildStepProvider} add a 
+ * {@link ExtractZipFileBuildStep} for each target platform ZIP file.
  */
 public class ExtractZipFileBuildStepProvider extends AbstractAntTargetGeneratorProvider {
 

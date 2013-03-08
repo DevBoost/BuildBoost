@@ -20,6 +20,7 @@ import java.io.File;
 import de.devboost.buildboost.AutoBuilder;
 import de.devboost.buildboost.BuildContext;
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.discovery.EclipseFeatureFinder;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
@@ -32,26 +33,28 @@ import de.devboost.buildboost.stages.AbstractBuildStage;
 
 public class BuildUpdateSiteStage extends AbstractBuildStage implements IUniversalBuildStage {
 
-	private String artifactsFolder;
+	private String artifactsFolderPath;
 
-	public void setArtifactsFolder(String artifactsFolder) {
-		this.artifactsFolder = artifactsFolder;
+	public void setArtifactsFolder(String artifactsFolderPath) {
+		this.artifactsFolderPath = artifactsFolderPath;
 	}
 
 	@Override
 	public AntScript getScript() throws BuildException {
-		File buildDir = new File(artifactsFolder);
+		File artifactsFolder = new File(artifactsFolderPath);
+		File projectsFolder = new File(artifactsFolder, IConstants.PROJECTS_FOLDER);
+		File targetPlatformFolder = new File(artifactsFolder, IConstants.TARGET_PLATFORM_FOLDER);
 
 		BuildContext context = createContext(false);
 		
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(targetPlatformFolder));
 
-		context.addBuildParticipant(new PluginFinder(buildDir));
-		context.addBuildParticipant(new EclipseFeatureFinder(buildDir));
-		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildDir));
-		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildDir));
+		context.addBuildParticipant(new PluginFinder(projectsFolder));
+		context.addBuildParticipant(new EclipseFeatureFinder(projectsFolder));
+		context.addBuildParticipant(new EclipseUpdateSiteFinder(projectsFolder));
+		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(projectsFolder));
 		
-		context.addBuildParticipant(new BuildUpdateSiteStepProvider(buildDir));
+		context.addBuildParticipant(new BuildUpdateSiteStepProvider(artifactsFolder));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		
