@@ -27,7 +27,7 @@ import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.Plugin;
-import de.devboost.buildboost.steps.ClasspathHelper;
+import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
@@ -40,6 +40,16 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		XMLContent content = new XMLContent();
+		
+		String temporaryDir = "temp/cmdlineapps/" + plugin.getIdentifier();
+		content.append("<mkdir dir=\"" + temporaryDir + "\" />");
+
+	    Set<Plugin> dependencies = plugin.getAllDependencies();
+	    
+		PluginPackagingHelper packagingHelper = new PluginPackagingHelper();
+		packagingHelper.getPackageDependenciesScript(content, temporaryDir, plugin);
+		packagingHelper.getPackageDependenciesScript(content, temporaryDir, dependencies);
+
 		// add script content
 		content.append("<jar destfile=\"dist/commandlineapps/" + plugin.getIdentifier() + ".jar\">");
 		
@@ -50,12 +60,11 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 		
 		List<String> allLibraries = new ArrayList<String>();
 		// add the project itself
-		addProject(content, plugin, allLibraries);
+		addProject(content, temporaryDir, plugin, allLibraries);
 		// add the dependencies
-	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    for (Plugin dependency : dependencies) {
 	    	if (dependency.isProject()) {
-				addProject(content, dependency, allLibraries);
+				addProject(content, temporaryDir, dependency, allLibraries);
 	    	}
 	    }
 		
@@ -78,9 +87,9 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 		return Collections.singleton(target);
 	}
 
-	private void addProject(XMLContent content, Plugin project,
+	private void addProject(XMLContent content, String tempDir, Plugin project,
 			List<String> allLibraries) {
-		content.append("<fileset dir=\"" + new ClasspathHelper().getBinPath(project) + "\"/>");
+	    content.append("<fileset dir=\"" + tempDir + "\" includes=\"" + project.getIdentifier() + ".jar\" />");
 		for (String lib : project.getLibs()) {
 			String absoluteLibPath = project.getAbsoluteLibPath(lib);
 			File libFile = new File(absoluteLibPath);

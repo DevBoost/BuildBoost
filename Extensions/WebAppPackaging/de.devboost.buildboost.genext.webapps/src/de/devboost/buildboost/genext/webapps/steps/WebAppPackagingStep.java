@@ -26,6 +26,7 @@ import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.steps.ClasspathHelper;
+import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class WebAppPackagingStep extends AbstractAntTargetGenerator {
@@ -56,24 +57,8 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    removeContainerLibraries(dependencies);
 	    
-	    for (Plugin dependency : dependencies) {
-			// each project the WebApp depends on is packaged as individual JAR
-			// file
-			if (dependency.isProject()) {
-			    String jarFile = getJarFileName(temporaryWebAppDir, dependency);
-			    String binPath = new ClasspathHelper().getBinPath(dependency);
-			    
-				content.append("<jar destfile=\"" + jarFile + "\">"); 
-				content.append("<fileset dir=\"" + binPath + "\" />");
-			    content.append("<fileset dir=\"" + dependency.getAbsolutePath() + "\" >");
-			    content.append("<include name=\"metamodel/**\" />");
-			    content.append("<include name=\"META-INF/**\" />");
-			    content.append("</fileset>");
-			    content.append("</jar>");
-			} else {
-				// TODO?
-			}
-		}
+	    new PluginPackagingHelper().getPackageDependenciesScript(content, temporaryWebAppDir, dependencies);
+	    
 		content.append("<war destfile=\"" + distWebAppsPath + "/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
 	    content.append("<lib dir=\"" + temporaryWebAppDir + "\">");
 	    content.append("<include name=\"*.jar\" />");
@@ -99,7 +84,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 				}
 			} else {
 				// add packaged dependency
-			    String jarFile = getJarFileName(temporaryWebAppDir, dependency);
+			    String jarFile = new PluginPackagingHelper().getJarFileName(temporaryWebAppDir, dependency);
 			    content.append("<lib file=\"" + jarFile + "\" />");
 			}
 	    }
@@ -110,10 +95,6 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		
 		AntTarget target = new AntTarget("package-webapp-" + plugin.getIdentifier(), content);
 		return Collections.singleton(target);
-	}
-
-	private String getJarFileName(String webAppDir, Plugin dependency) {
-		return webAppDir + "/" + dependency.getIdentifier() + ".jar";
 	}
 
 	private void removeContainerLibraries(Set<Plugin> dependencies) {
