@@ -65,6 +65,8 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 	    for (Plugin dependency : dependencies) {
 	    	if (dependency.isProject()) {
 				addProject(content, temporaryDir, dependency, allLibraries);
+	    	} else {
+	    		addTargetPlatformPlugin(content, dependency);
 	    	}
 	    }
 		
@@ -85,6 +87,15 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 		
 		AntTarget target = new AntTarget("package-cmdlineapp-" + plugin.getIdentifier(), content);
 		return Collections.singleton(target);
+	}
+
+	private void addTargetPlatformPlugin(XMLContent content, Plugin plugin) {
+		File file = plugin.getFile();
+		if (file.isFile()) {
+		    content.append("<fileset file=\"" + file.getAbsolutePath() + "\" />");
+		} else {
+			// TODO extracted plug-ins must be packaged
+		}
 	}
 
 	private void addProject(XMLContent content, String tempDir, Plugin project,
