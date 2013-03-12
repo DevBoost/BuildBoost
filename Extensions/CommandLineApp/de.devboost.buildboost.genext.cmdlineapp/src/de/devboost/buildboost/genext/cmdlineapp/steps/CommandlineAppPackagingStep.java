@@ -100,7 +100,9 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 
 	private void addProject(XMLContent content, String tempDir, Plugin project,
 			List<String> allLibraries) {
-	    content.append("<fileset dir=\"" + tempDir + "\" includes=\"" + project.getIdentifier() + ".jar\" />");
+	    String jarName = project.getIdentifier() + ".jar";
+	    content.append("<fileset dir=\"" + tempDir + "\" includes=\"" + jarName + "\" />");
+		allLibraries.add(jarName);
 		for (String lib : project.getLibs()) {
 			String absoluteLibPath = project.getAbsoluteLibPath(lib);
 			File libFile = new File(absoluteLibPath);
