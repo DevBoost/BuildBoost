@@ -97,8 +97,11 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		Collections.sort(result, new Comparator<IBuildStage>() {
 			@Override
 			public int compare(IBuildStage bs1, IBuildStage bs2) {
-				return new Integer(((IUniversalBuildStage)bs1).getPriority()).compareTo(
-						new Integer(((IUniversalBuildStage)bs2).getPriority()));
+				IUniversalBuildStage ubs1 = (IUniversalBuildStage) bs1;
+				IUniversalBuildStage ubs2 = (IUniversalBuildStage) bs2;
+				int priority1 = ubs1.getPriority();
+				int priority2 = ubs2.getPriority();
+				return new Integer(priority1).compareTo(new Integer(priority2));
 			}
 		});
 		
