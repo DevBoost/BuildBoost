@@ -203,7 +203,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			//rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
-			File productsDistFolder = new File(deployedUpdateSiteFolder.getParentFile().getParentFile(), "products");
+			File productsDistFolder = new File("dist/products");
 			content.append("<mkdir dir=\"" + productsDistFolder.getAbsolutePath() + "\" />");
 
 			String zipType;
