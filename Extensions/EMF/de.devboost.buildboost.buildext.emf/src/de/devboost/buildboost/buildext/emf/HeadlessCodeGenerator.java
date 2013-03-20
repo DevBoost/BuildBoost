@@ -51,7 +51,7 @@ public class HeadlessCodeGenerator {
 
 	public static void main(String[] args) throws Exception {
 		// TODO use properties file to pass arguments instead
-		// TODO add property 'generateEditCode' the is set to true by the
+		// TODO add property 'generateEditCode' that is set to true by the
 		//      build script generator if there is a respective edit plug-in.
 		String pathToGenModel = args[0];
 		String projectName = args[1];
@@ -145,6 +145,10 @@ public class HeadlessCodeGenerator {
 		// is not up-to-date w.r.t. the underlying Ecore model.
 		genModel.reconcile();
 		genModel.setCanGenerate(true);
+		
+		// do not generate manifest, this may override an existing manifest
+		genModel.setBundleManifest(false);
+		
 		return genModel;
 	}
 
