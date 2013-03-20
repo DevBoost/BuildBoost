@@ -22,6 +22,7 @@ import java.util.Set;
 import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.IDependable;
+import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.XMLContent;
 
 public class ClasspathHelper {
@@ -86,6 +87,9 @@ public class ClasspathHelper {
 
 		for (Plugin dependency : plugin.getAllDependencies()) {
 			classpath.append(getPluginClassPath(dependency));
+		}
+		for (UnresolvedDependency dependency : plugin.getUnresolvedDependencies()) {
+			classpath.append("<!-- Skipping unresolved dependency: " + dependency.getIdentifier() + "-->");
 		}
 		return classpath;
 	}
