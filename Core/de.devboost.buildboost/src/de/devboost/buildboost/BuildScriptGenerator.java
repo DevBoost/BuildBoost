@@ -170,7 +170,8 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		CloneRepositoriesStage stage1 = new CloneRepositoriesStage();
 		stage1.setReposFolder(reposFolder.getAbsolutePath());
 
-		//update a second time, since the first update might have revealed new boost files
+		// update a second time, since the first update might have revealed new
+		// '.repository' files
 		CloneRepositoriesStage stage2 = new CloneRepositoriesStage();
 		stage2.setReposFolder(reposFolder.getAbsolutePath());
 		
