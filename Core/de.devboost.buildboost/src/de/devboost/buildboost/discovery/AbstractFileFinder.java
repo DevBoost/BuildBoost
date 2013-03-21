@@ -90,7 +90,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + directory.getAbsolutePath() + "]";
+		return getClass().getSimpleName() + " [" + directory.getAbsolutePath() + "]";
 	}
 
 	protected abstract ArtifactType createArtifactFromFile(File file) throws BuildException;
