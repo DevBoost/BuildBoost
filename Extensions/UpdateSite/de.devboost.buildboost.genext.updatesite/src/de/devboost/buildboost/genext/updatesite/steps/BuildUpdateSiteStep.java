@@ -147,75 +147,121 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 			Collection<Plugin> plugins = feature.getPlugins();
 			for (Plugin plugin : plugins) {
-				String pluginID = plugin.getIdentifier();
-				File pluginDirectory = plugin.getFile();
-				String pluginPath = pluginDirectory.getAbsolutePath();
-
-				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
-				if (pluginVersion == null) {
-					pluginVersion = featureVersion;
-				}
-				String pluginVendor = updateSiteSpec.getValue("plugin", pluginID, "vendor");
-				if (pluginVendor == null) {
-					pluginVendor = featureVendor;
-				}
-				String pluginName = updateSiteSpec.getValue("plugin", pluginID, "name");
-				if (pluginName == null) {
-					pluginName = "Unknown";
-				}
-				
-				// package plugin(s)
-				content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
-				content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
-				content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
-				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
-				content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
-				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
-				content.append("</manifest>");
-				content.appendLineBreak();
-				content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-				content.append("<fileset dir=\"" + pluginPath + "\">");
-				// TODO make this configurable or read the build.properties file for this
-				content.append("<exclude name=\"**/.*/**\"/>");
-				if (Boolean.parseBoolean(excludeSrc)) {
-					content.append("<exclude name=\"**/src*/**\"/>");
-				}
-				content.append("</fileset>");
-				content.append("</jar>");
-				content.appendLineBreak();
+				addPackagePluginTasks(content, updateSiteID, updateSiteDir,
+						excludeSrc, featureVersion, featureVendor, plugin);
 			}
 		}
 		
+		addCreateCompleteZipTask(content, updateSiteID, updateSiteDir);
+		
 		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
 		if (targetPath != null) {
-			// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
-			// should figure out a way to provide this JAR together with BuildBoost.
-			content.append("<!-- Copy new version of update site to server -->");
-			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-			content.append("<fileset dir=\"" + updateSiteDir + "\">");
-			content.append("<include name=\"features/**\"/>");
-			content.append("<include name=\"plugins/**\"/>");
-			content.append("<include name=\"associateSites.xml\"/>");
-			content.append("<include name=\"digest.zip\"/>");
-			content.append("<include name=\"COPYING\"/>");
-			content.append("</fileset>");
-			content.append("</scp>");
-			content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
-			content.append("are the lasts file that are replaced. Otherwise the files might point to JARs that ");
-			content.append("have not been uploaded yet. -->");
-			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-			content.append("<fileset dir=\"" + updateSiteDir + "\">");
-			content.append("<include name=\"artifacts.jar\"/>");
-			content.append("<include name=\"content.jar\"/>");
-			content.append("<include name=\"site.xml\"/>");
-			content.append("</fileset>");
-			content.append("</scp>");
+			addUploadTasks(content, updateSiteID, updateSiteDir, targetPath);
 		}
 		
 		AntTarget target = new AntTarget("build-update-site-" + updateSiteID, content);
 		return target;
 	}
 
+	private void addCreateCompleteZipTask(XMLContent content,
+			String updateSiteID, String updateSiteDir) {
+		// TODO Auto-generated method stub
+		content.append("<!-- Create zipped version of update site -->");
+		content.append("<zip destfile=\"" + updateSiteDir + "/" + getUpdateSiteCompleteFileName(updateSiteID) + "\" basedir=\"" + updateSiteDir + "\" />");
+	}
 
+	private void addUploadTasks(XMLContent content, String updateSiteID, 
+			String updateSiteDir, String targetPath) {
+		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
+		// should figure out a way to provide this JAR together with BuildBoost.
+		content.append("<!-- Copy new version of update site to server -->");
+		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append("<fileset dir=\"" + updateSiteDir + "\">");
+		content.append("<include name=\"features/**\"/>");
+		content.append("<include name=\"plugins/**\"/>");
+		content.append("<include name=\"associateSites.xml\"/>");
+		content.append("<include name=\"digest.zip\"/>");
+		content.append("<include name=\"COPYING\"/>");
+		content.append("</fileset>");
+		content.append("</scp>");
+		content.appendLineBreak();
 
+		content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
+		content.append("are the last files that are replaced. Otherwise the files might point to JARs that ");
+		content.append("have not been uploaded yet. -->");
+		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append("<fileset dir=\"" + updateSiteDir + "\">");
+		content.append("<include name=\"artifacts.jar\"/>");
+		content.append("<include name=\"content.jar\"/>");
+		content.append("<include name=\"site.xml\"/>");
+		content.append("</fileset>");
+		content.append("</scp>");
+		content.appendLineBreak();
+		
+		content.append("<!-- Copy zipped version of update site to server (used by downstream builds) -->");
+		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append("<fileset dir=\"" + updateSiteDir + "\">");
+		content.append("<include name=\"" + getUpdateSiteCompleteFileName(updateSiteID) + "\"/>");
+		content.append("</fileset>");
+		content.append("</scp>");
+		content.appendLineBreak();
+	}
+
+	private String getUpdateSiteCompleteFileName(String updateSiteID) {
+		return updateSiteID + "-complete.zip";
+	}
+
+	private void addPackagePluginTasks(XMLContent content, String updateSiteID,
+			String updateSiteDir, String excludeSrc, String featureVersion,
+			String featureVendor, Plugin plugin) {
+		String pluginID = plugin.getIdentifier();
+		File pluginDirectory = plugin.getFile();
+		String pluginPath = pluginDirectory.getAbsolutePath();
+
+		String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
+		if (pluginVersion == null) {
+			pluginVersion = featureVersion;
+		}
+		String pluginVendor = updateSiteSpec.getValue("plugin", pluginID, "vendor");
+		if (pluginVendor == null) {
+			pluginVendor = featureVendor;
+		}
+		String pluginName = updateSiteSpec.getValue("plugin", pluginID, "name");
+		
+		addManifestTask(content, updateSiteID, pluginID, pluginPath,
+				pluginVersion, pluginVendor, pluginName);
+
+		content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+		content.append("<fileset dir=\"" + pluginPath + "\">");
+		// TODO make this configurable or read the build.properties file for this
+		content.append("<exclude name=\"**/.*/**\"/>");
+		if (Boolean.parseBoolean(excludeSrc)) {
+			content.append("<exclude name=\"**/src*/**\"/>");
+		}
+		content.append("</fileset>");
+		content.append("</jar>");
+		content.appendLineBreak();
+	}
+
+	private void addManifestTask(XMLContent content, String updateSiteID,
+			String pluginID, String pluginPath, String pluginVersion,
+			String pluginVendor, String pluginName) {
+		// package plugin(s)
+		content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
+		content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
+		content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
+		// only replace vendor if one is specified in the update site
+		// specification
+		if (pluginVendor != null) {
+			content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
+		}
+		content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
+		// only replace plug-in name if one is specified in the update 
+		// site specification
+		if (pluginName != null) {
+			content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
+		}
+		content.append("</manifest>");
+		content.appendLineBreak();
+	}
 }
