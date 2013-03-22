@@ -60,13 +60,18 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 	protected void setPropertiesInStages(Map<String, String> properties,
 			List<IBuildStage> stages) {
 		for (IBuildStage stage : stages) {
-			for (Method m : stage.getClass().getDeclaredMethods()) {
+			// we examine the concrete stage class for setters and invoke them
+			// if we've got a matching property 
+			for (Method m : stage.getClass().getMethods()) {
 				if (m.getName().startsWith("set")) {
 					String propertyName = m.getName().substring(3).toLowerCase();
 					String propertyValue = properties.get(propertyName);
 					if (propertyValue == null) {
-						System.out.println("WARNING: Setting property to 'null'" +
-								" - stage " + stage + " - property " + propertyName);
+						String message = "WARNING: Can't find value for property '" +
+								propertyName + 
+								"' in stage " + stage;
+						System.out.println(message);
+						continue;
 					}
 					try {
 						m.invoke(stage, propertyValue);
