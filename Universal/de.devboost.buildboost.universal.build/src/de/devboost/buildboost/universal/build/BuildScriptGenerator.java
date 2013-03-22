@@ -127,8 +127,10 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		if (isHidden(file)) {
 			return;
 		}
-		if (file.getName().endsWith(".class") && !file.getName().contains("$")) {
-			name = name + file.getName().substring(0, file.getName().length() - 6);
+		String fileName = file.getName();
+		String classFileSuffix = ".class";
+		if (fileName.endsWith(classFileSuffix) && !fileName.contains("$")) {
+			name = name + fileName.substring(0, fileName.length() - classFileSuffix.length());
 			javaClassNames.add(name);
 			return;
 		}
@@ -138,7 +140,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 				if (name == null) {
 					nextName = "";
 				} else {
-					nextName = name + file.getName() + ".";
+					nextName = name + fileName + ".";
 				}
 				collectClasses(javaClassNames, child, nextName);
 			}
