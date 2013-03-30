@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
+import de.devboost.buildboost.artifacts.RepositoriesFile;
 import de.devboost.buildboost.artifacts.RepositoriesFile.Location;
 import de.devboost.buildboost.util.AntScriptUtil;
 import de.devboost.buildboost.util.XMLContent;
@@ -72,9 +73,9 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			
 		String locationType = location.getType();
 		
-		boolean isGit = locationType.equals("git");
-		boolean isSVN = locationType.equals("svn");
-		boolean isDynamicFile = locationType.equals("dynamicfile");
+		boolean isGit = locationType.equals(RepositoriesFile.GIT);
+		boolean isSVN = locationType.equals(RepositoriesFile.SVN);
+		boolean isDynamicFile = locationType.equals(RepositoriesFile.DYNAMICFILE);
 		
 		String localRepositoryPath = getLocalRepositoryPath(location);
 		

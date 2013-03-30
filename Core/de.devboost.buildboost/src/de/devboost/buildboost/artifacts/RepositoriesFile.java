@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -33,9 +33,14 @@ import de.devboost.buildboost.BuildException;
 @SuppressWarnings("serial")
 public class RepositoriesFile extends AbstractArtifact {
 	
+	public static final String SVN = "svn";
+	public static final String GIT = "git";
+	public static final String GET = "get";
+	public static final String DYNAMICFILE = "dynamicfile";
+
 	public static String SUB_DIR_SEPARATOR = "!";
 	
-	public static String[] SUPPORTED_TYPES = { "svn:", "git:", "get:" };
+	public static String[] SUPPORTED_TYPES = { SVN + ":", GIT + ":", GET + ":", DYNAMICFILE + ":" };
 	
 	public class Location {
 		private String type;
