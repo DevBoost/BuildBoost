@@ -205,7 +205,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"" + getUpdateSiteCompleteFileName(updateSiteID) + "\"/>");
-		content.append("<include name=\"" + getUpdateSiteCompleteFileName(updateSiteID) + ".md5\"/>");
+		content.append("<include name=\"" + getUpdateSiteCompleteFileName(updateSiteID) + ".MD5\"/>");
 		content.append("</fileset>");
 		content.append("</scp>");
 		content.appendLineBreak();
