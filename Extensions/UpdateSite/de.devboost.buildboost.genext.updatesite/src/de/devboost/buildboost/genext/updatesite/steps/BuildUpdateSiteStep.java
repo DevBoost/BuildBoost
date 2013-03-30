@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -165,9 +165,12 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 	private void addCreateCompleteZipTask(XMLContent content,
 			String updateSiteID, String updateSiteDir) {
-		// TODO Auto-generated method stub
+		
+		String zipFilePath = updateSiteDir + "/" + getUpdateSiteCompleteFileName(updateSiteID);
+
 		content.append("<!-- Create zipped version of update site -->");
-		content.append("<zip destfile=\"" + updateSiteDir + "/" + getUpdateSiteCompleteFileName(updateSiteID) + "\" basedir=\"" + updateSiteDir + "\" />");
+		content.append("<zip destfile=\"" + zipFilePath + "\" basedir=\"" + updateSiteDir + "\" />");
+		content.append("<checksum file=\"" + zipFilePath + "\"/>");
 	}
 
 	private void addUploadTasks(XMLContent content, String updateSiteID, 
