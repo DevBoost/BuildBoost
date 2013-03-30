@@ -74,6 +74,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		
 		boolean isGit = locationType.equals("git");
 		boolean isSVN = locationType.equals("svn");
+		boolean isDynamicFile = locationType.equals("dynamicfile");
 		
 		String localRepositoryPath = getLocalRepositoryPath(location);
 		
@@ -83,25 +84,31 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		} else if (isSVN) {
 			addCloneSVNTasks(locationURL, localRepo, content,
 					localRepositoryPath);
+		} else if (isDynamicFile) {
+			addCloneOtherTasks(location, locationURL, rootName, localRepo,
+					content, localRepositoryPath, false);
 		} else /* isGet */ {
 			addCloneOtherTasks(location, locationURL, rootName, localRepo,
-					content, localRepositoryPath);
+					content, localRepositoryPath, true);
 		}
 		result.add(new AntTarget("update-" + localRepositoryFolderName, content));
 	}
 
 	private void addCloneOtherTasks(Location location, String locationURL,
 			String rootName, File localRepo, XMLContent content,
-			String localRepositoryPath) {
+			String localRepositoryPath, boolean skipIfRepositoryExists) {
 		
-		if (localRepo.exists()) {
-			return;
+		if (skipIfRepositoryExists) {
+			// TODO Don't do this here. Add condition to Ant task instead.
+			if (localRepo.exists()) {
+				return;
+			}
 		}
 		
 		content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
 		if (!location.getSubDirectories().isEmpty()) {
 			if (localRepo.getName().endsWith(".zip")) {
-				String zipFilePath = new File(localRepo, rootName).getAbsolutePath()  ;
+				String zipFilePath = new File(localRepo, rootName).getAbsolutePath();
 				content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
 				content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepositoryPath + "\">");
 				content.append("<patternset>");
