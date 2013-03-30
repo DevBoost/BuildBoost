@@ -168,7 +168,7 @@ public class HeadlessCodeGenerator {
 			} else if (!"".equals(to.lastSegment())) {
 				to = to.appendSegment("");
 			}
-			//System.out.println("Mapping URI " + from + " to " + to);
+			System.out.println("Mapping URI " + from + " to " + to);
 			uriMap.put(
 					from, 
 					to
