@@ -87,4 +87,9 @@ public class EclipseFeatureFinder extends AbstractArtifactDiscoverer {
 		}
 		return features;
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " [" + directory + "]";
+	}
 }
