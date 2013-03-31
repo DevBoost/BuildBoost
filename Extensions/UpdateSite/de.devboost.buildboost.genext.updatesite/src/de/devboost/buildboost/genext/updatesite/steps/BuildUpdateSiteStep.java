@@ -105,7 +105,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		for (EclipseFeature feature : features) {
 			String featureID = feature.getIdentifier();
 			File featureFile = feature.getFile();
-			boolean isFeatureJAR = featureFile.isFile();
+			boolean isFeatureJAR = featureFile.getName().endsWith(".jar");
 			String tempDir = distDir + File.separator + "temp_features";
 			String tempFeatureDir = tempDir + "/" + featureID;
 			String featureVersion = feature.getVersion();
