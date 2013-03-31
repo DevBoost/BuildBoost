@@ -246,37 +246,53 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		addManifestTask(content, updateSiteID, pluginID, pluginPath,
 				pluginVersion, pluginVendor, pluginName);
 
-		content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
-		content.append("<fileset dir=\"" + pluginPath + "\">");
-		// TODO make this configurable or read the build.properties file for this
-		content.append("<exclude name=\"**/.*/**\"/>");
-		if (Boolean.parseBoolean(excludeSrc)) {
-			content.append("<exclude name=\"**/src*/**\"/>");
+		boolean isPackaged = isJarFile(pluginPath);
+
+		if (isPackaged) {
+			content.append("<copy file=\"" + pluginPath + "\" todir=\"" + updateSiteDir + "/plugins\"\">");
+		} else {
+			content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+			content.append("<fileset dir=\"" + pluginPath + "\">");
+			// TODO make this configurable or read the build.properties file for this
+			content.append("<exclude name=\"**/.*/**\"/>");
+			if (Boolean.parseBoolean(excludeSrc)) {
+				content.append("<exclude name=\"**/src*/**\"/>");
+			}
+			content.append("</fileset>");
+			content.append("</jar>");
 		}
-		content.append("</fileset>");
-		content.append("</jar>");
 		content.appendLineBreak();
 	}
 
 	private void addManifestTask(XMLContent content, String updateSiteID,
 			String pluginID, String pluginPath, String pluginVersion,
 			String pluginVendor, String pluginName) {
-		// package plugin(s)
-		content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
-		content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
-		content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
-		// only replace vendor if one is specified in the update site
-		// specification
-		if (pluginVendor != null) {
-			content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
+		
+		boolean isPackaged = isJarFile(pluginPath);
+		if (isPackaged) {
+			content.append("<echo message=\"Plug-in '" + pluginID + "' for update site '" + updateSiteID + "' is already packaged.\"/>");
+		} else {
+			// package plugin(s)
+			content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
+			content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
+			content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
+			// only replace vendor if one is specified in the update site
+			// specification
+			if (pluginVendor != null) {
+				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
+			}
+			content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
+			// only replace plug-in name if one is specified in the update 
+			// site specification
+			if (pluginName != null) {
+				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
+			}
+			content.append("</manifest>");
 		}
-		content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
-		// only replace plug-in name if one is specified in the update 
-		// site specification
-		if (pluginName != null) {
-			content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
-		}
-		content.append("</manifest>");
 		content.appendLineBreak();
+	}
+
+	private boolean isJarFile(String pluginPath) {
+		return pluginPath.endsWith(".jar");
 	}
 }
