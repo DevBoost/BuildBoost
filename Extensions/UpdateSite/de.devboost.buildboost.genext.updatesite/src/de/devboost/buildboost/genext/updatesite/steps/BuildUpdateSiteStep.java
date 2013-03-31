@@ -249,7 +249,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		boolean isPackaged = isJarFile(pluginPath);
 
 		if (isPackaged) {
-			content.append("<copy file=\"" + pluginPath + "\" todir=\"" + updateSiteDir + "/plugins\"\">");
+			content.append("<copy file=\"" + pluginPath + "\" todir=\"" + updateSiteDir + "/plugins\"\" />");
 		} else {
 			content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
 			content.append("<fileset dir=\"" + pluginPath + "\">");
