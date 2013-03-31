@@ -105,46 +105,57 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		for (EclipseFeature feature : features) {
 			String featureID = feature.getIdentifier();
 			File featureFile = feature.getFile();
+			boolean isFeatureJAR = featureFile.isFile();
 			String tempDir = distDir + File.separator + "temp_features";
 			String tempFeatureDir = tempDir + "/" + featureID;
 			String featureVersion = feature.getVersion();
 			String featureVendor = updateSiteSpec.getFeatureVendor(featureID);
 
-			content.append("<echo message=\"Building feature '" + featureID + "' for update site '" + updateSiteID + "'\"/>");
-			content.append("<!-- update version numbers in feature.xml -->");
-			content.append("<!-- copy to be modified -->");
-			content.append("<mkdir dir=\"" + tempFeatureDir + "\" />");
-			content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
-			content.append("<!-- set version in copy -->");
-			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"0.0.0\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
-			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"" + featureVersion + "\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
-			content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
-
-			Collection<IDependable> dependencies = feature.getDependencies();
-			for (IDependable dependency : dependencies) {
-				if (dependency instanceof EclipseFeature) {
-					EclipseFeature requiredFeature = (EclipseFeature) dependency;
-					if (requiredFeature.isTargetPlatformFeature()) {
-						// for target platform features we do not set a minimum
-						// version
-						continue;
+			if (isFeatureJAR) {
+				// the feature is already packaged, we can just copy it
+				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" todir=\"" + updateSiteDir + "/features\"/>");
+				content.append("<!-- set correct reference in site.xml -->");
+				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion + "\"'/>");
+				content.appendLineBreak();
+			} else {
+				// the feature is not packaged yet, we need to create a JAR file
+				content.append("<echo message=\"Building feature '" + featureID + "' for update site '" + updateSiteID + "'\"/>");
+				content.append("<!-- update version numbers in feature.xml -->");
+				content.append("<!-- copy to be modified -->");
+				content.append("<mkdir dir=\"" + tempFeatureDir + "\" />");
+				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
+				content.append("<!-- set version in copy -->");
+				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"0.0.0\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
+				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"" + featureVersion + "\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
+				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
+	
+				Collection<IDependable> dependencies = feature.getDependencies();
+				for (IDependable dependency : dependencies) {
+					if (dependency instanceof EclipseFeature) {
+						EclipseFeature requiredFeature = (EclipseFeature) dependency;
+						if (requiredFeature.isTargetPlatformFeature()) {
+							// for target platform features we do not set a minimum
+							// version
+							continue;
+						}
+						content.append("<replaceregexp file=\"" + tempFeatureDir + "/feature.xml\" match='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\"' replace='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
 					}
-					content.append("<replaceregexp file=\"" + tempFeatureDir + "/feature.xml\" match='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\"' replace='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
 				}
+
+				content.append("<!-- create empty file 'feature.properties' -->");
+				content.append("<touch file=\"feature.properties\"/>");
+				content.append("<!-- create feature JAR -->");
+				content.append("<jar basedir=\"" + tempFeatureDir + "\" includes=\"feature.xml\" destfile=\"" + updateSiteDir + "/features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\">");
+				content.append("<fileset dir=\".\" includes=\"feature.properties\" />");
+				content.append("</jar>");
+				content.append("<!-- delete temporary directory -->");
+				content.append("<delete dir=\"" + tempDir + "\"/>");
+
+				content.append("<!-- set version in site.xml -->");
+				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
+				content.appendLineBreak();
 			}
 			
-			content.append("<!-- create empty file 'feature.properties' -->");
-			content.append("<touch file=\"feature.properties\"/>");
-			content.append("<!-- create feature JAR -->");
-			content.append("<jar basedir=\"" + tempFeatureDir + "\" includes=\"feature.xml\" destfile=\"" + updateSiteDir + "/features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\">");
-			content.append("<fileset dir=\".\" includes=\"feature.properties\" />");
-			content.append("</jar>");
-			content.append("<!-- delete temporary directory -->");
-			content.append("<delete dir=\"" + tempDir + "\"/>");
-			content.append("<!-- set version in site.xml -->");
-			content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
-			content.appendLineBreak();
-
 			Collection<Plugin> plugins = feature.getPlugins();
 			for (Plugin plugin : plugins) {
 				addPackagePluginTasks(content, updateSiteID, updateSiteDir,
