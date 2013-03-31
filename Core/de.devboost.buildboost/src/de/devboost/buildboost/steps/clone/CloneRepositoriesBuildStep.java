@@ -240,6 +240,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		}
 		folderName = folderName.replace(":", "");
 		folderName = folderName.replace("~", "_");
+		folderName = folderName.replace("@", "_");
 		folderName = folderName.replace("/", "_");
 		folderName = folderName.replace("\\", "_");
 		folderName = folderName.replace(" ", "-");
