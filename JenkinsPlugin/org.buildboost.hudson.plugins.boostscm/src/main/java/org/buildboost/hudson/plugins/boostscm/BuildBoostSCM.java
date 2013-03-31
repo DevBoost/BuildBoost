@@ -74,7 +74,7 @@ public class BuildBoostSCM extends SCM {
 	private static final String LOCAL_PREFIX = "BuildBoost-Repository-Local: ";
 
 	private static final String COMMIT_PREFIX = "commit ";
-	private static final String SVN_REVISION_PREFIX = " Rev: ";
+	private static final String SVN_REVISION_PREFIX = "Revision: ";
 	private static final String SVN_REVISION_REGEX = "^r[0-9]+ .*";
 
 	public static class DescriptorImpl extends SCMDescriptor<BuildBoostSCM> {
@@ -219,8 +219,21 @@ public class BuildBoostSCM extends SCM {
 			logger.info("new revision for repository " + repository + " is " + newRevision);
 			logger.info("old revision for repository " + repository + " is " + oldRevision);
 			
-			if (newRevision != null && !newRevision.equals(oldRevision)) {
-				foundUpdate = true;
+			if (repository.isSvn()) {
+				int newRev = Integer.parseInt(newRevision);
+				if (oldRevision.startsWith("r")) {
+					oldRevision = oldRevision.substring(1);
+				}
+				int oldRev = Integer.parseInt(oldRevision);
+				if (newRev > oldRev) {
+					logger.info("found update for SVN repository " + repository + " (" + oldRevision + " => " + newRevision + ")");
+					foundUpdate = true;
+				}
+			} else {
+				if (newRevision != null && !newRevision.equals(oldRevision)) {
+					logger.info("found update for repository " + repository + " (" + oldRevision + " => " + newRevision + ")");
+					foundUpdate = true;
+				}
 			}
 		}
 		return foundUpdate;
@@ -341,7 +354,7 @@ public class BuildBoostSCM extends SCM {
 			
 			public Boolean call(String line) {
 				if (line.contains(SVN_REVISION_PREFIX)) {
-					revision[0] = "r" + line.substring(line.indexOf(SVN_REVISION_PREFIX) + SVN_REVISION_PREFIX.length());
+					revision[0] = line.substring(line.indexOf(SVN_REVISION_PREFIX) + SVN_REVISION_PREFIX.length());
 					return false;
 				}
 				return true;
@@ -367,6 +380,9 @@ public class BuildBoostSCM extends SCM {
 			public Boolean call(String line) {
 				if (line.matches(SVN_REVISION_REGEX)) {
 					revision[0] = line.substring(0, line.indexOf(" "));
+					if (revision[0].startsWith("r")) {
+						revision[0] = revision[0].substring(1);
+					}
 					return false;
 				}
 				return true;
@@ -431,7 +447,7 @@ public class BuildBoostSCM extends SCM {
 	}
 
 	/**
-	 * This method does very little as the actual check out of project is 
+	 * This method does very little as the actual check out of projects is 
 	 * performed by BuildBoost during the CloneStage. 
 	 * 
 	 * We simply write the URL of the root repository to a file in the workspace 
