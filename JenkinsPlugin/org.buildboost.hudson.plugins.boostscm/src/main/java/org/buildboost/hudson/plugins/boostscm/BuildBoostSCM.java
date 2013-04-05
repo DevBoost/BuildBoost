@@ -467,6 +467,8 @@ public class BuildBoostSCM extends SCM {
 		
 		if (rootRepositoryURL != null) {
 			FilePath rootRepositoryFile = workspace.child(ROOT_REPOSITORIES_FILE);
+			// put multiple repositories into multiple lines
+			rootRepositoryURL = rootRepositoryURL.replace(",", System.getProperty("line.separator"));
 			rootRepositoryFile.write(rootRepositoryURL, "UTF-8");
 		}
 		
