@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -28,18 +28,19 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link CopyPluginsAndFeaturesBuildStep} generates a script the copies the given
- * bundled plug-in (JAR file) to a target directory.
+ * The {@link CopyPluginsAndFeaturesBuildStep} generates a script that copies
+ * the given bundled plug-ins and features to a target directory.
  */
 public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator {
 
 	private IArtifact pluginOrFeature;
-	private File targetDir;
+	private File targetPlatformEclipseDir;
 	
 	public CopyPluginsAndFeaturesBuildStep(IArtifact pluginOrFeature, File targetDir) {
 		super();
 		this.pluginOrFeature = pluginOrFeature;
-		this.targetDir = new File(new File(targetDir, "target-platform"), "eclipse");
+		File targetPlatformDir = new File(targetDir, "target-platform");
+		this.targetPlatformEclipseDir = new File(targetPlatformDir, "eclipse");
 	}
 
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
@@ -48,16 +49,25 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 		String targetSubDir;
 		File location;
 		if (pluginOrFeature instanceof CompiledPlugin) {
-			location = ((CompiledPlugin) pluginOrFeature).getFile();
-			File pluginsFolder = new File(targetDir, "plugins");
+			CompiledPlugin plugin = (CompiledPlugin) pluginOrFeature;
+			location = plugin.getFile();
+			File targetPlatformPluginsDir = new File(targetPlatformEclipseDir, "plugins");
 			if (location.isDirectory()) {
-				targetSubDir = new File(pluginsFolder, pluginOrFeatureName).getAbsolutePath();
+				targetSubDir = new File(targetPlatformPluginsDir, pluginOrFeatureName).getAbsolutePath();
 			} else {
-				targetSubDir = pluginsFolder.getAbsolutePath();
+				targetSubDir = targetPlatformPluginsDir.getAbsolutePath();
+			}
+		} else if (pluginOrFeature instanceof EclipseFeature) {
+			EclipseFeature eclipseFeature = (EclipseFeature) pluginOrFeature;
+			location = eclipseFeature.getFile();
+			File targetPlatformFeaturesDir = new File(targetPlatformEclipseDir, "features");
+			if (eclipseFeature.isExtracted()) {
+				targetSubDir = new File(targetPlatformFeaturesDir, pluginOrFeatureName).getAbsolutePath();
+			} else {
+				targetSubDir = targetPlatformFeaturesDir.getAbsolutePath();
 			}
 		} else {
-			location = ((EclipseFeature) pluginOrFeature).getFile();
-			targetSubDir = new File(new File(targetDir, "features"), pluginOrFeatureName).getAbsolutePath();
+			throw new RuntimeException("Found unknown artifact type " + pluginOrFeatureName + " in " + getClass().getSimpleName());
 		}
 		
 		XMLContent content = new XMLContent();
@@ -70,7 +80,8 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 			content.append("</fileset>");
 			content.append("</copy>");
 		}
-		return Collections.singleton(new AntTarget("copy-"
-				+ pluginOrFeature.getClass().getSimpleName().toLowerCase() + "-" + pluginOrFeatureName, content));
+		String artifactType = pluginOrFeature.getClass().getSimpleName().toLowerCase();
+		String targetName = "copy-" + artifactType + "-" + pluginOrFeatureName;
+		return Collections.singleton(new AntTarget(targetName, content));
 	}
 }

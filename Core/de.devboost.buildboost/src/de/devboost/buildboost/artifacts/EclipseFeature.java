@@ -57,7 +57,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 		super();
 		this.file = file;
 		this.isTargetPlatformFeature = isTargetPlatformFeature;
-		if (file.getName().equals(FEATURE_XML)) {
+		if (isExtracted()) {
 			try {
 				readFeatureInputStream(new FileInputStream(file));
 			} catch (FileNotFoundException e) {
@@ -74,6 +74,10 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public boolean isExtracted() {
+		return file.getName().equals(FEATURE_XML);
 	}
 	
 	private void readFeatureInputStream(InputStream is) {
