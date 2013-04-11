@@ -86,13 +86,13 @@
 		<condition property="build_boost_repo_exists">
 			<available file="${repos_dir}/${build_boost_repo_local}" type="dir"/>
 		</condition>
+		<replace file="${repos_dir}/root.repositories" token="," value="${line.separator}" summary="true"/>
+		<echo message="Split several root repositories in ${repos_dir}/root.repositories"/>
 	</target>
 		
 	<target name="write-root-repo" if="rootRepository">
 		<mkdir dir="${repos_dir}"/>
 		<echo message="${rootRepository}" file="${repos_dir}/root.repositories"/>
-		<replace file="${repos_dir}/root.repositories" token="," value="${line.separator}" summary="true"/>
-		<echo message="Split several root repositories in ${repos_dir}/root.repositories"/>
 	</target>
 
 	<target name="get-build-boost" unless="build_boost_repo_exists">
