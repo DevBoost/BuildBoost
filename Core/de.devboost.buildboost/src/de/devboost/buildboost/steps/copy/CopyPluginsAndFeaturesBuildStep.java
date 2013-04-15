@@ -47,29 +47,30 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 		String pluginOrFeatureName = pluginOrFeature.getIdentifier();
 
 		String targetSubDir;
-		File location;
+		File sourceLocation;
 		boolean isExtracted;
 		if (pluginOrFeature instanceof CompiledPlugin) {
 			CompiledPlugin plugin = (CompiledPlugin) pluginOrFeature;
-			location = plugin.getFile();
+			sourceLocation = plugin.getFile();
 			File targetPlatformPluginsDir = new File(targetPlatformEclipseDir, "plugins");
-			if (location.isDirectory()) {
+			isExtracted = sourceLocation.isDirectory();
+			if (isExtracted) {
 				targetSubDir = new File(targetPlatformPluginsDir, pluginOrFeatureName).getAbsolutePath();
-				isExtracted = true;
 			} else {
 				targetSubDir = targetPlatformPluginsDir.getAbsolutePath();
-				isExtracted = false;
 			}
 		} else if (pluginOrFeature instanceof EclipseFeature) {
 			EclipseFeature eclipseFeature = (EclipseFeature) pluginOrFeature;
-			location = eclipseFeature.getFile();
 			File targetPlatformFeaturesDir = new File(targetPlatformEclipseDir, "features");
-			if (eclipseFeature.isExtracted()) {
+			isExtracted = eclipseFeature.isExtracted();
+			if (isExtracted) {
+				// for extracted features, 'location' is set to the feature.xml
+				// file.
+				sourceLocation = eclipseFeature.getFile().getParentFile();
 				targetSubDir = new File(targetPlatformFeaturesDir, pluginOrFeatureName).getAbsolutePath();
-				isExtracted = true;
 			} else {
+				sourceLocation = eclipseFeature.getFile();
 				targetSubDir = targetPlatformFeaturesDir.getAbsolutePath();
-				isExtracted = false;
 			}
 		} else {
 			throw new RuntimeException("Found unknown artifact type " + pluginOrFeatureName + " in " + getClass().getSimpleName());
@@ -78,12 +79,12 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 		XMLContent content = new XMLContent();
 		if (isExtracted) {
 			content.append("<copy todir=\"" + targetSubDir + "\" includeEmptyDirs=\"true\">");
-			content.append("<fileset dir=\"" + location.getAbsolutePath() + "\">");
+			content.append("<fileset dir=\"" + sourceLocation.getAbsolutePath() + "\">");
 			content.append("<include name=\"**/*\"/>");
 			content.append("</fileset>");
 			content.append("</copy>");
 		} else {
-			content.append("<copy file=\"" + location.getAbsolutePath() + "\" todir=\"" + targetSubDir + "\" />");
+			content.append("<copy file=\"" + sourceLocation.getAbsolutePath() + "\" todir=\"" + targetSubDir + "\" />");
 		}
 		String artifactType = pluginOrFeature.getClass().getSimpleName().toLowerCase();
 		String targetName = "copy-" + artifactType + "-" + pluginOrFeatureName;
