@@ -48,14 +48,17 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 
 		String targetSubDir;
 		File location;
+		boolean isExtracted;
 		if (pluginOrFeature instanceof CompiledPlugin) {
 			CompiledPlugin plugin = (CompiledPlugin) pluginOrFeature;
 			location = plugin.getFile();
 			File targetPlatformPluginsDir = new File(targetPlatformEclipseDir, "plugins");
 			if (location.isDirectory()) {
 				targetSubDir = new File(targetPlatformPluginsDir, pluginOrFeatureName).getAbsolutePath();
+				isExtracted = true;
 			} else {
 				targetSubDir = targetPlatformPluginsDir.getAbsolutePath();
+				isExtracted = false;
 			}
 		} else if (pluginOrFeature instanceof EclipseFeature) {
 			EclipseFeature eclipseFeature = (EclipseFeature) pluginOrFeature;
@@ -63,22 +66,24 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 			File targetPlatformFeaturesDir = new File(targetPlatformEclipseDir, "features");
 			if (eclipseFeature.isExtracted()) {
 				targetSubDir = new File(targetPlatformFeaturesDir, pluginOrFeatureName).getAbsolutePath();
+				isExtracted = true;
 			} else {
 				targetSubDir = targetPlatformFeaturesDir.getAbsolutePath();
+				isExtracted = false;
 			}
 		} else {
 			throw new RuntimeException("Found unknown artifact type " + pluginOrFeatureName + " in " + getClass().getSimpleName());
 		}
 		
 		XMLContent content = new XMLContent();
-		if (location.isFile()) {
-			content.append("<copy file=\"" + location.getAbsolutePath() + "\" todir=\"" + targetSubDir + "\" />");
-		} else {
+		if (isExtracted) {
 			content.append("<copy todir=\"" + targetSubDir + "\" includeEmptyDirs=\"true\">");
 			content.append("<fileset dir=\"" + location.getAbsolutePath() + "\">");
 			content.append("<include name=\"**/*\"/>");
 			content.append("</fileset>");
 			content.append("</copy>");
+		} else {
+			content.append("<copy file=\"" + location.getAbsolutePath() + "\" todir=\"" + targetSubDir + "\" />");
 		}
 		String artifactType = pluginOrFeature.getClass().getSimpleName().toLowerCase();
 		String targetName = "copy-" + artifactType + "-" + pluginOrFeatureName;
