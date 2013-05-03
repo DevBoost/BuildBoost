@@ -220,11 +220,24 @@ public class BuildBoostSCM extends SCM {
 			logger.info("old revision for repository " + repository + " is " + oldRevision);
 			
 			if (repository.isSvn()) {
-				int newRev = Integer.parseInt(newRevision);
 				if (oldRevision.startsWith("r")) {
 					oldRevision = oldRevision.substring(1);
 				}
-				int oldRev = Integer.parseInt(oldRevision);
+				int newRev;
+				try {
+					newRev = Integer.parseInt(newRevision);
+				} catch (NumberFormatException nfe) {
+					logger.warning("Can't parse SVN revision '" + newRevision + "'");
+					continue;
+				}
+				
+				int oldRev;
+				try {
+					oldRev = Integer.parseInt(oldRevision);
+				} catch (NumberFormatException nfe) {
+					logger.warning("Can't parse SVN revision '" + oldRevision + "'");
+					continue;
+				}
 				if (newRev > oldRev) {
 					logger.info("found update for SVN repository " + repository + " (" + oldRevision + " => " + newRevision + ")");
 					foundUpdate = true;
