@@ -86,13 +86,20 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			addCloneSVNTasks(locationURL, localRepo, content,
 					localRepositoryPath);
 		} else if (isDynamicFile) {
-			addCloneOtherTasks(location, locationURL, rootName, localRepo,
-					content, localRepositoryPath, false);
+			addCloneDynamicFileTask(locationURL, content, localRepositoryPath);
 		} else /* isGet */ {
 			addCloneOtherTasks(location, locationURL, rootName, localRepo,
 					content, localRepositoryPath, true);
 		}
 		result.add(new AntTarget("update-" + localRepositoryFolderName, content));
+	}
+
+	private void addCloneDynamicFileTask(String locationURL,
+			XMLContent content, String localRepositoryPath) {
+		
+		content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
+		AntScriptUtil.addDownloadFileScript(content, locationURL, localRepositoryPath);
+		AntScriptUtil.addDownloadFileScript(content, locationURL + ".MD5", localRepositoryPath);
 	}
 
 	private void addCloneOtherTasks(Location location, String locationURL,
