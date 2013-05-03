@@ -31,9 +31,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -220,6 +223,13 @@ public class BuildBoostSCM extends SCM {
 			logger.info("old revision for repository " + repository + " is " + oldRevision);
 			
 			if (repository.isSvn()) {
+				if (oldRevision == null && newRevision != null) {
+					foundUpdate = true;
+					continue;
+				}
+				if (oldRevision == null && newRevision == null) {
+					continue;
+				}
 				if (oldRevision.startsWith("r")) {
 					oldRevision = oldRevision.substring(1);
 				}
@@ -260,9 +270,23 @@ public class BuildBoostSCM extends SCM {
 			return getLocalGitRevision(repository.getLocalPath());
 		} else if (repository.isSvn()) {
 			return getLocalSvnRevision(repository.getLocalPath());
+		} else if (repository.isDynamicFile()) {
+			return getLocalMD5(repository.getLocalPath());
 		} else {
 			return null;
 		}
+	}
+
+	private String getLocalMD5(String localPath) {
+		FileInputStream fis;
+		try {
+			File directory = new File(localPath);
+			fis = new FileInputStream(new File(directory, directory.getName() + ".MD5"));
+			return getContent(fis);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -289,7 +313,46 @@ public class BuildBoostSCM extends SCM {
 			return getRemoteGitRevision(repository.getLocalPath());
 		} else if (repository.isSvn()) {
 			return executeSvnLog(repository.getRemoteURL());
+		} else if (repository.isDynamicFile()) {
+			return getRemoteMD5(repository.getRemoteURL());
 		} else {
+			return null;
+		}
+	}
+
+	private String getRemoteMD5(String remoteURL) {
+		String md5URL = remoteURL + ".MD5";
+		return getContent(md5URL);
+	}
+
+	public String getContent(String urlString) {
+		try {
+			URL url = new URL(urlString);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			InputStream inputStream = conn.getInputStream();
+			return getContent(inputStream);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private String getContent(InputStream inputStream) {
+		try {
+			StringBuilder result = new StringBuilder();
+			InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+			BufferedReader rd = new BufferedReader(inputStreamReader);
+			String line;
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+			rd.close();
+			return result.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
