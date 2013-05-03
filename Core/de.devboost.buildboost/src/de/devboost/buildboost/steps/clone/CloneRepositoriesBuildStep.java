@@ -207,12 +207,13 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			
 			boolean isGit = locationType.equals("git");
 			boolean isSVN = locationType.equals("svn");
+			boolean isDynamicFile = locationType.equals("dynamicfile");
 			
 			String locationURL = location.getUrl();
 			
 			String localRepositoryPath = getLocalRepositoryPath(location); 
 			
-			if (isSVN || isGit) {
+			if (isSVN || isGit || isDynamicFile) {
 				content.append("<echo message=\"BuildBoost-Repository-Type: " + locationType + "\" file=\"" + repositoryListPath + "\" append=\"true\">");
 				content.append("</echo>");
 				content.append("<echo message=\"BuildBoost-Repository-URL: " + locationURL + "\" file=\"" + repositoryListPath + "\" append=\"true\">");
