@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -53,11 +53,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		if (usernameProperty == null) {
 			usernameProperty = updateSiteSpec.getValue("site", "usernameProperty");
-			System.out.println("Using user: " + usernameProperty);
 		}
 		if (passwordProperty == null) {
 			passwordProperty = updateSiteSpec.getValue("site", "passwordProperty");
-			System.out.println("Using password: " + passwordProperty);
 		}
 		
 		AntTarget mavenRepositoryTarget = generateMavenRepositoryAntTarget();
@@ -76,7 +74,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		
 		String repositoryID = updateSite.getIdentifier();
 		String jarsDir = distDir + File.separator + "jars" + File.separator + repositoryID;
-		String mavenRespoitoryDir = distDir + File.separator + "maven-repository" + File.separator + repositoryID;
+		String mavenRepositoryDir = distDir + File.separator + "maven-repository" + File.separator + repositoryID;
 
 		content.append("<property environment=\"env\"/>");
 		content.append("<!-- Get BUILD_ID from environment -->");
@@ -94,7 +92,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		boolean deployedSomething = false;
 		
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
-		Map<String, String> plugin2VersionMap = new LinkedHashMap<String, String>();
+		Map<String, String> pluginIdToVersionMap = new LinkedHashMap<String, String>();
+		
 		for (EclipseFeature feature : updateSite.getFeatures()) {
 			String featureVersion = feature.getVersion();
 			for (Plugin plugin : feature.getPlugins()) {
@@ -103,8 +102,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				if (pluginVersion == null) {
 					pluginVersion = featureVersion;
 				}
-				plugin2VersionMap.put(pluginID, pluginVersion);
-				addDependenciesRecursively(plugin, pluginsToRepack, plugin2VersionMap);
+				pluginIdToVersionMap.put(pluginID, pluginVersion);
+				addDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap);
 			}
 		}
 		
@@ -139,8 +138,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 					pluginVersion = pluginVersion + "-SNAPSHOT";
 				}
 				
-				String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
+				String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, pluginIdToVersionMap);
 				if (pomXMLContent == null) {
+					content.append("<fail message=\"Can't package maven artifact '" + plugin.getIdentifier() + "'. Scan previous log entries for errors.\"/>");
 					continue;
 				}
 				String pomPropertiesContent = generatePomProperties(plugin, pluginVersion);
@@ -168,8 +168,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				}
 				content.append("</jar>");
 				
-				deployBinInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
-				deploySrcInRepository(content, jarsDir, mavenRespoitoryDir, plugin, pluginVersion, destSrcJarFile);
+				deployBinInRepository(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile);
+				deploySrcInRepository(content, jarsDir, mavenRepositoryDir, plugin, pluginVersion, destSrcJarFile);
 				
 				content.appendLineBreak();
 				
@@ -186,7 +186,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			String pluginName = idToName(pluginID);
 			String pluginVendor = "Eclipse Modeling Project";
 			
-			String pomXMLContent = generatePomXML(compiledPlugin, pluginVersion, pluginName, pluginVendor, plugin2VersionMap);
+			String pomXMLContent = generatePomXML(compiledPlugin, pluginVersion, pluginName, pluginVendor, pluginIdToVersionMap);
 			if (pomXMLContent == null) {
 				continue;
 			}
@@ -216,8 +216,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			content.append("</zipfileset>");
 			content.append("</jar>");
 			
-			deployBinInRepository(content, jarsDir, mavenRespoitoryDir, pomFile, destBinJarFile);
-			deploySrcInRepository(content, jarsDir, mavenRespoitoryDir, compiledPlugin, pluginVersion, destSrcJarFile);
+			deployBinInRepository(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile);
+			deploySrcInRepository(content, jarsDir, mavenRepositoryDir, compiledPlugin, pluginVersion, destSrcJarFile);
 			
 			content.appendLineBreak();
 		}
@@ -228,7 +228,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
 				
 				content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-				content.append("<fileset dir=\"" + mavenRespoitoryDir + "\">");
+				content.append("<fileset dir=\"" + mavenRepositoryDir + "\">");
 				content.append("</fileset>");
 				content.append("</scp>");
 			}
@@ -307,7 +307,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			}
 			String dependencyVersion = plugin2VersionMap.get(dependency.getIdentifier());
 			if (dependencyVersion == null) {
-				System.out.println("Can not create maven artifact for " + plugin.getIdentifier() 
+				System.out.println("ERROR: Can not create Maven artifact for " + plugin.getIdentifier() 
 						+ " since " + dependency.getIdentifier() + " is not versioned");
 				return null;
 			}
@@ -371,7 +371,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	}
 
 	protected boolean includeInMavenRepository(CompiledPlugin compiledPlugin) {
-		// TODO This selects the EMF core plugins, could be moved to an external spec
+		// TODO This selects the EMF core plug-ins. Must be moved to an
+		// external specification.
 		String id = compiledPlugin.getIdentifier();
 		if (id.equals("org.eclipse.emf.common")) {
 			return true;
@@ -383,6 +384,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			return true;
 		}
 		if (id.equals("org.eclipse.emf.xmi")) {
+			return true;
+		}
+		if (id.startsWith("org.emftext.*")) {
 			return true;
 		}
 		return false;
