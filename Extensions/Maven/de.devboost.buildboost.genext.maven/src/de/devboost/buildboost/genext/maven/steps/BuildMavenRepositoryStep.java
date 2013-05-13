@@ -140,7 +140,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				
 				String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, pluginIdToVersionMap);
 				if (pomXMLContent == null) {
-					content.append("<fail message=\"Can't package maven artifact '" + plugin.getIdentifier() + "'. Scan previous log entries for errors.\"/>");
+					content.append("<echo message=\"WARNING: Can't package maven artifact '" + plugin.getIdentifier() + "'. This may lead to a broken maven repository. Scan previous log entries for errors.\"/>");
 					continue;
 				}
 				String pomPropertiesContent = generatePomProperties(plugin, pluginVersion);
@@ -371,7 +371,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	}
 
 	protected boolean includeInMavenRepository(CompiledPlugin compiledPlugin) {
-		// TODO This selects the EMF core plug-ins. Must be moved to an
+		
+		// TODO This selects the plug-ins that will be repackaged even though
+		// they were obtained as compiled archives. This must be moved to an
 		// external specification.
 		String id = compiledPlugin.getIdentifier();
 		if (id.equals("org.eclipse.emf.common")) {
@@ -386,7 +388,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		if (id.equals("org.eclipse.emf.xmi")) {
 			return true;
 		}
-		if (id.startsWith("org.emftext.*")) {
+		if (id.startsWith("org.emftext.")) {
 			return true;
 		}
 		return false;
