@@ -553,19 +553,36 @@ public class BuildBoostSCM extends SCM {
 		return true;
 	}
 
-	private void downloadUniversalBuildScript(FilePath workspace)
-			throws MalformedURLException, IOException, InterruptedException {
+	private void downloadUniversalBuildScript(FilePath workspace) throws IOException, InterruptedException {
+		Exception e = null;
 		StringBuilder scriptContent = new StringBuilder();
-		URL url = new URL(UNIVERSAL_BUILD_SCRIPT_URL);
-		InputStream stream = url.openStream();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String inputLine;
-        while ((inputLine = reader.readLine()) != null) {
-            scriptContent.append(inputLine);
-        }
-        reader.close();
+		try {
+			URL url;
+			url = new URL(UNIVERSAL_BUILD_SCRIPT_URL);
+			InputStream stream = url.openStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+	        String inputLine;
+	        while ((inputLine = reader.readLine()) != null) {
+	            scriptContent.append(inputLine);
+	        }
+	        reader.close();
+	        FilePath mainBuildFile = workspace.child(MAIN_BUILD_SCRIPT);
+	        mainBuildFile.write(scriptContent.toString(), "UTF-8");
+		} catch (MalformedURLException mue) {
+			// ignore
+			e = mue;
+		} catch (IOException ioe) {
+			// ignore
+			e = ioe;
+		} catch (InterruptedException ie) {
+			// ignore
+			e = ie;
+		}
+
         FilePath mainBuildFile = workspace.child(MAIN_BUILD_SCRIPT);
-        mainBuildFile.write(scriptContent.toString(), "UTF-8");
+        if (!mainBuildFile.exists()) {
+			throw new IOException("Could not download universal build script: " + e.getMessage());
+		}
 	}
 
 	@Override
