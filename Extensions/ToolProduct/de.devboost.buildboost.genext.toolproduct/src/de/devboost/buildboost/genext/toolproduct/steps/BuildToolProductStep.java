@@ -68,8 +68,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		String distProductsPath = "dist/products";
 		content.append("<mkdir dir=\"" + distProductsPath + "\" />");
 		
-		String productName = deploymentSpec.getValue("product", "name");
-		String productFeatureID = deploymentSpec.getValue("product", "feature");
+		String productName = deploymentSpec.getProductName();
+		String productFeatureID = deploymentSpec.getProductFeature();
 		String siteVersion = deploymentSpec.getUpdateSite().getFeature(productFeatureID).getVersion();
 		
 		String sdkFolderPath = "../eclipse-sdks";
@@ -79,7 +79,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		content.append("<mkdir dir=\"" + productFolderPath + "\" />");
 		
 		//call director for publishing
-		Map<String, String> configs = deploymentSpec.getValues("product", "type");
+		Map<String, String> configs = deploymentSpec.getProductTypes();
 		for (Entry<String, String> conf : configs.entrySet()) {
 			String productType = conf.getKey();
 			String url = conf.getValue();

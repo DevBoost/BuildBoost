@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -21,7 +21,7 @@ import java.util.List;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGeneratorProvider;
 import de.devboost.buildboost.ant.IAntTargetGenerator;
-import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
+import de.devboost.buildboost.genext.maven.artifacts.MavenRepositorySpec;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 
@@ -35,9 +35,9 @@ public class BuildMavenRepositoryStepProvider extends AbstractAntTargetGenerator
 	}
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
-		if (artifact instanceof EclipseUpdateSiteDeploymentSpec) {
-			EclipseUpdateSiteDeploymentSpec updateSite = (EclipseUpdateSiteDeploymentSpec) artifact;
-			IAntTargetGenerator step = new BuildMavenRepositoryStep(updateSite, targetDir);
+		if (artifact instanceof MavenRepositorySpec) {
+			MavenRepositorySpec repositorySpec = (MavenRepositorySpec) artifact;
+			IAntTargetGenerator step = new BuildMavenRepositoryStep(repositorySpec, targetDir);
 			return Collections.singletonList(step);
 		}
 		return Collections.emptyList();

@@ -112,7 +112,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		content.append("<arg value=\"-DskipBase=true\"/>");
 		content.append("<arg value=\"-DallowBinaryCycles=true\"/>");
 		
-		String configs = deploymentSpec.getValue("site", "configs");
+		String configs = deploymentSpec.getConfigs();
 		content.append("<arg value=\"-Dconfigs=" + configs.replaceAll("\\&", "&amp;") + "\"/>");
 		
 		content.append("</exec>");
@@ -133,7 +133,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"-application\"/>");
 			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
 			
-			String siteDependencies = deploymentSpec.getValue("site", "dependencies");
+			String siteDependencies = deploymentSpec.getSiteDependencies();
 			content.append("<arg value=\"-repository\"/>");
 			content.append("<arg value=\"file:" + p2ProductRepo + "," + siteDependencies + "\"/>");
 			content.append("<arg value=\"-installIU\"/>");

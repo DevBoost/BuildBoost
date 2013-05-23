@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -16,14 +16,10 @@
 package de.devboost.buildboost.genext.updatesite.artifacts;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import de.devboost.buildboost.artifacts.AbstractArtifact;
+import de.devboost.buildboost.discovery.reader.PropertyFileReader;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
 
@@ -31,11 +27,11 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 
 	private File file;
-	private Properties properties;
+	private PropertyFileReader propertyFileReader;
 
 	public EclipseUpdateSiteDeploymentSpec(File file) {
 		this.file = file;
-		readVersionFile();
+		propertyFileReader = new PropertyFileReader(file);
 		// use parent directory name as identifier
 		String identifier = file.getParentFile().getName();
 		setIdentifier(identifier);
@@ -44,59 +40,6 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 	
 	public File getFile() {
 		return file;
-	}
-
-	private void readVersionFile() {
-		properties = new Properties();
-		try {
-			Reader reader = new FileReader(file);
-			properties.load(reader);
-			reader.close();
-		} catch (IOException e) {
-			throw new RuntimeException("Exception while reading deployment specificiation: " + e.getMessage());
-		}
-	}
-	
-	public String getValue(String... path) {
-		StringBuilder key = new StringBuilder();
-		for (int i = 0; i < path.length - 1; i++) {
-			key.append(path[i]);
-			key.append("/");
-		}
-		if (path.length > 0) {
-			key.append(path[path.length - 1]);
-		}
-		return getValue(key.toString());
-	}
-	
-	private String getValue(String key) {
-		String value = properties.getProperty(key);
-		if (value == null) {
-			return null;
-		}
-		if (value.startsWith("$")) {
-			return getValue(value.substring(1));
-		}
-		return value;
-	}
-	
-	public Map<String, String> getValues(String... path) {
-		StringBuilder key = new StringBuilder();
-		Map<String, String> values = new LinkedHashMap<String, String>();
-		for (int i = 0; i < path.length; i++) {
-			key.append(path[i]);
-			key.append("/");
-		}
-		for(Map.Entry<Object, Object> entry : properties.entrySet()) {
-			if (entry.getKey().toString().startsWith(key.toString())) {
-				String subKey = entry.getKey().toString().substring(
-						key.toString().length());
-				if (!subKey.contains("/")) {
-					values.put(subKey, entry.getValue().toString());
-				}
-			}
-		}
-		return values;
 	}
 
 	public EclipseUpdateSite getUpdateSite() {
@@ -110,11 +53,15 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 	}
 
 	public String getSiteVendor() {
-		return getValue("site", "vendor");
+		return propertyFileReader.getValue("site", "vendor");
+	}
+
+	public String getSiteVersion() {
+		return propertyFileReader.getValue("site", "version");
 	}
 
 	public String getFeatureVendor(String featureID) {
-		String featureVendor =  getValue("feature", featureID, "vendor");
+		String featureVendor = propertyFileReader.getValue("feature", featureID, "vendor");
 		if (featureVendor == null) {
 			featureVendor = getSiteVendor();
 		}
@@ -124,25 +71,56 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 		return featureVendor;
 	}
 
-	public String getSiteVersion() {
-		return getValue("site", "version");
-	}
-
-	/* Feature version are now retrieved from the feature descriptors
-	public String getFeatureVersion(String featureID) {
-		String featureVersion = getValue("feature", featureID, "version");
-		if (featureVersion == null) {
-			featureVersion =  getSiteVersion();
-		}
-		if (featureVersion == null) {
-			featureVersion = "0.0.1";
-		}
-		return featureVersion;
-	}
-	*/
-
 	@Override
 	public long getTimestamp() {
 		return file.lastModified();
+	}
+
+	public String getPluginVersion(String pluginID) {
+		return propertyFileReader.getValue("plugin", pluginID, "version");
+	}
+
+	public String getPluginVendor(String pluginID) {
+		return propertyFileReader.getValue("plugin", pluginID, "vendor");
+	}
+
+	public String getPluginName(String pluginID) {
+		return propertyFileReader.getValue("plugin", pluginID, "name");
+	}
+
+	public String getSiteUploadPath() {
+		return propertyFileReader.getValue("site", "uploadPath");
+	}
+
+	public String getExcludeSources() {
+		return propertyFileReader.getValue("site", "excludeSources");
+	}
+
+	public String getSiteUsernameProperty() {
+		return propertyFileReader.getValue("site", "usernameProperty");
+	}
+
+	public String getSitePasswordProperty() {
+		return propertyFileReader.getValue("site", "passwordProperty");
+	}
+
+	public String getProductName() {
+		return propertyFileReader.getValue("product", "name");
+	}
+
+	public String getProductFeature() {
+		return propertyFileReader.getValue("product", "feature");
+	}
+
+	public Map<String, String> getProductTypes() {
+		return propertyFileReader.getValues("product", "type");
+	}
+
+	public String getConfigs() {
+		return propertyFileReader.getValue("site", "configs");
+	}
+
+	public String getSiteDependencies() {
+		return propertyFileReader.getValue("site", "dependencies");
 	}
 }

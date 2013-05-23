@@ -45,10 +45,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		if (usernameProperty == null) {
-			usernameProperty = updateSiteSpec.getValue("site", "usernameProperty");
+			usernameProperty = updateSiteSpec.getSiteUsernameProperty();
 		}
 		if (passwordProperty == null) {
-			passwordProperty = updateSiteSpec.getValue("site", "passwordProperty");
+			passwordProperty = updateSiteSpec.getSitePasswordProperty();
 		}
 		
 		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
@@ -92,11 +92,11 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		}
 		content.appendLineBreak();
 
-		String updateSiteVendor = updateSiteSpec.getValue("site", "vendor");
+		String updateSiteVendor = updateSiteSpec.getSiteVendor();
 		if (updateSiteVendor == null) {
 			updateSiteVendor = "Unknown vendor";
 		}
-		String excludeSrc = updateSiteSpec.getValue("site", "excludeSources");
+		String excludeSrc = updateSiteSpec.getExcludeSources();
 		if (excludeSrc == null) {
 			excludeSrc = "false";
 		}
@@ -165,7 +165,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		
 		addCreateCompleteZipTask(content, updateSiteID, updateSiteDir);
 		
-		String targetPath = updateSiteSpec.getValue("site", "uploadPath");
+		String targetPath = updateSiteSpec.getSiteUploadPath();
 		if (targetPath != null) {
 			addUploadTasks(content, updateSiteID, updateSiteDir, targetPath);
 		}
@@ -233,15 +233,15 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		File pluginDirectory = plugin.getFile();
 		String pluginPath = pluginDirectory.getAbsolutePath();
 
-		String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
+		String pluginVersion = updateSiteSpec.getPluginVersion(pluginID);
 		if (pluginVersion == null) {
 			pluginVersion = featureVersion;
 		}
-		String pluginVendor = updateSiteSpec.getValue("plugin", pluginID, "vendor");
+		String pluginVendor = updateSiteSpec.getPluginVendor(pluginID);
 		if (pluginVendor == null) {
 			pluginVendor = featureVendor;
 		}
-		String pluginName = updateSiteSpec.getValue("plugin", pluginID, "name");
+		String pluginName = updateSiteSpec.getPluginName(pluginID);
 		
 		addManifestTask(content, updateSiteID, pluginID, pluginPath,
 				pluginVersion, pluginVendor, pluginName);

@@ -30,6 +30,7 @@ import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.CompiledPlugin;
 import de.devboost.buildboost.artifacts.EclipseFeature;
 import de.devboost.buildboost.artifacts.Plugin;
+import de.devboost.buildboost.genext.maven.artifacts.MavenRepositorySpec;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
 import de.devboost.buildboost.model.IDependable;
@@ -38,32 +39,37 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	
-	protected EclipseUpdateSiteDeploymentSpec updateSiteSpec;
 	protected File targetDir;
 	protected String usernameProperty = null;
 	protected String passwordProperty = null;
+	private MavenRepositorySpec repositorySpec;
 
-	public BuildMavenRepositoryStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec, File targetDir) {
+	public BuildMavenRepositoryStep(MavenRepositorySpec repositorySpec, File targetDir) {
 		super();
-		this.updateSiteSpec = updateSiteSpec;
+		this.repositorySpec = repositorySpec;
 		this.targetDir = targetDir;
 	}
 	
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
+		EclipseUpdateSiteDeploymentSpec deploymentSpec = repositorySpec.getUpdateSite();
+
 		if (usernameProperty == null) {
-			usernameProperty = updateSiteSpec.getValue("site", "usernameProperty");
+			usernameProperty = repositorySpec.getSiteUserNameProperty();
 		}
 		if (passwordProperty == null) {
-			passwordProperty = updateSiteSpec.getValue("site", "passwordProperty");
+			passwordProperty = repositorySpec.getSitePasswordProperty();
 		}
 		
-		AntTarget mavenRepositoryTarget = generateMavenRepositoryAntTarget();
+		AntTarget mavenRepositoryTarget = generateMavenRepositoryAntTarget(deploymentSpec);
 		return Collections.singletonList(mavenRepositoryTarget);
 	}
 
-	protected AntTarget generateMavenRepositoryAntTarget() throws BuildException {
-		EclipseUpdateSite updateSite = updateSiteSpec.getUpdateSite();
+	protected AntTarget generateMavenRepositoryAntTarget(
+			EclipseUpdateSiteDeploymentSpec deploymentSpec)
+			throws BuildException {
+		
+		EclipseUpdateSite updateSite = deploymentSpec.getUpdateSite();
 		if (updateSite == null) {
 			throw new BuildException("Can't find update site for update site specification.");
 		}
@@ -89,93 +95,50 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.appendLineBreak();
 		
 		content.append("<mkdir dir=\"" + jarsDir + "\" />");
-		boolean deployedSomething = false;
+		boolean deploySomething = false;
 		
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
-		Map<String, String> pluginIdToVersionMap = new LinkedHashMap<String, String>();
+		Map<String, String> pluginIdToVersionMap = computePluginIdToVersionMap(
+				updateSite, pluginsToRepack, deploymentSpec);
+		
+		Set<String> includedPlugins = repositorySpec.getIncludedPlugins();
 		
 		for (EclipseFeature feature : updateSite.getFeatures()) {
 			String featureVersion = feature.getVersion();
+			String featureVendor = deploymentSpec.getFeatureVendor(feature.getIdentifier());
 			for (Plugin plugin : feature.getPlugins()) {
-				String pluginID = plugin.getIdentifier();
-				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
-				if (pluginVersion == null) {
-					pluginVersion = featureVersion;
-				}
-				pluginIdToVersionMap.put(pluginID, pluginVersion);
-				addDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap);
+				deploySomething |= addScript(plugin, deploymentSpec, featureVersion,
+						featureVendor, content, jarsDir, mavenRepositoryDir,
+						pluginIdToVersionMap, includedPlugins);
 			}
 		}
 		
-		for (EclipseFeature feature : updateSite.getFeatures()) {
-			String featureVersion = feature.getVersion();
-			String featureVendor = updateSiteSpec.getFeatureVendor(feature.getIdentifier());
-			for (Plugin plugin : feature.getPlugins()) {
-				String pluginID = plugin.getIdentifier();
-				File pluginDirectory = plugin.getFile();
-				String pluginPath = pluginDirectory.getAbsolutePath();
-				
-				String pluginVersion = updateSiteSpec.getValue("plugin", pluginID, "version");
-				if (pluginVersion == null) {
-					pluginVersion = featureVersion;
-				}
-				String pluginVendor = updateSiteSpec.getValue("plugin", pluginID, "vendor");
-				if (pluginVendor == null) {
-					pluginVendor = featureVendor;
-				}
-				String pluginName = updateSiteSpec.getValue("plugin", pluginID, "name");
-				if (pluginName == null) {
-					pluginName = idToName(pluginID);
-				}
-				
-				String snapshotValue = updateSiteSpec.getValue("site", "snapshot");
-				boolean snapshot = true;
-				if (snapshotValue != null) {
-					snapshot = Boolean.parseBoolean(snapshotValue);
-				}
-				
-				if (snapshot) {
-					pluginVersion = pluginVersion + "-SNAPSHOT";
-				}
-				
-				String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, pluginIdToVersionMap);
-				if (pomXMLContent == null) {
-					content.append("<echo message=\"WARNING: Can't package maven artifact '" + plugin.getIdentifier() + "'. This may lead to a broken maven repository. Scan previous log entries for errors.\"/>");
-					continue;
-				}
-				String pomPropertiesContent = generatePomProperties(plugin, pluginVersion);
-				
-				String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID, "xml").getAbsolutePath();
-				writePomFile(pomPropertiesContent, pluginDirectory, pluginID, "properties");
-				
-				// package plugin(s)
-				content.append("<echo message=\"Packaging maven artifact '" + pluginID + "'\"/>");
-				String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + ".jar";
-				content.append("<jar destfile=\"" + destBinJarFile + "\">");
-				content.append("<fileset dir=\"" + pluginPath + "\">");
-				content.append("<exclude name=\".*\"/>");
-				content.append("<exclude name=\"src*/**\"/>");
-				content.append("<exclude name=\"bin/**\"/>");
-				content.append("</fileset>");
-				content.append("</jar>");
-				String destSrcJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + "-sources.jar";
-				content.append("<jar destfile=\"" + destSrcJarFile + "\">");
-				for (File childFolder : pluginDirectory.listFiles()) {
-					 //TODO read .classpath for src-folders instead
-					if (childFolder.isDirectory() && childFolder.getName().startsWith("src")) {
-						content.append("<fileset dir=\"" + childFolder.getAbsolutePath() + "\"/>");
-					}
-				}
-				content.append("</jar>");
-				
-				deployBinInRepository(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile);
-				deploySrcInRepository(content, jarsDir, mavenRepositoryDir, plugin, pluginVersion, destSrcJarFile);
-				
-				content.appendLineBreak();
-				
-				deployedSomething = true;
-			}
+		repackCompiledPlugins(content, jarsDir, mavenRepositoryDir,
+				pluginsToRepack, pluginIdToVersionMap);
+		
+		if (deploySomething) {
+			addDeployScript(content, mavenRepositoryDir);
 		}
+		
+		AntTarget target = new AntTarget("build-maven-repository", content);
+		return target;
+	}
+
+	private void addDeployScript(XMLContent content, String mavenRepositoryDir) {
+		String targetPath = repositorySpec.getSiteUploadPath();
+		if (targetPath != null) {
+			String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
+			
+			content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+			content.append("<fileset dir=\"" + mavenRepositoryDir + "\">");
+			content.append("</fileset>");
+			content.append("</scp>");
+		}
+	}
+
+	private void repackCompiledPlugins(XMLContent content, String jarsDir,
+			String mavenRepositoryDir, Set<CompiledPlugin> pluginsToRepack,
+			Map<String, String> pluginIdToVersionMap) {
 		
 		for (CompiledPlugin compiledPlugin : pluginsToRepack) {
 			String pluginID = compiledPlugin.getIdentifier();
@@ -196,9 +159,10 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			File pluginDirectory = new File(compiledPlugin.getFile().getParent(), dirName);
 			String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID, "xml").getAbsolutePath();
 			writePomFile(pomPropertiesContent, pluginDirectory, pluginID, "properties").getAbsolutePath();
-			
-			content.append("<echo message=\"Repacking for maven repository '" + pluginID  + "'\"/>");
+
 			String destBinJarFile = jarsDir + "/" + pluginID + "-" + pluginVersion + ".jar";
+			
+			content.append("<echo message=\"Repacking plug-in '" + pluginID  + "' for maven repository\"/>");
 			content.append("<jar destfile=\"" + destBinJarFile + "\">");
 			content.append("<zipfileset src=\"" + pluginPath + "\">");	
 			content.append("<exclude name=\"META-INF/**\"/>");
@@ -221,21 +185,99 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			
 			content.appendLineBreak();
 		}
+	}
+
+	private boolean addScript(Plugin plugin,
+			EclipseUpdateSiteDeploymentSpec deploymentSpec,
+			String featureVersion, String featureVendor, XMLContent content,
+			String jarsDir, String mavenRepositoryDir,
+			Map<String, String> pluginIdToVersionMap,
+			Set<String> includedPlugins) {
 		
-		if (deployedSomething) {
-			String targetPath = updateSiteSpec.getValue("site", "uploadPath");
-			if (targetPath != null) {
-				String repoPath = targetPath.substring(0, targetPath.lastIndexOf('/') + 1) + "maven-repository" ;
-				
-				content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + repoPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
-				content.append("<fileset dir=\"" + mavenRepositoryDir + "\">");
-				content.append("</fileset>");
-				content.append("</scp>");
-			}
+		String pluginID = plugin.getIdentifier();
+
+		if (!includedPlugins.contains(pluginID)) {
+			content.append("<echo message=\"Skipping plug-in '" + plugin.getIdentifier() + "' as it is not listed to be included in Maven repository.\"/>");
+			return false;
 		}
 		
-		AntTarget target = new AntTarget("build-maven-repository", content);
-		return target;
+		File pluginDirectory = plugin.getFile();
+		String pluginPath = pluginDirectory.getAbsolutePath();
+		
+		String pluginVersion = deploymentSpec.getPluginVersion(pluginID);
+		if (pluginVersion == null) {
+			pluginVersion = featureVersion;
+		}
+		String pluginVendor = deploymentSpec.getPluginVendor(pluginID);
+		if (pluginVendor == null) {
+			pluginVendor = featureVendor;
+		}
+		String pluginName = deploymentSpec.getPluginName(pluginID);
+		if (pluginName == null) {
+			pluginName = idToName(pluginID);
+		}
+		
+		if (repositorySpec.isSnapshot()) {
+			pluginVersion = pluginVersion + "-SNAPSHOT";
+		}
+		
+		String pomXMLContent = generatePomXML(plugin, pluginVersion, pluginName, pluginVendor, pluginIdToVersionMap);
+		if (pomXMLContent == null) {
+			content.append("<echo message=\"WARNING: Can't package maven artifact '" + plugin.getIdentifier() + "'. This may lead to a broken maven repository. Scan previous log entries for errors.\"/>");
+			return false;
+		}
+		
+		String pomPropertiesContent = generatePomProperties(plugin, pluginVersion);
+		
+		String pomFile = writePomFile(pomXMLContent, pluginDirectory, pluginID, "xml").getAbsolutePath();
+		writePomFile(pomPropertiesContent, pluginDirectory, pluginID, "properties");
+		
+		// package plugin(s)
+		content.append("<echo message=\"Packaging maven artifact '" + pluginID + "'\"/>");
+		String destBinJarFile = jarsDir + File.separator + pluginID + "-" + pluginVersion + ".jar";
+		content.append("<jar destfile=\"" + destBinJarFile + "\">");
+		content.append("<fileset dir=\"" + pluginPath + "\">");
+		content.append("<exclude name=\".*\"/>");
+		content.append("<exclude name=\"src*/**\"/>");
+		content.append("<exclude name=\"bin/**\"/>");
+		content.append("</fileset>");
+		content.append("</jar>");
+		String destSrcJarFile = jarsDir + File.separator + pluginID + "-" + pluginVersion + "-sources.jar";
+		content.append("<jar destfile=\"" + destSrcJarFile + "\">");
+		for (File childFolder : pluginDirectory.listFiles()) {
+			 //TODO read .classpath for src-folders instead
+			if (childFolder.isDirectory() && childFolder.getName().startsWith("src")) {
+				content.append("<fileset dir=\"" + childFolder.getAbsolutePath() + "\"/>");
+			}
+		}
+		content.append("</jar>");
+		
+		deployBinInRepository(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile);
+		deploySrcInRepository(content, jarsDir, mavenRepositoryDir, plugin, pluginVersion, destSrcJarFile);
+		
+		content.appendLineBreak();
+		return true;
+	}
+
+	private Map<String, String> computePluginIdToVersionMap(
+			EclipseUpdateSite updateSite, Set<CompiledPlugin> pluginsToRepack, 
+			EclipseUpdateSiteDeploymentSpec deploymentSpec) {
+		
+		Map<String, String> pluginIdToVersionMap = new LinkedHashMap<String, String>();
+		
+		for (EclipseFeature feature : updateSite.getFeatures()) {
+			String featureVersion = feature.getVersion();
+			for (Plugin plugin : feature.getPlugins()) {
+				String pluginID = plugin.getIdentifier();
+				String pluginVersion = deploymentSpec.getPluginVersion(pluginID);
+				if (pluginVersion == null) {
+					pluginVersion = featureVersion;
+				}
+				pluginIdToVersionMap.put(pluginID, pluginVersion);
+				addDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap);
+			}
+		}
+		return pluginIdToVersionMap;
 	}
 
 	protected void deployBinInRepository(XMLContent content, String jarsDir,
@@ -265,7 +307,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	}
 
 	protected void addDependenciesRecursively(Plugin plugin,
-			Set<CompiledPlugin> pluginsToRepack, Map<String, String> plugin2VersionMap) {
+			Set<CompiledPlugin> pluginsToRepack,
+			Map<String, String> plugin2VersionMap) {
+		
 		for (IDependable dependency : plugin.getDependencies()) {
 			if (dependency instanceof CompiledPlugin) {
 				CompiledPlugin compiledPlugin = (CompiledPlugin) dependency;
@@ -279,8 +323,12 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		}
 	}
 
-	protected String generatePomXML(Plugin plugin, String pluginVersion, 
-			String pluginName, String pluginVendor, Map<String, String> plugin2VersionMap) {
+	protected String generatePomXML(Plugin plugin, String pluginVersion,
+			String pluginName, String pluginVendor,
+			Map<String, String> plugin2VersionMap) {
+		
+		Set<String> pluginsAssumedAvailable = repositorySpec.getPluginsAssumedAvailable();
+		
 		XMLContent content = new XMLContent();
 		
 		content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -305,16 +353,19 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			if (isOptional(dependency)) {
 				continue;
 			}
-			String dependencyVersion = plugin2VersionMap.get(dependency.getIdentifier());
-			if (dependencyVersion == null) {
+			String dependencyID = dependency.getIdentifier();
+			String dependencyVersion = plugin2VersionMap.get(dependencyID);
+			if (dependencyVersion == null && !pluginsAssumedAvailable.contains(dependencyID)) {
 				System.out.println("ERROR: Can not create Maven artifact for " + plugin.getIdentifier() 
-						+ " since " + dependency.getIdentifier() + " is not versioned");
+						+ " since " + dependencyID + " is not versioned");
 				return null;
 			}
 			content.append("<dependency>");
-			content.append("<groupId>" + getMavenGroup(dependency.getIdentifier()) + "</groupId>");
-			content.append("<artifactId>" + dependency.getIdentifier() + "</artifactId>");
-			content.append("<version>" + dependencyVersion + "</version>");
+			content.append("<groupId>" + getMavenGroup(dependencyID) + "</groupId>");
+			content.append("<artifactId>" + dependencyID + "</artifactId>");
+			if (dependencyVersion != null) {
+				content.append("<version>" + dependencyVersion + "</version>");
+			}
 			content.append("</dependency>");
 		}
 		content.append("</dependencies>");
@@ -386,9 +437,6 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			return true;
 		}
 		if (id.equals("org.eclipse.emf.xmi")) {
-			return true;
-		}
-		if (id.startsWith("org.emftext.")) {
 			return true;
 		}
 		return false;

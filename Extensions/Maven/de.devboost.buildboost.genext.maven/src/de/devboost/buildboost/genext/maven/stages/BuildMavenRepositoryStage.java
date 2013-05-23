@@ -25,6 +25,7 @@ import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.discovery.EclipseFeatureFinder;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
+import de.devboost.buildboost.genext.maven.discovery.MavenRepositorySpecFinder;
 import de.devboost.buildboost.genext.maven.steps.BuildMavenRepositoryStepProvider;
 import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteDeploymentSpecFinder;
 import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteFinder;
@@ -52,6 +53,7 @@ public class BuildMavenRepositoryStage extends AbstractBuildStage implements IUn
 		context.addBuildParticipant(new EclipseFeatureFinder(buildProjectsDir));
 		context.addBuildParticipant(new EclipseUpdateSiteFinder(buildProjectsDir));
 		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(buildProjectsDir));
+		context.addBuildParticipant(new MavenRepositorySpecFinder(buildProjectsDir));
 		
 		context.addBuildParticipant(new BuildMavenRepositoryStepProvider(
 				buildProjectsDir.getParentFile()));
