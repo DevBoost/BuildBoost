@@ -52,16 +52,16 @@ public class PropertyFileReader {
 		if (path.length > 0) {
 			key.append(path[path.length - 1]);
 		}
-		return getValue(key.toString());
+		return getValueInternal(key.toString());
 	}
 	
-	private String getValue(String key) {
+	private String getValueInternal(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
 			return null;
 		}
 		if (value.startsWith("$")) {
-			return getValue(value.substring(1));
+			return getValueInternal(value.substring(1));
 		}
 		return value;
 	}
