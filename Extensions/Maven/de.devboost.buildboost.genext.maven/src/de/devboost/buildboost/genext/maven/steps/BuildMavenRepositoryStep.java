@@ -103,7 +103,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
 		Map<String, String> pluginIdToVersionMap = computePluginIdToVersionMap(
-				pluginsToRepack, includedPlugins);
+				pluginsToRepack, includedPlugins, buildSnapshot);
 		
 		Collection<Plugin> pluginsToPackage = new LinkedHashSet<Plugin>();
 		Collection<PackagePluginTask> packagingTasks = new ArrayList<PackagePluginTask>();
@@ -394,7 +394,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 
 	private Map<String, String> computePluginIdToVersionMap(
 			Set<CompiledPlugin> pluginsToRepack,
-			Collection<String> includedPlugins) {
+			Collection<String> includedPlugins,
+			boolean buildSnapshot) {
 		
 		Map<String, String> pluginIdToVersionMap = new LinkedHashMap<String, String>();
 		
@@ -408,6 +409,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				String pluginVersion = deploymentSpec.getPluginVersion(pluginID);
 				if (pluginVersion == null) {
 					pluginVersion = featureVersion;
+				}
+				if (buildSnapshot) {
+					pluginVersion = pluginVersion + "-SNAPSHOT";
 				}
 				pluginIdToVersionMap.put(pluginID, pluginVersion);
 				findDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap);
