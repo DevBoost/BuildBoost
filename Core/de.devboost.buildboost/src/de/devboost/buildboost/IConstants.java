@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -29,6 +29,7 @@ public interface IConstants {
 	String REPOS_FOLDER = "repos";
 	String BUILD_FOLDER = "build";
 	String ARTIFACTS_FOLDER = "artifacts";
+	String DIST_FOLDER = "dist";
 	String PROJECTS_FOLDER = "projects";
 	String TARGET_PLATFORM_FOLDER = "target-platform";
 	String BUILD_BOOST_BIN_FOLDER = "build-boost-bin";

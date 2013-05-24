@@ -27,17 +27,18 @@ import de.devboost.buildboost.model.IBuildContext;
 
 public class BuildMavenRepositoryStepProvider extends AbstractAntTargetGeneratorProvider {
 
-	private File targetDir;
+	private File artifactsFolder;
 	
-	public BuildMavenRepositoryStepProvider(File targetDir) {
+	public BuildMavenRepositoryStepProvider(File artifactsFolder) {
 		super();
-		this.targetDir = targetDir;
+		this.artifactsFolder = artifactsFolder;
 	}
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof MavenRepositorySpec) {
 			MavenRepositorySpec repositorySpec = (MavenRepositorySpec) artifact;
-			IAntTargetGenerator step = new BuildMavenRepositoryStep(context, repositorySpec, targetDir);
+			IAntTargetGenerator step = new BuildMavenRepositoryStep(context,
+					repositorySpec, artifactsFolder);
 			return Collections.singletonList(step);
 		}
 		return Collections.emptyList();

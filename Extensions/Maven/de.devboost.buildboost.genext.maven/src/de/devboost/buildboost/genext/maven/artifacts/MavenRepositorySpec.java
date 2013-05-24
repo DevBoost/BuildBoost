@@ -59,15 +59,6 @@ public class MavenRepositorySpec extends AbstractArtifact {
 		return propertyFileReader.getValue("passwordProperty");
 	}
 
-	public boolean isSnapshot() {
-		String snapshotValue = propertyFileReader.getValue("snapshot");
-		boolean snapshot = true;
-		if (snapshotValue != null) {
-			snapshot = Boolean.parseBoolean(snapshotValue);
-		}
-		return snapshot;
-	}
-
 	public Set<String> getIncludedPlugins() {
 		String path = "includes";
 		return getList(path);
