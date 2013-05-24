@@ -56,7 +56,8 @@ public class ManifestReader {
 	public final static String REQUIRED_BUNDLE_PREFIX = "Require-Bundle: ";
 	public final static String IMPORT_PACKAGE_PREFIX = "Import-Package: ";
 	public final static String EXPORT_PACKAGE_PREFIX = "Export-Package: ";
-	public final static String NAME_PREFIX = "Bundle-SymbolicName: ";
+	public final static String NAME_PREFIX = "Bundle-Name: ";
+	public final static String SYMBOLIC_NAME_PREFIX = "Bundle-SymbolicName: ";
 	public final static String CLASSPATH_PREFIX = "Bundle-ClassPath: ";
 	public final static String REQUIRE_VERSION_PREFIX = "bundle-version=";
 	public final static String VERSION_PREFIX = "Bundle-Version: ";
@@ -67,6 +68,7 @@ public class ManifestReader {
 	public final static Pattern IMPORT_PACKAGE_REGEX = Pattern.compile("(?<!c)" + IMPORT_PACKAGE_PREFIX + ".*(\r)?\n");
 	public final static Pattern EXPORT_PACKAGE_REGEX = Pattern.compile(EXPORT_PACKAGE_PREFIX + ".*(\r)?\n");
 	public final static Pattern NAME_REGEX = Pattern.compile(NAME_PREFIX + ".*(\r)?\n");
+	public final static Pattern SYMBOLIC_NAME_REGEX = Pattern.compile(SYMBOLIC_NAME_PREFIX + ".*(\r)?\n");
 	public final static Pattern CLASSPATH_REGEX = Pattern.compile(CLASSPATH_PREFIX + ".*(\r)?\n");
 	public static final Pattern VERSION_REGEX = Pattern.compile(VERSION_PREFIX+ ".*(\r)?\n");
 	public static final Pattern FRAGMENT_HOST_REGEX = Pattern.compile(FRAGMENT_HOST_PREFIX+ ".*(\r)?\n");
@@ -75,6 +77,7 @@ public class ManifestReader {
 	private Set<String> classpath;
 	private Set<UnresolvedDependency> dependencies;
 	private Set<String> exportedPackages;
+	private String name;
 	private String symbolicName;
 	private UnresolvedDependency fragmentHost;
 	private String version;
@@ -108,9 +111,16 @@ public class ManifestReader {
 	
 	public String getSymbolicName() {
 		if (symbolicName == null) {
-			symbolicName = getValue(NAME_REGEX, NAME_PREFIX, "UNKNOWN_SYMBOLIC_NAME");
+			symbolicName = getValue(SYMBOLIC_NAME_REGEX, SYMBOLIC_NAME_PREFIX, "UNKNOWN_SYMBOLIC_NAME");
 		}
 		return symbolicName;
+	}
+
+	public String getName() {
+		if (name == null) {
+			name = getValue(NAME_REGEX, NAME_PREFIX, "UNKNOWN_NAME");
+		}
+		return name;
 	}
 
 	public Set<String> getBundleClassPath() {

@@ -37,7 +37,7 @@ public class BuildMavenRepositoryStepProvider extends AbstractAntTargetGenerator
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof MavenRepositorySpec) {
 			MavenRepositorySpec repositorySpec = (MavenRepositorySpec) artifact;
-			IAntTargetGenerator step = new BuildMavenRepositoryStep(repositorySpec, targetDir);
+			IAntTargetGenerator step = new BuildMavenRepositoryStep(context, repositorySpec, targetDir);
 			return Collections.singletonList(step);
 		}
 		return Collections.emptyList();

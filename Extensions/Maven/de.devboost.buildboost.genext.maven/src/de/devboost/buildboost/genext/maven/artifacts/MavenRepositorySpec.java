@@ -51,25 +51,21 @@ public class MavenRepositorySpec extends AbstractArtifact {
 		return null;
 	}
 
-	public String getSiteUserNameProperty() {
-		return propertyFileReader.getValue("site", "usernameProperty");
+	public String getUserNameProperty() {
+		return propertyFileReader.getValue("usernameProperty");
 	}
 
-	public String getSitePasswordProperty() {
-		return propertyFileReader.getValue("site", "passwordProperty");
+	public String getPasswordProperty() {
+		return propertyFileReader.getValue("passwordProperty");
 	}
 
 	public boolean isSnapshot() {
-		String snapshotValue = propertyFileReader.getValue("site", "snapshot");
+		String snapshotValue = propertyFileReader.getValue("snapshot");
 		boolean snapshot = true;
 		if (snapshotValue != null) {
 			snapshot = Boolean.parseBoolean(snapshotValue);
 		}
 		return snapshot;
-	}
-
-	public String getSiteUploadPath() {
-		return propertyFileReader.getValue("site", "uploadPath");
 	}
 
 	public Set<String> getIncludedPlugins() {
@@ -90,5 +86,9 @@ public class MavenRepositorySpec extends AbstractArtifact {
 		
 		String[] pluginIDs = includes.split(";");
 		return new LinkedHashSet<String>(Arrays.asList(pluginIDs));
+	}
+
+	public String getRepositoryPath() {
+		return propertyFileReader.getValue("path");
 	}
 }

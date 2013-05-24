@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -23,6 +23,7 @@ import java.io.IOException;
  * packaged target platform. A {@link CompiledPlugin} can be a JAR or a folder
  * containing the extracted contents of the plug-in.
  */
+// TODO Maybe this class can be merged with class Plugin
 @SuppressWarnings("serial")
 public class CompiledPlugin extends Plugin {
 
@@ -31,8 +32,10 @@ public class CompiledPlugin extends Plugin {
 	}
 	
 	public String getVersion() {
+		// TODO This is a very rough way to determine the plug-in version.
+		// We must rather read the manifest
 		String fileName = getFile().getName();
-		int beginIdx = fileName.indexOf("_") + 1;
+		int beginIdx = fileName.lastIndexOf("_") + 1;
 		int endIdx = fileName.lastIndexOf(".v");
 		String version = fileName.substring(beginIdx, endIdx);
 		return version;
