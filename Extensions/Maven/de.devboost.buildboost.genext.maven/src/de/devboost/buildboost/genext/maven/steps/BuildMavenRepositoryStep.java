@@ -271,9 +271,6 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		}
 		
 		String pomPropertiesContent = composePomProperties(compiledPlugin, pluginVersion);
-		
-		String dirName = compiledPlugin.getFile().getName().replace(".jar", "");
-		File pluginDirectory = new File(compiledPlugin.getFile().getParent(), dirName);
 		String pomFile = writeFile(pomXMLContent, pluginID, "xml", buildSnapshot).getAbsolutePath();
 		writeFile(pomPropertiesContent, pluginID, "properties", buildSnapshot).getAbsolutePath();
 
@@ -285,7 +282,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.append("<zipfileset src=\"" + pluginPath + "\">");	
 		content.append("<exclude name=\"META-INF/**\"/>");
 		content.append("</zipfileset>");
-		content.append("<fileset dir=\"" + pluginDirectory.getAbsolutePath() + "\"/>");
+		content.append("<fileset dir=\"" + getTemporaryFolderForPOM(pluginID, buildSnapshot) + "\"/>");
 		content.append("</jar>");
 		
 		// Repackage source version
