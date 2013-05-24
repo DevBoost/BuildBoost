@@ -99,11 +99,11 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.append("<mkdir dir=\"" + tempJarsDir + "\" />");
 		boolean packagedSomething = false;
 		
+		Set<String> includedPlugins = repositorySpec.getIncludedPlugins();
+		
 		Set<CompiledPlugin> pluginsToRepack = new LinkedHashSet<CompiledPlugin>();
 		Map<String, String> pluginIdToVersionMap = computePluginIdToVersionMap(
-				pluginsToRepack);
-		
-		Set<String> includedPlugins = repositorySpec.getIncludedPlugins();
+				pluginsToRepack, includedPlugins);
 		
 		Collection<Plugin> pluginsToPackage = new LinkedHashSet<Plugin>();
 		Collection<PackagePluginTask> packagingTasks = new ArrayList<PackagePluginTask>();
@@ -393,7 +393,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	}
 
 	private Map<String, String> computePluginIdToVersionMap(
-			Set<CompiledPlugin> pluginsToRepack) {
+			Set<CompiledPlugin> pluginsToRepack,
+			Collection<String> includedPlugins) {
 		
 		Map<String, String> pluginIdToVersionMap = new LinkedHashMap<String, String>();
 		
@@ -401,6 +402,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			String featureVersion = feature.getVersion();
 			for (Plugin plugin : feature.getPlugins()) {
 				String pluginID = plugin.getIdentifier();
+				if (!includedPlugins.contains(pluginID)) {
+					continue;
+				}
 				String pluginVersion = deploymentSpec.getPluginVersion(pluginID);
 				if (pluginVersion == null) {
 					pluginVersion = featureVersion;
