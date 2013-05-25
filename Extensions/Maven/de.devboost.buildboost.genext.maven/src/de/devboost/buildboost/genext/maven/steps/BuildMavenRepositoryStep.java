@@ -295,8 +295,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.append("</zipfileset>");
 		content.append("</jar>");
 		
-		addDeployBinaryJarToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile);
-		addDeploySourceJarToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, compiledPlugin, pluginVersion, destSrcJarFile);
+		addDeployJarsToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile, destSrcJarFile);
+		//addDeploySourceJarToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, compiledPlugin, pluginVersion, destSrcJarFile);
 		
 		content.appendLineBreak();
 	}
@@ -385,8 +385,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		}
 		content.append("</jar>");
 		
-		addDeployBinaryJarToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile);
-		addDeploySourceJarToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, plugin, pluginVersion, destSrcJarFile);
+		addDeployJarsToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, pomFile, destBinJarFile, destSrcJarFile);
+		//addDeploySourceJarToLocalRepositoryScript(content, jarsDir, mavenRepositoryDir, plugin, pluginVersion, destSrcJarFile);
 		
 		content.appendLineBreak();
 		return true;
@@ -420,18 +420,20 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		return pluginIdToVersionMap;
 	}
 
-	protected void addDeployBinaryJarToLocalRepositoryScript(XMLContent content,
+	protected void addDeployJarsToLocalRepositoryScript(XMLContent content,
 			String jarsDir, String mavenRepositoryDir, String pomFile,
-			String destBinJarFile) {
+			String destBinJarFile, String destSrcJarFile) {
 		
 		content.append("<exec executable=\"${mvn-executable}\" dir=\"" + jarsDir + "\">");
 		content.append("<arg value=\"deploy:deploy-file\"/>");
 		content.append("<arg value=\"-Dfile=" + destBinJarFile + "\"/>");
 		content.append("<arg value=\"-DpomFile=" + pomFile + "\"/>");
+		content.append("<arg value=\"-Dsources=" + destSrcJarFile + "\"/>");
 		addMavenRepositoryArgument(content, mavenRepositoryDir);
 		content.append("</exec>");
 	}
 	
+	/*
 	protected void addDeploySourceJarToLocalRepositoryScript(XMLContent content,
 			String jarsDir, String mavenRepositoryDir, Plugin plugin,
 			String pluginVersion, String destSrcJarFile) {
@@ -447,6 +449,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		addMavenRepositoryArgument(content, mavenRepositoryDir);
 		content.append("</exec>");
 	}
+	*/
 
 	private void addMavenRepositoryArgument(XMLContent content,
 			String localMavenRepositoryDir) {
