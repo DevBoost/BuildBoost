@@ -54,6 +54,9 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	
+	private static final String SNAPSHOT_SUFFIX = "-snapshot";
+	private static final String SNAPSHOT_SUFFIX_UPPER = SNAPSHOT_SUFFIX.toUpperCase();
+	
 	private IBuildContext context;
 	private File artifactsFolder;
 	private MavenRepositorySpec repositorySpec;
@@ -162,7 +165,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	private String getRepositoryDirName(boolean buildSnapshot) {
 		String mavenRepositoryDirName = getMavenRepositoryID();
 		if (buildSnapshot) {
-			mavenRepositoryDirName += "-snapshot";
+			mavenRepositoryDirName += SNAPSHOT_SUFFIX;
 		}
 		return mavenRepositoryDirName;
 	}
@@ -347,7 +350,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		*/
 		
 		if (buildSnapshot) {
-			pluginVersion = pluginVersion + "-SNAPSHOT";
+			pluginVersion = pluginVersion + SNAPSHOT_SUFFIX_UPPER;
 		}
 		
 		String pomXMLContent = generatePomXML(plugin, pluginVersion,
@@ -411,10 +414,10 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 					pluginVersion = featureVersion;
 				}
 				if (buildSnapshot) {
-					pluginVersion = pluginVersion + "-SNAPSHOT";
+					pluginVersion = pluginVersion + SNAPSHOT_SUFFIX_UPPER;
 				}
 				pluginIdToVersionMap.put(pluginID, pluginVersion);
-				findDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap);
+				findDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap, buildSnapshot);
 			}
 		}
 		return pluginIdToVersionMap;
@@ -459,20 +462,35 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 
 	protected void findDependenciesRecursively(Plugin plugin,
 			Set<CompiledPlugin> pluginsToRepack,
-			Map<String, String> plugin2VersionMap) {
+			Map<String, String> pluginIdToVersionMap,
+			boolean buildSnapshot) {
 		
+		Set<String> pluginsAssumedAvailable = repositorySpec.getPluginsAssumedAvailable();
+
 		for (IDependable dependency : plugin.getDependencies()) {
 			if (dependency instanceof CompiledPlugin) {
 				CompiledPlugin compiledPlugin = (CompiledPlugin) dependency;
 
 				String identifier = compiledPlugin.getIdentifier();
 				String version = compiledPlugin.getVersion();
-				plugin2VersionMap.put(identifier, version);
+				
+				// When we're building the snapshot repository we reference the
+				// snapshot versions of the plug-ins that are assumed to be
+				// available from other Maven repositories. This is required
+				// to have a consistent dependency structure (snapshots must
+				// reference snapshots, releases must reference releases).
+				if (pluginsAssumedAvailable.contains(identifier) &&
+					buildSnapshot) {
+					version += SNAPSHOT_SUFFIX_UPPER;
+				}
+				pluginIdToVersionMap.put(identifier, version);
 
 				if (includeInMavenRepository(compiledPlugin)) {
 					pluginsToRepack.add(compiledPlugin);
 				}
-				findDependenciesRecursively(compiledPlugin, pluginsToRepack, plugin2VersionMap);
+
+				findDependenciesRecursively(compiledPlugin, pluginsToRepack,
+						pluginIdToVersionMap, buildSnapshot);
 			}
 		}
 	}
@@ -575,7 +593,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	private File getTemporaryFolderForPOM(String pluginID, boolean buildSnapshot) {
 		File pomFolder = new File(artifactsFolder + File.separator + "temp"
 				+ File.separator + "maven_poms"
-				+ (buildSnapshot ? "-snapshot" : "") + File.separator
+				+ (buildSnapshot ? SNAPSHOT_SUFFIX : "") + File.separator
 				+ pluginID + File.separator + "META-INF" + File.separator
 				+ "maven" + File.separator + getMavenGroup(pluginID)
 				+ File.separator + pluginID);
