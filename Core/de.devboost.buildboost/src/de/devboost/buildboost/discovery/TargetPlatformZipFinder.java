@@ -27,6 +27,7 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildListener;
 import de.devboost.buildboost.util.ArtifactUtil;
+import de.devboost.buildboost.util.EclipsePluginHelper;
 
 public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZip> {
 
@@ -48,9 +49,10 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 	@Override
 	protected void traverse(IBuildContext context, File directory,
 			Collection<TargetPlatformZip> artifacts) throws BuildException {
-		//ignore projects and things inside projects
-		File dotProject = new File(directory, ".project");
-		if (dotProject.exists()) {
+		
+		// ignore projects and things inside projects
+		boolean isProject = new EclipsePluginHelper().isProject(directory);
+		if (isProject) {
 			return;
 		}
 		super.traverse(context, directory, artifacts);
