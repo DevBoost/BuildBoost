@@ -220,7 +220,8 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			}
 			artifacts.add(artifact);
 			if (artifact instanceof CompiledPlugin) {
-				artifacts.addAll(((Plugin) artifact).getExportedPackages());				
+				Plugin plugin = (Plugin) artifact;
+				artifacts.addAll(plugin.getExportedPackages());				
 			}
 			buildListener.handleBuildEvent(
 					BuildEventType.INFO, 

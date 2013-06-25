@@ -37,7 +37,6 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 public abstract class AbstractArtifact implements IArtifact, Serializable {
 
 	private String identifier;
-	private Collection<IDependable> dependencies = new LinkedHashSet<IDependable>();
 	private Collection<UnresolvedDependency> unresolvedDependencies = new LinkedHashSet<UnresolvedDependency>();
 	private Collection<ResolvedDependency> resolvedDependencies = new LinkedHashSet<ResolvedDependency>();
 
@@ -46,11 +45,18 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	}
 	
 	public Collection<IDependable> getDependencies() {
+		Collection<IDependable> dependencies = new LinkedHashSet<IDependable>();
+		for (ResolvedDependency dependency : resolvedDependencies) {
+			dependencies.add(dependency.getTarget());
+		}
 		return Collections.unmodifiableCollection(dependencies);
 	}
 
-	public void addDependency(IArtifact artifact) {
-		dependencies.add(artifact);
+	protected void addDependency(IArtifact artifact) {
+		UnresolvedDependency dependency = new UnresolvedDependency(
+				artifact.getClass(), artifact.getIdentifier(), null, true,
+				null, true, false, false);
+		addResolvedDependency(dependency, artifact);
 	}
 
 	public Collection<UnresolvedDependency> getUnresolvedDependencies() {
@@ -93,7 +99,6 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 		
 		resolvedDependencies.add(resolvedDependency);
 		unresolvedDependencies.remove(dependency);
-		dependencies.add(dependable);
 	}
 
 	protected void setIdentifier(String identifier) {
