@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IDependable;
+import de.devboost.buildboost.model.ResolvedDependency;
 import de.devboost.buildboost.model.UnresolvedDependency;
 
 /**
@@ -39,7 +39,7 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	private String identifier;
 	private Collection<IDependable> dependencies = new LinkedHashSet<IDependable>();
 	private Collection<UnresolvedDependency> unresolvedDependencies = new LinkedHashSet<UnresolvedDependency>();
-	private Collection<UnresolvedDependency> resolvedDependencies = new LinkedHashSet<UnresolvedDependency>();
+	private Collection<ResolvedDependency> resolvedDependencies = new LinkedHashSet<ResolvedDependency>();
 
 	public String getIdentifier() {
 		return identifier;
@@ -57,8 +57,40 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 		return unresolvedDependencies;
 	}
 	
-	public Collection<UnresolvedDependency> getResolvedDependencies() {
-		return resolvedDependencies;
+	public Collection<ResolvedDependency> getResolvedDependencies() {
+		return Collections.unmodifiableCollection(resolvedDependencies);
+	}
+
+	public Collection<ResolvedDependency> getAllResolvedDependencies() {
+		
+		Collection<ResolvedDependency> allDependencies = new LinkedHashSet<ResolvedDependency>();
+		Collection<ResolvedDependency> dependencies = getResolvedDependencies();
+		for (ResolvedDependency dependency : dependencies) {
+			IDependable target = dependency.getTarget();
+			if (target instanceof AbstractArtifact) {
+				AbstractArtifact abstractArtifact = (AbstractArtifact) target;
+				allDependencies.addAll(abstractArtifact.getAllResolvedDependencies());
+			}
+		}
+		return allDependencies;
+	}
+
+	public ResolvedDependency getResolvedDependency(UnresolvedDependency unresolvedDependency) {
+		for (ResolvedDependency resolvedDependency : resolvedDependencies) {
+			if (resolvedDependency.getUnresolvedDependency().equals(unresolvedDependency)) {
+				return resolvedDependency;
+			}
+		}
+		return null;
+	}
+
+	public void addResolvedDependency(UnresolvedDependency dependency, IDependable dependable) {
+		
+		ResolvedDependency resolvedDependency = new ResolvedDependency(this, dependable, dependency);
+		
+		resolvedDependencies.add(resolvedDependency);
+		unresolvedDependencies.remove(dependency);
+		dependencies.add(dependable);
 	}
 
 	protected void setIdentifier(String identifier) {
@@ -66,15 +98,13 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	}
 
 	public void resolveDependencies(Collection<? extends IArtifact> allArtifacts) {
-		List<UnresolvedDependency> resolvedDependencies = new ArrayList<UnresolvedDependency>();
 		for (IArtifact artifact : allArtifacts) {
-			for (UnresolvedDependency nextDependency : getUnresolvedDependencies()) {
+			Collection<UnresolvedDependency> unresolvedDependencies = new ArrayList<UnresolvedDependency>(getUnresolvedDependencies());
+			for (UnresolvedDependency nextDependency : unresolvedDependencies) {
 				if (nextDependency.isFulfilledBy(artifact)) {
-					resolvedDependencies.add(nextDependency);
-					dependencies.add(artifact);
+					addResolvedDependency(nextDependency, artifact);
 				}
 			}
-			getUnresolvedDependencies().removeAll(resolvedDependencies);
 		}
 	}
 	

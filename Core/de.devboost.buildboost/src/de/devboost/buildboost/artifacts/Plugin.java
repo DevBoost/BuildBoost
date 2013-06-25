@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -168,13 +169,11 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	@Override
 	public void resolveDependencies(Collection<? extends IArtifact> allArtifacts) {
 		for (IArtifact artifact : allArtifacts) {
-			Collection<UnresolvedDependency> resolvedDependencies = getResolvedDependencies();
-			Collection<UnresolvedDependency> unresolvedDependencies = getUnresolvedDependencies();
+			Collection<UnresolvedDependency> unresolvedDependencies = new ArrayList<UnresolvedDependency>(getUnresolvedDependencies());
 			
 			for (UnresolvedDependency dependency : unresolvedDependencies) {
 				if (dependency.isFulfilledBy(artifact)) {
-					addDependency(artifact);
-					resolvedDependencies.add(dependency);
+					addResolvedDependency(dependency, artifact);
 				}
 			}
 			// --- inserted in superclass code ----
@@ -186,8 +185,6 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 					addDependency(plugin);
 				}
 			}
-			// ---
-			unresolvedDependencies.removeAll(resolvedDependencies);	
 		}
 	}
 	

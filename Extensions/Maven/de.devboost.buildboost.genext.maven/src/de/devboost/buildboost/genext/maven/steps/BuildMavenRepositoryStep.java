@@ -39,6 +39,7 @@ import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildListener;
 import de.devboost.buildboost.model.IDependable;
+import de.devboost.buildboost.model.ResolvedDependency;
 import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.XMLContent;
 
@@ -524,11 +525,12 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.append("</licenses>");
 		
 		content.append("<dependencies>");
-		for (UnresolvedDependency dependency : plugin.getResolvedDependencies()) {
-			if (isOptional(dependency)) {
+		for (ResolvedDependency dependency : plugin.getResolvedDependencies()) {
+			UnresolvedDependency unresolvedDependency = dependency.getUnresolvedDependency();
+			if (isOptional(unresolvedDependency)) {
 				continue;
 			}
-			String dependencyID = dependency.getIdentifier();
+			String dependencyID = unresolvedDependency.getIdentifier();
 			if (!isContainedIn(pluginsToPackage, dependencyID) &&
 				!isContainedIn(pluginsToRepack, dependencyID) &&
 				!pluginsAssumedAvailable.contains(dependencyID)) {
