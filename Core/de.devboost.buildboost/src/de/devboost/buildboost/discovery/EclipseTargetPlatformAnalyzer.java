@@ -135,10 +135,11 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		});
 		
 		artifacts.addAll(foundFeatures);
-		saveDiscoveredArtifacts(artifacts);
+		// TODO saveDiscoveredArtifacts(artifacts);
 		return artifacts;
 	}
 
+	@SuppressWarnings("unused")
 	private void saveDiscoveredArtifacts(Set<IArtifact> artifacts) throws BuildException {
 		try {
 			File artifactsFile = new File(targetPlatformLocation, ARTIFACT_CACHE_FILE_NAME);
