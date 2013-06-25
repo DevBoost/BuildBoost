@@ -18,7 +18,6 @@ package de.devboost.buildboost.discovery;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -28,6 +27,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.CompiledPlugin;
 import de.devboost.buildboost.artifacts.EclipseFeature;
 import de.devboost.buildboost.artifacts.Plugin;
@@ -36,6 +36,7 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildListener;
 import de.devboost.buildboost.util.ArtifactUtil;
+import de.devboost.buildboost.util.EclipsePluginHelper;
 
 /**
  * The EclipseTargetPlatformAnalyzer can be used to scan an Eclipse instance
@@ -52,42 +53,48 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		public IArtifact create(File file) throws IOException;
 	}
 	
-	private File targetPlatform;
+	private File targetPlatformLocation;
 
 	public EclipseTargetPlatformAnalyzer(File targetPlatform) {
-		this.targetPlatform = targetPlatform;
+		this.targetPlatformLocation = targetPlatform;
 	}
 
 	//TODO the discover should traverse the folder hierarchy only once. 
 	//     Could we optimize discovering in general such that there is only one traversal each time?
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context)
+			throws BuildException {
+		
 		IBuildListener buildListener = context.getBuildListener();
-		buildListener.handleBuildEvent(BuildEventType.INFO, "Analyzing target platform...");
+		buildListener.handleBuildEvent(BuildEventType.INFO,
+				"Analyzing target platform...");
 		
 		//TODO activate cache
-		/*Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
+		/*
+		Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
 		if (cachedArtifacts != null) {
 			buildListener.handleBuildEvent(BuildEventType.INFO, "Loaded cached target platform info: " + cachedArtifacts);
 			return cachedArtifacts;
-		}*/
+		}
+		*/
 		
-		LinkedHashSet<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
+		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		
 		// first, find plug-ins
-		Set<File> pluginJarsAndDirs = findJarFilesAndPluginDirs(targetPlatform, new FileFilter() {
+		Set<File> pluginJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new FileFilter() {
 			
 			@Override
 			public boolean accept(File file) {
 				// exclude JUnit 3, because this requires to check the bundle
 				// version when resolving dependencies
 				// TODO remove this once the versions are checked
-				if (file.getName().contains("org.junit_3")) {
+				String name = file.getName();
+				if (name.contains("org.junit_3")) {
 					return false;
 				}
-				if (file.isDirectory() && isPluginDir(file)) {
+				if (file.isDirectory() && new EclipsePluginHelper().containsManifest(file)) {
 					return true;
 				}
-				if (file.isFile() && file.getName().endsWith(".jar")) {
+				if (file.isFile() && name.endsWith(".jar")) {
 					return true;
 				}
 				return false;
@@ -103,7 +110,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		artifacts.addAll(foundPlugins);
 		
 		// second, find features
-		Set<File> featureJarsAndDirs = findJarFilesAndPluginDirs(targetPlatform, new FileFilter() {
+		Set<File> featureJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new FileFilter() {
 			
 			@Override
 			public boolean accept(File file) {
@@ -132,25 +139,25 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		return artifacts;
 	}
 
-	private void saveDiscoveredArtifacts(LinkedHashSet<IArtifact> artifacts) {
+	private void saveDiscoveredArtifacts(Set<IArtifact> artifacts) throws BuildException {
 		try {
-			FileOutputStream fos = new FileOutputStream(new File(targetPlatform, ARTIFACT_CACHE_FILE_NAME));
+			File artifactsFile = new File(targetPlatformLocation, ARTIFACT_CACHE_FILE_NAME);
+			FileOutputStream fos = new FileOutputStream(artifactsFile);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(artifacts);
 			fos.close();
-		} catch (FileNotFoundException e) {
-			// TODO Handle exception
 		} catch (IOException e) {
-			// TODO Handle exception
+			throw new BuildException("Can't save discovered artifacts: " + e.getMessage());
 		}
 	}
 
 	@SuppressWarnings({ "unchecked", "unused" })
-	private Set<IArtifact> loadDiscoveredArtifacts() {
-		File cacheFile = new File(targetPlatform, ARTIFACT_CACHE_FILE_NAME);
+	private Set<IArtifact> loadDiscoveredArtifacts() throws BuildException {
+		File cacheFile = new File(targetPlatformLocation, ARTIFACT_CACHE_FILE_NAME);
 		if (!cacheFile.exists()) {
 			return null;
 		}
+		
 		try {
 			FileInputStream fis = new FileInputStream(cacheFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
@@ -159,18 +166,14 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			
 			if (object instanceof Set) {
 				return (Set<IArtifact>) object;
+			} else {
+				return null;
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new BuildException("Can't load list of discovered artifacts: " + e.getMessage());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new BuildException("Can't load list of discovered artifacts: " + e.getMessage());
 		}
-		return null;
 	}
 
 	private Set<File> findJarFilesAndPluginDirs(File directory, FileFilter fileFilter) {
@@ -232,18 +235,6 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		return new ArtifactUtil().getSetOfArtifacts(artifacts);
 	}
 
-	/**
-	 * Checks whether the given directory contains a 'META-INF/MANIFEST.MF' file.
-	 */
-	private boolean isPluginDir(File directory) {
-		File metaInfDir = new File(directory, "META-INF");
-		if (!metaInfDir.exists()) {
-			return false;
-		}
-		File manifestFile = new File(metaInfDir, "MANIFEST.MF");
-		return manifestFile.exists();
-	}
-	
 	private boolean isFeatureDirOrJar(File file) {
 		if (!file.getParentFile().getName().equals("features")) {
 			return false;
@@ -264,6 +255,6 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + "[" + targetPlatform.getPath() + "]";
+		return this.getClass().getSimpleName() + "[" + targetPlatformLocation.getPath() + "]";
 	}
 }

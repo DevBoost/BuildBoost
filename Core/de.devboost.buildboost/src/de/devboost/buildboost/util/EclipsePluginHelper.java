@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -59,5 +59,18 @@ public class EclipsePluginHelper {
 			parent = parent.getParentFile();
 		}
 		return null;
+	}
+
+	/**
+	 * Checks whether the given directory contains a 'META-INF/MANIFEST.MF'
+	 * file.
+	 */
+	public boolean containsManifest(File directory) {
+		File metaInfDir = new File(directory, "META-INF");
+		if (!metaInfDir.exists()) {
+			return false;
+		}
+		File manifestFile = new File(metaInfDir, "MANIFEST.MF");
+		return manifestFile.exists();
 	}
 }
