@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +30,31 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.devboost.buildboost.artifacts.Plugin;
+import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.Sorter;
 
 public class PluginSorterTest {
+	
+	public static class AccessiblePlugin extends Plugin {
 
-	private Plugin p1;
-	private Plugin p2;
-	private Plugin p3;
-	private Plugin p4;
-	private Plugin p5;
+		private static final long serialVersionUID = -213212871802614893L;
+
+		public AccessiblePlugin(File location) throws IOException {
+			super(location);
+		}
+
+		@Override
+		public void addDependency(IArtifact artifact) {
+			super.addDependency(artifact);
+		}
+	}
+
+	private AccessiblePlugin p1;
+	private AccessiblePlugin p2;
+	private AccessiblePlugin p3;
+	private AccessiblePlugin p4;
+	private AccessiblePlugin p5;
 
 	@Before
 	public void setUp() throws Exception {
@@ -123,8 +139,8 @@ public class PluginSorterTest {
 		}
 	}
 
-	private Plugin createPlugin(String name) throws Exception {
-		return new Plugin(new File(name));
+	private AccessiblePlugin createPlugin(String name) throws Exception {
+		return new AccessiblePlugin(new File(name));
 	}
 
 	@Test
