@@ -64,8 +64,11 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	public Collection<ResolvedDependency> getAllResolvedDependencies() {
 		
 		Collection<ResolvedDependency> allDependencies = new LinkedHashSet<ResolvedDependency>();
-		Collection<ResolvedDependency> dependencies = getResolvedDependencies();
-		for (ResolvedDependency dependency : dependencies) {
+		for (ResolvedDependency dependency : getResolvedDependencies()) {
+			// Add direct dependency
+			allDependencies.add(dependency);
+
+			// Add transitive dependencies
 			IDependable target = dependency.getTarget();
 			if (target instanceof AbstractArtifact) {
 				AbstractArtifact abstractArtifact = (AbstractArtifact) target;
