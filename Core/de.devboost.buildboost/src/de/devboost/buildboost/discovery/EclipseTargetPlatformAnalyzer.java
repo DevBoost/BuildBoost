@@ -68,7 +68,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		buildListener.handleBuildEvent(BuildEventType.INFO,
 				"Analyzing target platform...");
 		
-		//TODO activate cache
+		// TODO Clarify why Jendrik had to deactivate the cache
 		/*
 		Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
 		if (cachedArtifacts != null) {
