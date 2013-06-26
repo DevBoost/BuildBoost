@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -20,22 +20,36 @@ import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.IAntTargetGeneratorProvider;
 
 /**
- * The IBuildParticipant is an empty interface that is extended by concrete
- * interfaces that provide access to specific services required while executing
- * a build. The most imports extensions of this interface are: 
- * {@link IArtifactDiscoverer},
- * {@link IArtifactFilter}, and
- * {@link IAntTargetGeneratorProvider}.
+ * An {@link IBuildParticipant} can contribute to a build. It is executed by the
+ * {@link AutoBuilder} class by calling {@link #execute(IBuildContext)}. To
+ * determine the order of execution in case there are multiple participants, the
+ * methods {@link #dependsOn(IBuildParticipant)} and
+ * {@link #isReqiredFor(IBuildParticipant)} are used.
  * 
- * The sole purpose of this interface is to allow to pass all services that 
- * participate in a build in a single list to the {@link AutoBuilder} class.
+ * The most imports extensions of this interface are:
+ * {@link IArtifactDiscoverer}, {@link IArtifactFilter}, and
+ * {@link IAntTargetGeneratorProvider}.
  */
 public interface IBuildParticipant {
 	
-	// TODO update documentation
+	/**
+	 * Returns true if this participant depends on the other participant, which
+	 * means that this participant must be executed after the other participant.
+	 */
 	public boolean dependsOn(IBuildParticipant otherParticipant);
 	
+	/**
+	 * Returns true if this participant is required by the other participant,
+	 * which means that this participant must be executed before the other
+	 * participant.
+	 */
 	public boolean isReqiredFor(IBuildParticipant otherParticipant);
 	
+	/**
+	 * Execute this participant.
+	 * 
+	 * @param context the context in which the execution takes place
+	 * @throws BuildException if something goes terribly wrong
+	 */
 	public void execute(IBuildContext context) throws BuildException;
 }
