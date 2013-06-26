@@ -19,8 +19,12 @@ import static de.devboost.buildboost.IConstants.NL;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import de.devboost.buildboost.IConstants;
 
 /**
  * XMLContent objects can be used to compose contents for XML files. The 
@@ -98,5 +102,21 @@ public class XMLContent {
 
 	public void appendLineBreak() {
 		append(de.devboost.buildboost.IConstants.NL);
+	}
+
+	public XMLContent removeDuplicateEntries() {
+		// remove duplicate entries
+		String content = composeContent();
+		String[] lines = content.split(IConstants.NL);
+		Set<String> uniqueLines = new LinkedHashSet<String>();
+		for (String line : lines) {
+			uniqueLines.add(line);
+		}
+		
+		XMLContent newContent = new XMLContent();
+		for (String uniqueLine : uniqueLines) {
+			newContent.append(uniqueLine);
+		}
+		return newContent;
 	}
 }

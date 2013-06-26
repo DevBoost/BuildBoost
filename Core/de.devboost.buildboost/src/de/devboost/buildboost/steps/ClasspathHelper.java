@@ -16,10 +16,7 @@
 package de.devboost.buildboost.steps;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-import de.devboost.buildboost.IConstants;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.UnresolvedDependency;
@@ -55,26 +52,11 @@ public class ClasspathHelper {
 				result.append(getClasspath(dependency, includeSelf));
 			}
 		}
-		XMLContent normalizedClassPath = removeDuplicateEntries(result);
+
+		XMLContent normalizedClassPath = result.removeDuplicateEntries();
 		return normalizedClassPath;
 	}
 
-	// TODO move this to the XMLContent class
-	private XMLContent removeDuplicateEntries(XMLContent result) {
-		// remove duplicate entries
-		String content = result.toString();
-		String[] lines = content.split(IConstants.NL);
-		Set<String> uniqueLines = new LinkedHashSet<String>();
-		for (String line : lines) {
-			uniqueLines.add(line);
-		}
-		XMLContent normalizedClassPath = new XMLContent();
-		for (String uniqueLine : uniqueLines) {
-			normalizedClassPath.append(uniqueLine);
-		}
-		return normalizedClassPath;
-	}
-	
 	public XMLContent getClasspath(Plugin plugin, boolean includePlugin) {
 		XMLContent classpath = new XMLContent();
 		if (includePlugin) {
