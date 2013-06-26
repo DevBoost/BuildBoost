@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -52,4 +52,9 @@ public class CloneRepositoriesStage extends AbstractBuildStage {
 		return script;
 	}
 
+	@Override
+	public int getPriority() {
+		// TODO Is this correct?
+		return 0;
+	}
 }

@@ -16,10 +16,7 @@
 package de.devboost.buildboost.model;
 
 // TODO document
-// TODO merge this with IBuildStage because implementing IBuildStage only does
+// TODO Remove this because implementing IBuildStage only does
 // not make sense anymore (such stages are ignored by BuildBoost)
 public interface IUniversalBuildStage extends IBuildStage {
-	
-	//TODO use explicit dependencies (BuildStage class names?) instead
-	public int getPriority();
 }

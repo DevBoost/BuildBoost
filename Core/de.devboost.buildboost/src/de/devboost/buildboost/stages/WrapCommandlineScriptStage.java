@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -55,5 +55,11 @@ public class WrapCommandlineScriptStage extends AbstractBuildStage {
 		AntTarget target = new AntTarget("execute-cmd-line-script", content);
 		script.addTarget(target);
 		return script;
+	}
+
+	@Override
+	public int getPriority() {
+		// TODO Is this correct?
+		return 0;
 	}
 }

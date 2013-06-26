@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -27,4 +27,11 @@ public interface IBuildStage {
 	 * build is generated but not executed.
 	 */
 	public boolean isEnabled();
+
+	/**
+	 * Returns the priority of this build stage. This is currently used to
+	 * determine the order in which build stages are executed.
+	 */
+	// TODO use explicit dependencies (BuildStage class names?) instead
+	public int getPriority();
 }
