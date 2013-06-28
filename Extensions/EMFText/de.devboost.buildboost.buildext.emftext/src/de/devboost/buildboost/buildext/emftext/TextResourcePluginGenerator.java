@@ -165,9 +165,12 @@ public class TextResourcePluginGenerator {
 		URI genmodelGenModelURI = URI.createPlatformPluginURI(
 				"org.eclipse.emf.codegen.ecore/model/GenModel.genmodel", true);
 		
-		EcorePlugin.getEPackageNsURIToGenModelLocationMap().put(
+		@SuppressWarnings("deprecation")
+		Map<String, URI> ePackageNsURIToGenModelLocationMap = EcorePlugin
+				.getEPackageNsURIToGenModelLocationMap();
+		ePackageNsURIToGenModelLocationMap.put(
 				ecorePackage.getNsURI(), ecoreGenModelURI);
-		EcorePlugin.getEPackageNsURIToGenModelLocationMap().put(
+		ePackageNsURIToGenModelLocationMap.put(
 				genModelPackage.getNsURI(), genmodelGenModelURI);
 	}
 }
