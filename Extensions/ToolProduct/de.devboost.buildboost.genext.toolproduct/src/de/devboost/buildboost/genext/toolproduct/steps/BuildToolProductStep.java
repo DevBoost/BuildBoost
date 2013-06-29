@@ -106,8 +106,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
 			
 			content.append("<arg value=\"-repository\"/>");
-			//TODO Juno update-site is hard coded as dependency here
-			content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + ",http://download.eclipse.org/releases/juno\"/>");
+			// TODO Kepler update-site is hard coded as dependency here
+			content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + ",http://download.eclipse.org/releases/kepler\"/>");
 			content.append("<arg value=\"-installIU\"/>");
 			content.append("<arg value=\"" + productFeatureID + ".feature.group\"/>");
 			content.append("<arg value=\"-tag\"/>");
