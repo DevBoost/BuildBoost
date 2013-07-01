@@ -30,6 +30,14 @@ import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteFinde
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.stages.AbstractBuildStage;
 
+/**
+ * The {@link BuildToolProductStage} can be used to build distributions for
+ * tools which are based on Eclipse. The stage searches for tool product
+ * specifications (toolproduct.spec files) and install the specified Eclipse
+ * features into plain Eclipse distributions. In addition, custom splash screens
+ * and icons can be provides as well as an example workspace that is packaged
+ * with the distribution and used when the custom distribution is started.
+ */
 public class BuildToolProductStage extends AbstractBuildStage implements IUniversalBuildStage {
 
 	private String artifactsFolder;
@@ -59,7 +67,7 @@ public class BuildToolProductStage extends AbstractBuildStage implements IUniver
 		AutoBuilder builder = new AutoBuilder(context);
 		
 		AntScript script = new AntScript();
-		script.setName("Build Eclipse product(s)");
+		script.setName("Build Eclipse tool product(s)");
 		script.addTargets(builder.generateAntTargets());
 		
 		return script;
