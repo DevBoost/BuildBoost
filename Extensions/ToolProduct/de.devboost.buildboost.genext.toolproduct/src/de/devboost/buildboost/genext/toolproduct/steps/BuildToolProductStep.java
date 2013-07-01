@@ -24,17 +24,17 @@ import java.util.Map.Entry;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
-import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
-import de.devboost.buildboost.util.XMLContent;
+import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
 import de.devboost.buildboost.util.AntScriptUtil;
+import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	
-	private EclipseUpdateSiteDeploymentSpec deploymentSpec;
+	private ToolProductSpecification specification;
 
-	public BuildToolProductStep(EclipseUpdateSiteDeploymentSpec deploymentSpec) {
+	public BuildToolProductStep(ToolProductSpecification specification) {
 		super();
-		this.deploymentSpec = deploymentSpec;
+		this.specification = specification;
 	}
 	
 	@Override
@@ -44,8 +44,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	}
 
 	protected AntTarget generateUpdateSiteAntTarget() throws BuildException {
-		if (deploymentSpec == null) {
-			throw new BuildException("Can't find deployment spec site for product specification.");
+		if (specification == null) {
+			throw new BuildException("Can't find tool product specification.");
 		}
 		
 		XMLContent content = new XMLContent();
@@ -62,15 +62,15 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
 		
-		File deployedUpdateSiteFolder = deploymentSpec.getUpdateSite().getFile().getParentFile();
-		File updateSiteFolder = deploymentSpec.getFile().getParentFile();
+		File deployedUpdateSiteFolder = specification.getUpdateSite().getFile().getParentFile();
+		File toolProductFolder = specification.getFile().getParentFile();
 		
 		String distProductsPath = "dist/products";
 		content.append("<mkdir dir=\"" + distProductsPath + "\" />");
 		
-		String productName = deploymentSpec.getProductName();
-		String productFeatureID = deploymentSpec.getProductFeature();
-		String siteVersion = deploymentSpec.getUpdateSite().getFeature(productFeatureID).getVersion();
+		String productName = specification.getProductName();
+		String productFeatureID = specification.getProductFeature();
+		String siteVersion = specification.getUpdateSite().getFeature(productFeatureID).getVersion();
 		
 		String sdkFolderPath = "../eclipse-sdks";
 		content.append("<mkdir dir=\"" + sdkFolderPath + "\" />");
@@ -79,7 +79,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		content.append("<mkdir dir=\"" + productFolderPath + "\" />");
 		
 		//call director for publishing
-		Map<String, String> configs = deploymentSpec.getProductTypes();
+		Map<String, String> configs = specification.getProductTypes();
 		for (Entry<String, String> conf : configs.entrySet()) {
 			String productType = conf.getKey();
 			String url = conf.getValue();
@@ -121,9 +121,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.appendLineBreak();
 			
 			
-			File splashScreenFile = new File(updateSiteFolder, "splash.bmp");
+			File splashScreenFile = new File(toolProductFolder, "splash.bmp");
 			File pluginFolder = new File(productInstallationFolder, "plugins");
-			File iconFolder = new File(updateSiteFolder, "icons");
+			File iconFolder = new File(toolProductFolder, "icons");
 
 			File osxIconFile = new File(iconFolder, "Eclipse.icns");
 			File osxAppFolder = new File(productInstallationFolder, "Eclipse.app");
@@ -133,9 +133,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			File windowsExe = null;
 			if (productType.contains("64")) {
-				windowsExe = new File(updateSiteFolder, "eclipse64.exe");
+				windowsExe = new File(toolProductFolder, "eclipse64.exe");
 			} else {
-				windowsExe = new File(updateSiteFolder, "eclipse32.exe");
+				windowsExe = new File(toolProductFolder, "eclipse32.exe");
 			}
 			File windowsBrandedExe = new File(productInstallationFolder, productName + ".exe");
 			
@@ -143,7 +143,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File linuxExe = new File(productInstallationFolder, "eclipse");
 			File linuxBrandedExe = new File(productInstallationFolder, productName);
 			
-			File workspace = new File(updateSiteFolder, "workspace");
+			File workspace = new File(toolProductFolder, "workspace");
 			File configIni = new File(productInstallationFolder, "configuration/config.ini");	
 			File uiPrefs = new File(productInstallationFolder, "configuration/.settings/org.eclipse.ui.ide.prefs");	
 			
@@ -219,7 +219,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			//TODO upload ZIP
 		}
 
-		String updateSiteID = deploymentSpec.getUpdateSite().getIdentifier();
+		String updateSiteID = specification.getUpdateSite().getIdentifier();
 		AntTarget target = new AntTarget("build-eclipse-tool-product-" + updateSiteID, content);
 		return target;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -24,8 +24,8 @@ import de.devboost.buildboost.ant.AntScript;
 import de.devboost.buildboost.discovery.EclipseFeatureFinder;
 import de.devboost.buildboost.discovery.EclipseTargetPlatformAnalyzer;
 import de.devboost.buildboost.discovery.PluginFinder;
+import de.devboost.buildboost.genext.toolproduct.discovery.ToolProductSpecificationFinder;
 import de.devboost.buildboost.genext.toolproduct.steps.BuildToolProductStepProvider;
-import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteDeploymentSpecFinder;
 import de.devboost.buildboost.genext.updatesite.discovery.EclipseUpdateSiteFinder;
 import de.devboost.buildboost.model.IUniversalBuildStage;
 import de.devboost.buildboost.stages.AbstractBuildStage;
@@ -49,7 +49,7 @@ public class BuildToolProductStage extends AbstractBuildStage implements IUniver
 		context.addBuildParticipant(new PluginFinder(artifactsDir));
 		context.addBuildParticipant(new EclipseFeatureFinder(artifactsDir));
 
-		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(artifactsDir));
+		context.addBuildParticipant(new ToolProductSpecificationFinder(artifactsDir));
 		
 		File distDir = new File(artifactsDir, "dist");
 		context.addBuildParticipant(new EclipseUpdateSiteFinder(distDir));

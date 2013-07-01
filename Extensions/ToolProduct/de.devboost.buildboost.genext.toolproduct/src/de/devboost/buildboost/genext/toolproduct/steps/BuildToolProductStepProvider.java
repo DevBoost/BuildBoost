@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -20,7 +20,7 @@ import java.util.List;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGeneratorProvider;
 import de.devboost.buildboost.ant.IAntTargetGenerator;
-import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
+import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 
@@ -31,9 +31,9 @@ public class BuildToolProductStepProvider extends AbstractAntTargetGeneratorProv
 	}
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
-		if (artifact instanceof EclipseUpdateSiteDeploymentSpec) {
-			EclipseUpdateSiteDeploymentSpec deploymentSpec = (EclipseUpdateSiteDeploymentSpec) artifact;
-			IAntTargetGenerator step = new BuildToolProductStep(deploymentSpec);
+		if (artifact instanceof ToolProductSpecification) {
+			ToolProductSpecification specification = (ToolProductSpecification) artifact;
+			IAntTargetGenerator step = new BuildToolProductStep(specification);
 			return Collections.singletonList(step);
 		}
 		return Collections.emptyList();

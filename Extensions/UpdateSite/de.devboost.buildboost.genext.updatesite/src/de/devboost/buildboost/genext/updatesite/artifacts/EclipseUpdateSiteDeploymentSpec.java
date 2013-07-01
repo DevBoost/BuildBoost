@@ -16,7 +16,6 @@
 package de.devboost.buildboost.genext.updatesite.artifacts;
 
 import java.io.File;
-import java.util.Map;
 
 import de.devboost.buildboost.artifacts.AbstractArtifact;
 import de.devboost.buildboost.discovery.reader.PropertyFileReader;
@@ -102,18 +101,6 @@ public class EclipseUpdateSiteDeploymentSpec extends AbstractArtifact {
 
 	public String getSitePasswordProperty() {
 		return propertyFileReader.getValue("site", "passwordProperty");
-	}
-
-	public String getProductName() {
-		return propertyFileReader.getValue("product", "name");
-	}
-
-	public String getProductFeature() {
-		return propertyFileReader.getValue("product", "feature");
-	}
-
-	public Map<String, String> getProductTypes() {
-		return propertyFileReader.getValues("product", "type");
 	}
 
 	public String getConfigs() {
