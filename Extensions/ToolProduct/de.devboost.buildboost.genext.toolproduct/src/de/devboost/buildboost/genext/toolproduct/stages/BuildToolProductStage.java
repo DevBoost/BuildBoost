@@ -33,9 +33,9 @@ import de.devboost.buildboost.stages.AbstractBuildStage;
 /**
  * The {@link BuildToolProductStage} can be used to build distributions for
  * tools which are based on Eclipse. The stage searches for tool product
- * specifications (toolproduct.spec files) and install the specified Eclipse
- * features into plain Eclipse distributions. In addition, custom splash screens
- * and icons can be provides as well as an example workspace that is packaged
+ * specifications (toolproduct.spec files) and installs the specified Eclipse
+ * feature into plain Eclipse distributions. In addition, custom splash screens
+ * and icons can be provided as well as an example workspace that is packaged
  * with the distribution and used when the custom distribution is started.
  */
 public class BuildToolProductStage extends AbstractBuildStage implements IUniversalBuildStage {
