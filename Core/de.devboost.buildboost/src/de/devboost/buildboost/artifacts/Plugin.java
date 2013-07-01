@@ -395,7 +395,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	private void analyzeClassPath() throws IOException {
 		InputStream dotClassPathInputStream = getDotClasspathInputStream();
 		if (dotClassPathInputStream != null) {
-			this.libs.addAll(new DotClasspathReader(dotClassPathInputStream).getDependencies());
+			DotClasspathReader classpathReader = new DotClasspathReader(dotClassPathInputStream);
+			this.libs.addAll(classpathReader.getDependencies());
 			dotClassPathInputStream.close();
 		}
 	}
