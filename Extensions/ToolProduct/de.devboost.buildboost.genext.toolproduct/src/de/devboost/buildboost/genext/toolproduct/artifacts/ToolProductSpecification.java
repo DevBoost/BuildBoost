@@ -54,6 +54,14 @@ public class ToolProductSpecification extends AbstractArtifact {
 		return propertyFileReader.getValue("feature");
 	}
 
+	/**
+	 * Returns are list of associated update site that will be used when
+	 * installing the tool product feature into Eclipse.
+	 */
+	public String getAssociateSites() {
+		return propertyFileReader.getValue("associatesites");
+	}
+
 	public Map<String, String> getProductTypes() {
 		return propertyFileReader.getValues("type");
 	}

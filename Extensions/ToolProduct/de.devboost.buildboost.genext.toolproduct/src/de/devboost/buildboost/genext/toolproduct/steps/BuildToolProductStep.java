@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -56,7 +56,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		content.append("<isset property=\"env.BUILD_ID\" />");
 		content.append("</condition>");
 		content.appendLineBreak();
-		//TODO this is not good, because the tstamp should not be stage dependent
+		// TODO this is not good, because the time stamp should not be stage dependent
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
@@ -106,8 +106,12 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
 			
 			content.append("<arg value=\"-repository\"/>");
-			// TODO Kepler update-site is hard coded as dependency here
-			content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + ",http://download.eclipse.org/releases/kepler\"/>");
+			String associateSites = specification.getAssociateSites();
+			if (associateSites == null) {
+				content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + "\"/>");
+			} else {
+				content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + "," + associateSites + "\"/>");
+			}
 			content.append("<arg value=\"-installIU\"/>");
 			content.append("<arg value=\"" + productFeatureID + ".feature.group\"/>");
 			content.append("<arg value=\"-tag\"/>");
@@ -215,8 +219,6 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			String productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + "." + zipType).getAbsolutePath();
 			AntScriptUtil.addZipFileCompressionScript(content, productZipPath,  brandedProductFolder.getParentFile().getAbsolutePath());
 			content.appendLineBreak();
-			
-			//TODO upload ZIP
 		}
 
 		String updateSiteID = specification.getUpdateSite().getIdentifier();
