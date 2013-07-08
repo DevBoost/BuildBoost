@@ -140,11 +140,8 @@ public class TextResourcePluginGenerator {
 			} else if (!"".equals(to.lastSegment())) {
 				to = to.appendSegment("");
 			}
-			//System.out.println("Mapping URI " + from + " to " + to);
-			uriMap.put(
-					from,
-					to
-			);
+
+			uriMap.put(from, to);
 		}
 	}
 	
