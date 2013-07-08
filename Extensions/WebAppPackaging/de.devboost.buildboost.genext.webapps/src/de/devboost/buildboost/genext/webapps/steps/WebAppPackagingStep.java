@@ -66,8 +66,8 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 		content.append("<fileset dir=\"" + webContentDir.getAbsolutePath() + "\" />");
 	    content.append("<classes dir=\"" + new ClasspathHelper().getBinPath(plugin) + "\" />");
 	    for (Plugin dependency : dependencies) {
+	    	File location = dependency.getLocation();
 	    	if (dependency.isProject()) {
-		    	File location = dependency.getLocation();
 				if (location.isFile()) {
 					// target platform plug-ins must be included as whole JAR
 				    content.append("<lib dir=\"" + location.getParentFile().getAbsolutePath() + "\">");
@@ -83,9 +83,13 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 					// TODO handle plug-in dependencies that are extracted
 				}
 			} else {
-				// add packaged dependency
-			    String jarFile = new PluginPackagingHelper().getJarFileName(temporaryWebAppDir, dependency);
-			    content.append("<lib file=\"" + jarFile + "\" />");
+				if (location.isFile()) {
+					// add packaged dependency
+				    //String jarFile = new PluginPackagingHelper().getJarFileName(temporaryWebAppDir, dependency);
+				    content.append("<lib file=\"" + location.getAbsolutePath() + "\" />");
+				} else {
+					// TODO
+				}
 			}
 	    }
 	    
