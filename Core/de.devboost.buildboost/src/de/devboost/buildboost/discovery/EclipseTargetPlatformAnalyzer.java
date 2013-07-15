@@ -174,11 +174,11 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		
 		// first, find plug-ins and create respective artifact objects
-		Set<File> pluginJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new PluginFileFilter());
+		Set<File> pluginJarsAndDirs = findFiles(targetPlatformLocation, new PluginFileFilter());
 		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new CompiledPluginCreator());
 		
 		// second, find features and create respective artifact objects
-		Set<File> featureJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new FeatureFileFinder());
+		Set<File> featureJarsAndDirs = findFiles(targetPlatformLocation, new FeatureFileFinder());
 		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new EclipseFeatureCreator());
 
 		// third, add all found artifacts to result set
@@ -226,7 +226,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		}
 	}
 
-	private Set<File> findJarFilesAndPluginDirs(File directory, FileFilter fileFilter) {
+	private Set<File> findFiles(File directory, FileFilter fileFilter) {
 		// Make sure we've got a directory as argument
 		if (!directory.isDirectory()) {
 			return Collections.emptySet();
@@ -249,7 +249,8 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				}
 			}
 			
-			if (fileFilter.accept(file)) {
+			boolean accepted = fileFilter.accept(file);
+			if (accepted) {
 				result.add(file);
 			}
 			
@@ -261,8 +262,8 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			// directory of the target platform. The latter condition is a
 			// workaround for the Refactory build where the target platform
 			// root contains a META-INF folder.
-			if (isDirectory && isTargetPlatformRoot) {
-				result.addAll(findJarFilesAndPluginDirs(file, fileFilter));
+			if ((isDirectory && !accepted) || (isDirectory && isTargetPlatformRoot)) {
+				result.addAll(findFiles(file, fileFilter));
 			}
 		}
 		return result;
