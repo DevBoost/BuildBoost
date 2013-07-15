@@ -178,23 +178,34 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 	}
 
 	private Set<File> findJarFilesAndPluginDirs(File directory, FileFilter fileFilter) {
+		// Make sure we've got a directory as argument
 		if (!directory.isDirectory()) {
 			return Collections.emptySet();
 		}
-		File[] allFiles = directory.listFiles();
+		
+		File[] filesInDirectory = directory.listFiles();
+		if (filesInDirectory == null) {
+			return Collections.emptySet();
+		}
+		
 		Set<File> result = new LinkedHashSet<File>();
-		for (File file : allFiles) {
-			//ignore projects and things inside projects
-			if (file.isDirectory()) {
-				File dotProject = new File(file, ".project");
-				if (dotProject.exists()) {
+		for (File file : filesInDirectory) {
+			boolean isDirectory = file.isDirectory();
+
+			// Ignore projects and things inside projects
+			if (isDirectory) {
+				boolean isProject = new EclipsePluginHelper().isProject(file);
+				if (isProject) {
 					continue;
 				}
 			}
 			
 			if (fileFilter.accept(file)) {
 				result.add(file);
-			} else if (file.isDirectory()) {
+			}
+			
+			// Search for nested JARs and plug-ins
+			if (isDirectory) {
 				result.addAll(findJarFilesAndPluginDirs(file, fileFilter));
 			}
 		}
@@ -206,6 +217,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			String type, 
 			IBuildListener buildListener,
 			IArtifactCreator creator) {
+		
 		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		for (File targetPlatformFile : targetPlatformFiles) {
 			IArtifact artifact;
