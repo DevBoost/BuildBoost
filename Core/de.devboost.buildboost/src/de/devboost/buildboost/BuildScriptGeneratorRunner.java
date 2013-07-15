@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -50,14 +50,11 @@ public class BuildScriptGeneratorRunner {
 		
 		Class<?> clazzToRun = loadClassToRun(classToRun);
 
-		System.out.println("BuildScriptGeneratorRunner.run() stageNumber = " + stageNumber);
-		System.out.println("BuildScriptGeneratorRunner.run() clazzToRun = " + clazzToRun.getName());
-		Class<?>[] interfaces = clazzToRun.getInterfaces();
-		for (Class<?> nextInterface : interfaces) {
-			System.out.println("BuildScriptGeneratorRunner.run() implemented interface: " + nextInterface.getName());
-		}
+		System.out.println("INFO: BuildScriptGeneratorRunner: Generating script for stage " + stageNumber);
+		System.out.println("INFO: BuildScriptGeneratorRunner: Generator class " + clazzToRun.getName());
 
 		boolean isBuildConfiguration = IBuildConfiguration.class.isAssignableFrom(clazzToRun);
+		System.out.println("INFO: BuildScriptGeneratorRunner: Generator class implements " + IBuildConfiguration.class.getName());
 		if (isBuildConfiguration) {
 			// instantiate and call via interface
 			callViaInterface(clazzToRun, workspace, stageNumber);
