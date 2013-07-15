@@ -16,7 +16,6 @@
 package de.devboost.buildboost.util;
 
 import java.io.File;
-import java.io.FileFilter;
 
 /**
  * A utility class to process Eclipse plug-ins projects.
@@ -30,16 +29,9 @@ public class EclipsePluginHelper {
 		if (!directory.isDirectory()) {
 			return false;
 		}
-		File[] files = directory.listFiles(new FileFilter() {
-			
-			public boolean accept(File file) {
-				return ".project".equals(file.getName());
-			}
-		});
-		if (files == null) {
-			return false;
-		}
-		return files.length > 0;
+
+		File dotProjectFile = new File(directory, ".project");
+		return dotProjectFile.exists();
 	}
 
 	/**
