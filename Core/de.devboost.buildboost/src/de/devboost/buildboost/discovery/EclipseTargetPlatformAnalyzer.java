@@ -48,11 +48,105 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	public static final String ARTIFACT_CACHE_FILE_NAME = "artifact_cache.ser";
 
+	/**
+	 * The {@link PluginFileFilter} accepts JARs that contain bundled Eclipse
+	 * plug-ins and directories which contain extract plug-in JARs.
+	 */
+	private static class PluginFileFilter implements FileFilter {
+
+		@Override
+		public boolean accept(File file) {
+			// exclude JUnit 3, because this requires to check the bundle
+			// version when resolving dependencies
+			// TODO remove this once the versions are checked
+			String name = file.getName();
+			if (name.contains("org.junit_3")) {
+				return false;
+			}
+			if (file.isDirectory() && new EclipsePluginHelper().containsManifest(file)) {
+				return true;
+			}
+			if (file.isFile() && name.endsWith(".jar")) {
+				return true;
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * The {@link FeatureFileFinder} accepts JARs that contain Eclipse features
+	 * and directories which contain extracted features.
+	 */
+	private static class FeatureFileFinder implements FileFilter {
+
+		@Override
+		public boolean accept(File file) {
+			if (!isParentDirCalledFeatures(file)) {
+				return false;
+			}
+
+			return isFeatureDirOrFeatureJar(file);
+		}
+
+		private boolean isFeatureDirOrFeatureJar(File file) {
+			if (!isParentDirCalledFeatures(file)) {
+				return false;
+			}
+			
+			if (file.isDirectory()) {
+				File featureDescriptor = new File(file, "feature.xml");
+				if (featureDescriptor.exists()) {
+					return true;
+				}
+			} else {
+				if (file.getName().endsWith(".jar")) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private boolean isParentDirCalledFeatures(File file) {
+			File parentFile = file.getParentFile();
+			String parentName = parentFile.getName();
+			return parentName.equals("features");
+		}
+	}
+
 	private interface IArtifactCreator {
 		
 		public IArtifact create(File file) throws IOException;
 	}
 	
+	/**
+	 * The {@link CompiledPluginCreator} creates a {@link CompiledPlugin} from
+	 * a file.
+	 */
+	private static class CompiledPluginCreator implements IArtifactCreator {
+		
+		@Override
+		public IArtifact create(File file) throws IOException {
+			return new CompiledPlugin(file);
+		}
+	}
+
+	/**
+	 * The {@link EclipseFeatureCreator} creates an {@link EclipseFeature} from
+	 * a file.
+	 */
+	private static class EclipseFeatureCreator implements IArtifactCreator {
+
+		@Override
+		public IArtifact create(File fileDirectoryOrJar) throws IOException {
+			if (fileDirectoryOrJar.isDirectory()) {
+				return new EclipseFeature(new File(fileDirectoryOrJar, "feature.xml"), true);
+			} else {
+				return new EclipseFeature(fileDirectoryOrJar, true);
+			}
+		}
+	}
+
 	private File targetPlatformLocation;
 
 	public EclipseTargetPlatformAnalyzer(File targetPlatform) {
@@ -79,61 +173,16 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		
 		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		
-		// first, find plug-ins
-		Set<File> pluginJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new FileFilter() {
-			
-			@Override
-			public boolean accept(File file) {
-				// exclude JUnit 3, because this requires to check the bundle
-				// version when resolving dependencies
-				// TODO remove this once the versions are checked
-				String name = file.getName();
-				if (name.contains("org.junit_3")) {
-					return false;
-				}
-				if (file.isDirectory() && new EclipsePluginHelper().containsManifest(file)) {
-					return true;
-				}
-				if (file.isFile() && name.endsWith(".jar")) {
-					return true;
-				}
-				return false;
-			}
-		});
-		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new IArtifactCreator() {
-			
-			@Override
-			public IArtifact create(File file) throws IOException {
-				return new CompiledPlugin(file);
-			}
-		});
-		artifacts.addAll(foundPlugins);
+		// first, find plug-ins and create respective artifact objects
+		Set<File> pluginJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new PluginFileFilter());
+		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new CompiledPluginCreator());
 		
-		// second, find features
-		Set<File> featureJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new FileFilter() {
-			
-			@Override
-			public boolean accept(File file) {
-				if (!file.getParentFile().getName().equals("features")) {
-					return false;
-				}
-				return isFeatureDirOrJar(file);
-			}
+		// second, find features and create respective artifact objects
+		Set<File> featureJarsAndDirs = findJarFilesAndPluginDirs(targetPlatformLocation, new FeatureFileFinder());
+		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new EclipseFeatureCreator());
 
-		});
-		
-		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new IArtifactCreator() {
-			
-			@Override
-			public IArtifact create(File fileDirectoryOrJar) throws IOException {
-				if (fileDirectoryOrJar.isDirectory()) {
-					return new EclipseFeature(new File(fileDirectoryOrJar, "feature.xml"), true);
-				} else {
-					return new EclipseFeature(fileDirectoryOrJar, true);
-				}
-			}
-		});
-		
+		// third, add all found artifacts to result set
+		artifacts.addAll(foundPlugins);
 		artifacts.addAll(foundFeatures);
 		// TODO saveDiscoveredArtifacts(artifacts);
 		return artifacts;
@@ -255,26 +304,8 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		return new ArtifactUtil().getSetOfArtifacts(artifacts);
 	}
 
-	private boolean isFeatureDirOrJar(File file) {
-		if (!file.getParentFile().getName().equals("features")) {
-			return false;
-		}
-		if (file.isDirectory()) {
-			File featureDescriptor = new File(file, "feature.xml");
-			if (featureDescriptor.exists()) {
-				return true;
-			}
-		} else {
-			if (file.getName().endsWith(".jar")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + "[" + targetPlatformLocation.getPath() + "]";
+		return getClass().getSimpleName() + " [" + targetPlatformLocation.getPath() + "]";
 	}
 }
