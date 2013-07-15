@@ -204,8 +204,15 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				result.add(file);
 			}
 			
-			// Search for nested JARs and plug-ins
-			if (isDirectory) {
+			boolean isTargetPlatformRoot = 
+				"eclipse".equals(file.getName()) &&
+				"target-platform".equals(file.getParentFile().getName());
+			
+			// Search for nested JARs and plug-ins if we're in the root 
+			// directory of the target platform. The latter condition is a
+			// workaround for the Refactory build where the target platform
+			// root contains a META-INF folder.
+			if (isDirectory && isTargetPlatformRoot) {
 				result.addAll(findJarFilesAndPluginDirs(file, fileFilter));
 			}
 		}
