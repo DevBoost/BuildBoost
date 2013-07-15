@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -37,12 +37,12 @@ public class GenerateEMFCodeStage extends AbstractBuildStage implements IUnivers
 	}
 	
 	public AntScript getScript() throws BuildException {
-		File buildDir = new File(artifactsFolder);
+		File artifactsDir = new File(artifactsFolder);
 
 		BuildContext context = createContext(false);
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
-		context.addBuildParticipant(new PluginFinder(buildDir));
-		context.addBuildParticipant(new GenModelFinder(buildDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsDir));
+		context.addBuildParticipant(new PluginFinder(artifactsDir));
+		context.addBuildParticipant(new GenModelFinder(artifactsDir));
 		context.addBuildParticipant(new GenerateGenModelCodeStepProvider());
 		
 		AutoBuilder builder = new AutoBuilder(context);
