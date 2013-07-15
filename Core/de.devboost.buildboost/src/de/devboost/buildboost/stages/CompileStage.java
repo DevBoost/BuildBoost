@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -48,13 +48,12 @@ public class CompileStage extends AbstractBuildStage implements IUniversalBuildS
 
 	public AntScript getScript() throws BuildException {
 		// TODO check configuration
-		File buildDir = new File(artifactsFolder);
+		File artifactsDir = new File(artifactsFolder);
 
 		BuildContext context = createContext(false);
-		File targetPlatform = new File(artifactsFolder);
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(targetPlatform));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsDir));
 
-		context.addBuildParticipant(new PluginFinder(buildDir));
+		context.addBuildParticipant(new PluginFinder(artifactsDir));
 		
 		context.addBuildParticipant(new CompileProjectStepProvider(jdkVersion, sourceFileEncoding));
 		
