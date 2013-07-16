@@ -17,6 +17,7 @@ package de.devboost.buildboost.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -89,7 +90,7 @@ public class ManifestReaderTest {
 
 	@Test
 	public void testRegex() throws IOException {
-		String input = ManifestReader.NAME_PREFIX + "myplugin; singleton:=true\n";
+		String input = ManifestReader.SYMBOLIC_NAME_PREFIX + "myplugin; singleton:=true\n";
 		ByteArrayInputStream bais = new ByteArrayInputStream(input.getBytes());
 		String symbolicName = new ManifestReader(bais).getSymbolicName();
 		assertEquals("myplugin", symbolicName);
@@ -167,6 +168,16 @@ public class ManifestReaderTest {
 		ByteArrayInputStream bais = new ByteArrayInputStream(input.getBytes());
 		ManifestReader reader = new ManifestReader(bais);
 		assertEquals("4.8.1", reader.getVersion());
+	}
+	
+	@Test
+	public void testGetMissingVersion() throws IOException {
+		String input = "Require-Bundle: org.hamcrest.core;bundle-version=\"1.1.0\";visibility:=r\n" +
+			" eexport,org.junit;bundle-version=\"4.8.1\";visibility:=reexport\n" +
+			"Bundle-ManifestVersion: 2\n";
+		ByteArrayInputStream bais = new ByteArrayInputStream(input.getBytes());
+		ManifestReader reader = new ManifestReader(bais);
+		assertNull("Version must be null if missing.", reader.getVersion());
 	}
 	
 	public void testGetOptional() throws IOException {

@@ -247,8 +247,10 @@ public class ManifestReader {
 			String rawVersion = getValue(VERSION_REGEX, VERSION_PREFIX, "UNKNOWN_VERSION");
 			
 			Matcher matcher = Pattern.compile("[0-9]+(\\.[0-9]+)*").matcher(rawVersion);
-			matcher.find();
-			version = matcher.group();
+			boolean found = matcher.find();
+			if (found) {
+				version = matcher.group();
+			}
 		}
 		return version;
 	}
