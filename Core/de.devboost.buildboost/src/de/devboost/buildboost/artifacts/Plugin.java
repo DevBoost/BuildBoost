@@ -82,6 +82,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	private Set<Package> exportedPackages;
 
 	private String name;
+
+	private String version;
 	
 	/**
 	 * Create a descriptor for the plug-in at the given location. Reads the
@@ -115,6 +117,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			
 			setIdentifier(reader.getSymbolicName());
 			setName(reader.getName());
+			setVersion(reader.getVersion());
 			
 			Set<String> exportedPackageName = reader.getExportedPackages();
 			exportedPackages = new LinkedHashSet<Package>();
@@ -124,6 +127,14 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 	}
 	
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
 	public String getName() {
 		return name;
 	}

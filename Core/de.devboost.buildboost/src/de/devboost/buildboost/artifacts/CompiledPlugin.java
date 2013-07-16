@@ -31,16 +31,6 @@ public class CompiledPlugin extends Plugin {
 		super(location);
 	}
 	
-	public String getVersion() {
-		// TODO This is a very rough way to determine the plug-in version.
-		// We must rather read the manifest
-		String fileName = getFile().getName();
-		int beginIdx = fileName.lastIndexOf("_") + 1;
-		int endIdx = fileName.lastIndexOf(".v");
-		String version = fileName.substring(beginIdx, endIdx);
-		return version;
-	}
-	
 	@Override
 	public boolean isProject() {
 		return false;
