@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -50,12 +50,12 @@ public class JUnitTestStage extends AbstractBuildStage implements IUniversalBuil
 	public AntScript getScript() throws BuildException {
 		checkConfiguration();
 		
-		File buildDir = new File(artifactsFolder);
-		File testResultDir = new File(buildDir.getParentFile(), TEST_RESULTS_FOLDER);
+		File artifactsDir = new File(artifactsFolder);
+		File testResultDir = new File(artifactsDir.getParentFile(), TEST_RESULTS_FOLDER);
 
 		BuildContext context = createContext(false);
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(buildDir));
-		context.addBuildParticipant(new PluginFinder(buildDir));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsDir));
+		context.addBuildParticipant(new PluginFinder(artifactsDir));
 		
 		context.addBuildParticipant(new RunJUnitTestsStepProvider(testResultDir, new ArrayList<String>(excludedTestClasses)));
 		context.addBuildParticipant(new StopBuildIfJUnitTestsHaveFailedProvider());
@@ -71,7 +71,7 @@ public class JUnitTestStage extends AbstractBuildStage implements IUniversalBuil
 
 	private void checkConfiguration() throws BuildException {
 		if (artifactsFolder == null) {
-			throw new BuildException("buildDirPath is not set in " + this.getClass().getSimpleName());
+			throw new BuildException("artifactsFolder is not set in " + getClass().getSimpleName());
 		}
 	}
 	
