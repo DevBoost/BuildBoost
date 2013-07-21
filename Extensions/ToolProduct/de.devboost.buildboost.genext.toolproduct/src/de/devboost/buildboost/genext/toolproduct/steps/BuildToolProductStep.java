@@ -89,7 +89,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		if (INSTALLATION_PLATFORM_FILE.endsWith(".zip")) {
 			content.append("<unzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\" />");
 		} else {
-			content.append("<gunzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\" />");
+			String tarGzFile = INSTALLATION_PLATFORM_FILE;
+			String tarFile = INSTALLATION_PLATFORM_FILE.substring(INSTALLATION_PLATFORM_FILE.length() - 3);
+			content.append("<gunzip src=\"" + installationPlatformPath + "/" + tarGzFile + "\" dest=\"" +  installationPlatformPath + "\" />");
+			content.append("<untar src=\"" + installationPlatformPath + "/" + tarFile + "\" dest=\"" +  installationPlatformPath + "\" />");
 		}
 		
 		// Add DirectorWrapper to dropins folder of installation platform
@@ -127,7 +130,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
 			
-			content.append("<exec executable=\"" + installationPlatformPath + "/eclipse\" failonerror=\"true\">");
+			content.append("<exec executable=\"./" + installationPlatformPath + "/eclipse/eclipse\" failonerror=\"true\">");
 			
 			content.append("<arg value=\"--launcher.suppressErrors\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
