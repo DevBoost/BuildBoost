@@ -57,7 +57,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    removeContainerLibraries(dependencies);
 	    
-	    new PluginPackagingHelper().getPackageDependenciesScript(content, temporaryWebAppDir, dependencies);
+	    new PluginPackagingHelper().addPackageAsJarFileScripts(content, temporaryWebAppDir, dependencies);
 	    
 		content.append("<war destfile=\"" + distWebAppsPath + "/" + plugin.getIdentifier() + ".war\" webxml=\"" + webXmlFile.getAbsolutePath() + "\">");
 	    content.append("<lib dir=\"" + temporaryWebAppDir + "\">");

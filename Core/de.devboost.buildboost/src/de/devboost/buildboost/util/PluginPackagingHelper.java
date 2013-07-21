@@ -22,19 +22,29 @@ import de.devboost.buildboost.steps.ClasspathHelper;
 
 public class PluginPackagingHelper {
 
-	public void getPackageDependenciesScript(XMLContent content,
-			String tempDir, Set<Plugin> plugins) {
+	/**
+	 * Add scripts to the content that package the given set of plug-ins as
+	 * JAR file. The JAR files are written to the target directory. The plug-in
+	 * identifiers will be used as file names for the JARs.
+	 */
+	public void addPackageAsJarFileScripts(XMLContent content,
+			String targetDir, Set<Plugin> plugins) {
+		
 		for (Plugin plugin : plugins) {
-			getPackageDependenciesScript(content, tempDir, plugin);
+			addPackageAsJarFileScript(content, targetDir, plugin);
 		}
 	}
 
-	public void getPackageDependenciesScript(XMLContent content,
-			String tempDir, Plugin plugin) {
-		// each project the WebApp depends on is packaged as individual JAR
-		// file
+	/**
+	 * Add a script to the content that packages the given plug-in as JAR file.
+	 * The JAR file is written to the target directory. The plug-in identifier
+	 * will be used as file name for the JAR.
+	 */
+	public void addPackageAsJarFileScript(XMLContent content, String targetDir,
+			Plugin plugin) {
+
 		if (plugin.isProject()) {
-		    String jarFile = getJarFileName(tempDir, plugin);
+		    String jarFile = getJarFileName(targetDir, plugin);
 		    String binPath = new ClasspathHelper().getBinPath(plugin);
 		    
 			content.append("<jar destfile=\"" + jarFile + "\">");
@@ -49,7 +59,7 @@ public class PluginPackagingHelper {
 		}
 	}
 
-	public String getJarFileName(String rootDir, Plugin dependency) {
-		return rootDir + "/" + dependency.getIdentifier() + ".jar";
+	public String getJarFileName(String directory, Plugin plugin) {
+		return directory + "/" + plugin.getIdentifier() + ".jar";
 	}
 }

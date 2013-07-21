@@ -47,8 +47,8 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 	    Set<Plugin> dependencies = plugin.getAllDependencies();
 	    
 		PluginPackagingHelper packagingHelper = new PluginPackagingHelper();
-		packagingHelper.getPackageDependenciesScript(content, temporaryDir, plugin);
-		packagingHelper.getPackageDependenciesScript(content, temporaryDir, dependencies);
+		packagingHelper.addPackageAsJarFileScript(content, temporaryDir, plugin);
+		packagingHelper.addPackageAsJarFileScripts(content, temporaryDir, dependencies);
 
 		// add script content
 		content.append("<jar destfile=\"dist/commandlineapps/" + plugin.getIdentifier() + ".jar\">");
