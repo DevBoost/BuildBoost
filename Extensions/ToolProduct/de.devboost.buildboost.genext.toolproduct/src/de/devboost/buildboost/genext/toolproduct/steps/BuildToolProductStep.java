@@ -85,11 +85,11 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		// install the product into the final Eclipse platform
 		String installationPlatformPath = "temp/tool-product-installation-platform";
 		content.append("<mkdir dir=\"" + installationPlatformPath + "\" />");
-		content.append("<get src=\""+ INSTALLATION_PLATFORM_URL + "\" dest=\"" + installationPlatformPath + "\"/>");
+		content.append("<get src=\""+ INSTALLATION_PLATFORM_URL + "\" dest=\"" + installationPlatformPath + "\" />");
 		if (INSTALLATION_PLATFORM_FILE.endsWith(".zip")) {
-			content.append("<unzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\">");
+			content.append("<unzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\" />");
 		} else {
-			content.append("<gunzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\">");
+			content.append("<gunzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\" />");
 		}
 		
 		// Add DirectorWrapper to dropins folder of installation platform
