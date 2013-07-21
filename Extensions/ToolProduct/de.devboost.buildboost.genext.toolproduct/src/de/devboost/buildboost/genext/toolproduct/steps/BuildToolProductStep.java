@@ -84,6 +84,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		// This directory will contain the Eclipse platform that is used to
 		// install the product into the final Eclipse platform
 		String installationPlatformPath = "temp/tool-product-installation-platform";
+		String eclipseBinary = installationPlatformPath + "/eclipse/eclipse";
+
 		content.append("<mkdir dir=\"" + installationPlatformPath + "\" />");
 		content.append("<get src=\""+ INSTALLATION_PLATFORM_URL + "\" dest=\"" + installationPlatformPath + "\" />");
 		if (INSTALLATION_PLATFORM_FILE.endsWith(".zip")) {
@@ -93,6 +95,11 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			String tarFile = INSTALLATION_PLATFORM_FILE.substring(0, INSTALLATION_PLATFORM_FILE.length() - 3);
 			content.append("<gunzip src=\"" + installationPlatformPath + "/" + tarGzFile + "\" dest=\"" +  installationPlatformPath + "\" />");
 			content.append("<untar src=\"" + installationPlatformPath + "/" + tarFile + "\" dest=\"" +  installationPlatformPath + "\" />");
+			// Make Eclipse binary executable
+			content.append("<exec executable=\"chmod\" >");
+			content.append("<arg value=\"u+x\" />");
+			content.append("<arg value=\"" + eclipseBinary + "\" />");
+			content.append("</exec>");
 		}
 		
 		// Add DirectorWrapper to dropins folder of installation platform
@@ -130,7 +137,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
 			
-			content.append("<exec executable=\"./" + installationPlatformPath + "/eclipse/eclipse\" failonerror=\"true\">");
+			content.append("<exec executable=\"./" + eclipseBinary + "\" failonerror=\"true\">");
 			
 			content.append("<arg value=\"--launcher.suppressErrors\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
