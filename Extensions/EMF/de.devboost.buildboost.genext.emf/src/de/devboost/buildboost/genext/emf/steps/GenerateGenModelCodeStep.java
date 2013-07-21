@@ -15,8 +15,6 @@
  ******************************************************************************/
 package de.devboost.buildboost.genext.emf.steps;
 
-import static de.devboost.buildboost.IConstants.NL;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,11 +36,19 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 
-	public final static String MAIN_TASK = "generate-emf-code";
-
 	private List<Plugin> plugins;
 	private GeneratorModel generatorModel;
 
+	/**
+	 * Creates a new build step that provides a script to generate code from an
+	 * EMF generator model.
+	 * 
+	 * @param plugins
+	 *            all plug-in available in this build (used to resolved
+	 *            references in the generator model to other generator models)
+	 * @param generatorModel
+	 *            the model to generate code from
+	 */
 	public GenerateGenModelCodeStep(List<Plugin> plugins, GeneratorModel generatorModel) {
 		this.plugins = plugins;
 		this.generatorModel = generatorModel;
@@ -75,10 +81,11 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		sb.append(classpath);
 		sb.append("</classpath>");
 		sb.append("</java>");
-		sb.append(NL);
+		sb.appendLineBreak();
 		
-		String genModelID = genModelPath.toString().replace(File.separator, "-");
+		String genModelID = genModelPath.replace(File.separator, "-");
+		String targetName = "emf-codegen-" + genModelID;
 		
-		return Collections.singleton(new AntTarget("emf-codegen-" + genModelID, sb));
+		return Collections.singleton(new AntTarget(targetName, sb));
 	}
 }
