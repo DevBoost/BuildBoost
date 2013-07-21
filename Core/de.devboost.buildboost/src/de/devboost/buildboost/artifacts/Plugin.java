@@ -440,6 +440,10 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		return true;
 	}
 	
+	public boolean isJarFile() {
+		return location.isDirectory() && location.getName().endsWith(".jar");
+	}
+
 	public Plugin getFragmentHost() {
 		return fragmentHost;
 	}

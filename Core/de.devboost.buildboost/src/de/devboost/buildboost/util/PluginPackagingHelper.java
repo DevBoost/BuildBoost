@@ -15,6 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.util;
 
+import java.io.File;
 import java.util.Set;
 
 import de.devboost.buildboost.artifacts.Plugin;
@@ -57,6 +58,41 @@ public class PluginPackagingHelper {
 		} else {
 			// TODO?
 		}
+	}
+
+	/**
+	 * Adds a script that updates the version, vendor and name of the plug-in's
+	 * manifest.
+	 */
+	public void addUpdateManifestScript(XMLContent content, Plugin plugin,
+			String pluginVersion, String pluginVendor, String pluginName) {
+		
+		String pluginID = plugin.getIdentifier();
+		File pluginDirectory = plugin.getFile();
+		String pluginPath = pluginDirectory.getAbsolutePath();
+
+		boolean isPackaged = plugin.isJarFile();
+		if (isPackaged) {
+			content.append("<echo message=\"Plug-in '" + pluginID + "' is already packaged.\"/>");
+		} else {
+			// package plug-in
+			content.append("<echo message=\"Updating manifest of plug-in '" + pluginID + "'.\"/>");
+			content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
+			content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
+			// only replace vendor if one is specified in the update site
+			// specification
+			if (pluginVendor != null) {
+				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
+			}
+			content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
+			// only replace plug-in name if one is specified in the update 
+			// site specification
+			if (pluginName != null) {
+				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
+			}
+			content.append("</manifest>");
+		}
+		content.appendLineBreak();
 	}
 
 	public String getJarFileName(String directory, Plugin plugin) {

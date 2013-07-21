@@ -102,9 +102,13 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("</exec>");
 		}
 		
-		// Add DirectorWrapper to dropins folder of installation platform
-		File dropinsFolder = new File(installationPlatformPath + "/eclipse", "dropins");
-		new PluginPackagingHelper().addPackageAsJarFileScript(content, dropinsFolder.getAbsolutePath(), buildExtPlugin);
+		// Add DirectorWrapper to plugins folder of installation platform
+		File pluginsFolder = new File(installationPlatformPath + "/eclipse", "plugins");
+		PluginPackagingHelper pluginPackagingHelper = new PluginPackagingHelper();
+		pluginPackagingHelper.addUpdateManifestScript(content, buildExtPlugin,
+				"1.0.0", null, null);
+		pluginPackagingHelper.addPackageAsJarFileScript(content,
+				pluginsFolder.getAbsolutePath(), buildExtPlugin);
 		
 		String productName = specification.getProductName();
 		String productFeatureID = specification.getProductFeature();

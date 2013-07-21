@@ -27,6 +27,7 @@ import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
 import de.devboost.buildboost.model.IDependable;
+import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
@@ -244,10 +245,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		}
 		String pluginName = updateSiteSpec.getPluginName(pluginID);
 		
-		addManifestTask(content, updateSiteID, pluginID, pluginPath,
+		new PluginPackagingHelper().addUpdateManifestScript(content, plugin, 
 				pluginVersion, pluginVendor, pluginName);
 
-		boolean isPackaged = isJarFile(pluginPath);
+		boolean isPackaged = plugin.isJarFile();
 
 		// TODO Use PluginPackagingHelper here instead?
 		if (isPackaged) {
@@ -264,37 +265,5 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("</jar>");
 		}
 		content.appendLineBreak();
-	}
-
-	private void addManifestTask(XMLContent content, String updateSiteID,
-			String pluginID, String pluginPath, String pluginVersion,
-			String pluginVendor, String pluginName) {
-		
-		boolean isPackaged = isJarFile(pluginPath);
-		if (isPackaged) {
-			content.append("<echo message=\"Plug-in '" + pluginID + "' for update site '" + updateSiteID + "' is already packaged.\"/>");
-		} else {
-			// package plug-in
-			content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
-			content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
-			content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
-			// only replace vendor if one is specified in the update site
-			// specification
-			if (pluginVendor != null) {
-				content.append("<attribute name=\"Bundle-Vendor\" value=\"" + pluginVendor + "\"/>");
-			}
-			content.append("<attribute name=\"Bundle-SymbolicName\" value=\"" + pluginID + "; singleton:=true\"/>");
-			// only replace plug-in name if one is specified in the update 
-			// site specification
-			if (pluginName != null) {
-				content.append("<attribute name=\"Bundle-Name\" value=\"" + pluginName + "\"/>");
-			}
-			content.append("</manifest>");
-		}
-		content.appendLineBreak();
-	}
-
-	private boolean isJarFile(String pluginPath) {
-		return pluginPath.endsWith(".jar");
 	}
 }
