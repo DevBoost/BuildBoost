@@ -92,6 +92,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<gunzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\">");
 		}
 		
+		// Add DirectorWrapper to dropins folder of installation platform
+		File dropinsFolder = new File(installationPlatformPath, "dropins");
+		new PluginPackagingHelper().addPackageAsJarFileScript(content, dropinsFolder.getAbsolutePath(), buildExtPlugin);
+		
 		String productName = specification.getProductName();
 		String productFeatureID = specification.getProductFeature();
 		String siteVersion = specification.getUpdateSite().getFeature(productFeatureID).getVersion();
@@ -122,10 +126,6 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<mkdir dir=\"" + productInstallationFolder.getParentFile().getAbsolutePath() + "\" />");
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
-			
-			// Add DirectorWrapper to dropins folder
-			File dropinsFolder = new File(productInstallationFolder, "dropins");
-			new PluginPackagingHelper().addPackageAsJarFileScript(content, dropinsFolder.getAbsolutePath(), buildExtPlugin);
 			
 			content.append("<exec executable=\"" + installationPlatformPath + "/eclipse\" failonerror=\"true\">");
 			
