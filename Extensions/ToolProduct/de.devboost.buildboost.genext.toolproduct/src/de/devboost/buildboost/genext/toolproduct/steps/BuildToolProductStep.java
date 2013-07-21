@@ -90,7 +90,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<unzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\" />");
 		} else {
 			String tarGzFile = INSTALLATION_PLATFORM_FILE;
-			String tarFile = INSTALLATION_PLATFORM_FILE.substring(INSTALLATION_PLATFORM_FILE.length() - 3);
+			String tarFile = INSTALLATION_PLATFORM_FILE.substring(0, INSTALLATION_PLATFORM_FILE.length() - 3);
 			content.append("<gunzip src=\"" + installationPlatformPath + "/" + tarGzFile + "\" dest=\"" +  installationPlatformPath + "\" />");
 			content.append("<untar src=\"" + installationPlatformPath + "/" + tarFile + "\" dest=\"" +  installationPlatformPath + "\" />");
 		}
