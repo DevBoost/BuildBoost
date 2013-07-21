@@ -31,7 +31,9 @@ public class DirectorWrapper implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		// TODO Configure local DNS
+		// Configure VM to use local DNS
+		System.setProperty("sun.net.spi.nameservice.provider.1", "dns,localdns");
+		
 		return delegate.start(context);
 	}
 
