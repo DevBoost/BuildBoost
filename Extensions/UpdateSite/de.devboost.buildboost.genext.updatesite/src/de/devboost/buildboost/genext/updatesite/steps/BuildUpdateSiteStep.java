@@ -229,6 +229,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	private void addPackagePluginTasks(XMLContent content, String updateSiteID,
 			String updateSiteDir, String excludeSrc, String featureVersion,
 			String featureVendor, Plugin plugin) {
+		
 		String pluginID = plugin.getIdentifier();
 		File pluginDirectory = plugin.getFile();
 		String pluginPath = pluginDirectory.getAbsolutePath();
@@ -248,6 +249,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 		boolean isPackaged = isJarFile(pluginPath);
 
+		// TODO Use PluginPackagingHelper here instead?
 		if (isPackaged) {
 			content.append("<copy file=\"" + pluginPath + "\" todir=\"" + updateSiteDir + "/plugins\" />");
 		} else {
@@ -272,7 +274,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		if (isPackaged) {
 			content.append("<echo message=\"Plug-in '" + pluginID + "' for update site '" + updateSiteID + "' is already packaged.\"/>");
 		} else {
-			// package plugin(s)
+			// package plug-in
 			content.append("<echo message=\"Packaging plug-in '" + pluginID + "' for update site '" + updateSiteID + "'\"/>");
 			content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
 			content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
