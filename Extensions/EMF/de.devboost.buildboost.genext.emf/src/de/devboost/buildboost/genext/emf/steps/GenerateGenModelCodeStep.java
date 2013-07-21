@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -53,18 +53,15 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		if (dependencies.isEmpty()) {
 			throw new BuildException("Generator models are expected to have a dependency to the BuildBoost EMF plug-in.");
 		}
+		
 		XMLContent classpath = new ClasspathHelper().getClasspath(generatorModel, true);
 
 		File genModelFile = generatorModel.getFile();
 		String genModelPath = genModelFile.getAbsolutePath();
 
 		XMLContent sb = new XMLContent();
-		sb.append("<delete dir=\"temp_eclipse_workspace\" />");
-		sb.append("<mkdir dir=\"temp_eclipse_workspace\" />");
-		sb.append(NL);
 		
 		sb.append("<echo message=\"Generating EMF model code for generator model " + genModelPath + "\" />");
-		// TODO use constant here
 		sb.append("<java fork=\"true\" classname=\"" + IConstants.BUILDEXT_EXECUTABLE + "\" failonerror=\"true\">");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
 		sb.append("<jvmarg value=\"-Xmx2048m\"/>");
