@@ -55,7 +55,7 @@ public class ToolProductSpecification extends AbstractArtifact {
 	}
 
 	/**
-	 * Returns are list of associated update site that will be used when
+	 * Returns are list of associated update sites that will be used when
 	 * installing the tool product feature into Eclipse.
 	 */
 	public String getAssociateSites() {

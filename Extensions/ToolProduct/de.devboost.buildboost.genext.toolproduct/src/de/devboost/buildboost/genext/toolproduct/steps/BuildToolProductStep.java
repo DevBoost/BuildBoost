@@ -33,6 +33,10 @@ import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
+
+	// TODO Make this configurable
+	private static final String INSTALLATION_PLATFORM_FILE = "eclipse-platform-4.3-linux-gtk-x86_64.tar.gz";
+	private static final String INSTALLATION_PLATFORM_URL = "http://www.devboost.de/eclipse-mirror/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
 	
 	private ToolProductSpecification specification;
 
@@ -77,6 +81,17 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		String distProductsPath = "dist/products";
 		content.append("<mkdir dir=\"" + distProductsPath + "\" />");
 		
+		// This directory will contain the Eclipse platform that is used to
+		// install the product into the final Eclipse platform
+		String installationPlatformPath = "temp/tool-product-installation-platform";
+		content.append("<mkdir dir=\"" + installationPlatformPath + "\" />");
+		content.append("<get src=\""+ INSTALLATION_PLATFORM_URL + "\" dest=\"" + installationPlatformPath + "\"/>");
+		if (INSTALLATION_PLATFORM_FILE.endsWith(".zip")) {
+			content.append("<unzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\">");
+		} else {
+			content.append("<gunzip src=\"" + installationPlatformPath + "/" + INSTALLATION_PLATFORM_FILE + "\" dest=\"" +  installationPlatformPath + "\">");
+		}
+		
 		String productName = specification.getProductName();
 		String productFeatureID = specification.getProductFeature();
 		String siteVersion = specification.getUpdateSite().getFeature(productFeatureID).getVersion();
@@ -112,7 +127,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File dropinsFolder = new File(productInstallationFolder, "dropins");
 			new PluginPackagingHelper().addPackageAsJarFileScript(content, dropinsFolder.getAbsolutePath(), buildExtPlugin);
 			
-			content.append("<exec executable=\"eclipse\" failonerror=\"true\">");
+			content.append("<exec executable=\"" + installationPlatformPath + "/eclipse\" failonerror=\"true\">");
 			
 			content.append("<arg value=\"--launcher.suppressErrors\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
