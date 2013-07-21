@@ -84,7 +84,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		// This directory will contain the Eclipse platform that is used to
 		// install the product into the final Eclipse platform
 		String installationPlatformPath = "temp/tool-product-installation-platform";
-		String eclipseBinary = installationPlatformPath + "/eclipse/eclipse";
+		String eclipsePath = installationPlatformPath + "/eclipse/";
+		String eclipseBinary = eclipsePath + "eclipse";
 
 		content.append("<mkdir dir=\"" + installationPlatformPath + "\" />");
 		content.append("<get src=\""+ INSTALLATION_PLATFORM_URL + "\" dest=\"" + installationPlatformPath + "\" />");
@@ -100,6 +101,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"u+x\" />");
 			content.append("<arg value=\"" + eclipseBinary + "\" />");
 			content.append("</exec>");
+			// Set VM arguments to use local DNS
+			content.append("<echo file=\"" + eclipsePath + "eclipse.ini\" append=\"true\" message=\"-Dsun.net.spi.nameservice.provider.1=dns,localdns\" />");
 		}
 		
 		// Add DirectorWrapper to plugins folder of installation platform
