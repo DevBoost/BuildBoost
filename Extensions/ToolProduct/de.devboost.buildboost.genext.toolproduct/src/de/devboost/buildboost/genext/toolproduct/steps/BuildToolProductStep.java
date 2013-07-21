@@ -147,6 +147,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<exec executable=\"./" + eclipseBinary + "\" failonerror=\"true\">");
 			
 			content.append("<arg value=\"--launcher.suppressErrors\"/>");
+			content.append("<arg value=\"--launcher.appendVmargs\"/>");
+			content.append("<arg value=\"-vmargs\"/>");
+			content.append("<arg value=\"-Dsun.net.spi.nameservice.provider.1=dns,localdns\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
 			content.append("<arg value=\"-application\"/>");
 			content.append("<arg value=\"" + IConstants.DIRECTOR_WRAPPER_ID + "\"/>");
