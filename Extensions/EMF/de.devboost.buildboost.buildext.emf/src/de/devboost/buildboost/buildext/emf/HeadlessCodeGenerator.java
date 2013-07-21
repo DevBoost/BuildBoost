@@ -56,8 +56,6 @@ public class HeadlessCodeGenerator {
 
 	public static void main(String[] args) throws Exception {
 		// TODO use properties file to pass arguments instead
-		// TODO add property 'generateEditCode' that is set to true by the
-		//      build script generator if there is a respective edit plug-in.
 		String pathToGenModel = args[0];
 		String projectName = args[1];
 		String projectPath = args[2];
@@ -68,7 +66,9 @@ public class HeadlessCodeGenerator {
 		new HeadlessCodeGenerator().run(pathToGenModel, projectName, projectPath, pluginPaths);
 	}
 
-	private void run(String pathToGenModel, String projectName, String projectPath, List<String> pluginPaths) throws Exception {
+	private void run(String pathToGenModel, String projectName,
+			String projectPath, List<String> pluginPaths) throws Exception {
+		
 		ResourceSet rs = new ResourceSetImpl();
 		
 		registerFactoriesAndPackages(rs);
@@ -94,27 +94,30 @@ public class HeadlessCodeGenerator {
 		generator.setInput(genModel);
 		genModel.setFacadeHelperClass(getClass().getName());
 		
-		// Generator model code.
+		// Generate model code.
 		// EMF 2.8: This logs an exception to the console which is not a problem in our case.
 		// The logging was introduced in 2.8: https://bugs.eclipse.org/bugs/show_bug.cgi?id=359551
-		Diagnostic result = generator.generate(
-			genModel, 
-			GenBaseGeneratorAdapter.MODEL_PROJECT_TYPE,
-			new BasicMonitor.Printing(System.out)
-		);
+		Diagnostic result = doGenerate(genModel, generator,
+				GenBaseGeneratorAdapter.MODEL_PROJECT_TYPE);
 		printDiagnostic(result);
 		
-		if (generateEditCode(genModel, projectPath)) {
-			result = generator.generate(
-					genModel, 
-					GenBaseGeneratorAdapter.EDIT_PROJECT_TYPE,
-					new BasicMonitor.Printing(System.out)
-				);
-				printDiagnostic(result);
+		// Generate edit code (if required).
+		if (!mustGenerateEditCode(genModel, projectPath)) {
+			return;
 		}
+		result = doGenerate(genModel, generator,
+				GenBaseGeneratorAdapter.EDIT_PROJECT_TYPE);
+		printDiagnostic(result);
 	}
 
-	private boolean generateEditCode(GenModel genModel, String projectPath) {
+	private Diagnostic doGenerate(GenModel genModel, Generator generator,
+			String projectType) {
+
+		BasicMonitor.Printing systemOutMonitor = new BasicMonitor.Printing(System.out);
+		return generator.generate(genModel, projectType, systemOutMonitor);
+	}
+
+	private boolean mustGenerateEditCode(GenModel genModel, String projectPath) {
 		File workDir = new File(projectPath).getParentFile();
 		String editDirectory = genModel.getEditDirectory();
 		if (!editDirectory.endsWith("src-gen")) {
@@ -124,6 +127,7 @@ public class HeadlessCodeGenerator {
 		if (editDirectory.startsWith("/")) {
 			editDirectory = editDirectory.substring(1);
 		}
+		
 		String editProjectName = editDirectory.substring(0, editDirectory.indexOf("/"));
 		File editProjectDir = new File(workDir, editProjectName);
 		if (!editProjectDir.exists()) {
@@ -131,10 +135,9 @@ public class HeadlessCodeGenerator {
 		}
 		
 		EcorePlugin.getPlatformResourceMap().put(
-				editProjectName,
-				URI.createFileURI(editProjectDir.getAbsolutePath() + File.separator)
-			);
-			
+			editProjectName,
+			URI.createFileURI(editProjectDir.getAbsolutePath() + File.separator)
+		);
 		
 		return editProjectDir.exists();
 	}
@@ -205,11 +208,12 @@ public class HeadlessCodeGenerator {
 	}
 
 	private void registerFactoriesAndPackages(ResourceSet rs) {
-		// TODO we must search the target platform for registered resource factories,
-		// generator models and EPackages. Currently we do solely register the
-		// resource factories and EPackages for the Ecore and the GenModel
-		// metamodels.
-		Map<String, Object> extensionToFactoryMap = rs.getResourceFactoryRegistry().getExtensionToFactoryMap();
+		// TODO we must search the target platform for registered resource
+		// factories, generator models and EPackages. Currently we do solely
+		// register the resource factories and EPackages for the Ecore and the
+		// GenModel meta models.
+		org.eclipse.emf.ecore.resource.Resource.Factory.Registry resourceFactoryRegistry = rs.getResourceFactoryRegistry();
+		Map<String, Object> extensionToFactoryMap = resourceFactoryRegistry.getExtensionToFactoryMap();
 		extensionToFactoryMap.put("ecore", new EcoreResourceFactoryImpl());
 		extensionToFactoryMap.put("genmodel", new EcoreResourceFactoryImpl());
 		
