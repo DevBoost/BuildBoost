@@ -20,12 +20,12 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
 
 /**
- * The {@link DirectoryWrapper} is a wrapper for the p2
- * {@link DirectorApplication} that uses a special DNS to retrieve all
- * artifacts from localhost.
+ * The {@link DirectorWrapper} is a wrapper for the p2
+ * {@link DirectorApplication} that uses a special DNS to retrieve all artifacts
+ * from localhost.
  */
 @SuppressWarnings("restriction")
-public class DirectoryWrapper implements IApplication {
+public class DirectorWrapper implements IApplication {
 	
 	private DirectorApplication delegate = new DirectorApplication();
 
