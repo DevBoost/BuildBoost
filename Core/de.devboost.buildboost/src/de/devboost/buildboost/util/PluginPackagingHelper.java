@@ -48,9 +48,11 @@ public class PluginPackagingHelper {
 		    String jarFile = getJarFileName(targetDir, plugin);
 		    String binPath = new ClasspathHelper().getBinPath(plugin);
 		    
-			content.append("<jar destfile=\"" + jarFile + "\">");
+		    String pluginPath = plugin.getAbsolutePath();
+
+		    content.append("<jar destfile=\"" + jarFile + "\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
 			content.append("<fileset dir=\"" + binPath + "\" />");
-		    content.append("<fileset dir=\"" + plugin.getAbsolutePath() + "\" >");
+			content.append("<fileset dir=\"" + pluginPath + "\" >");
 		    content.append("<include name=\"metamodel/**\" />");
 		    content.append("<include name=\"META-INF/**\" />");
 		    content.append("</fileset>");
