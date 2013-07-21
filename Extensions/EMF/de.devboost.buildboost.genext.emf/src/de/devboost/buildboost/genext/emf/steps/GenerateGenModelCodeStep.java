@@ -62,6 +62,7 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		
 		XMLContent classpath = new ClasspathHelper().getClasspath(generatorModel, true);
 
+		File genModelProject = generatorModel.getProjectDir();
 		File genModelFile = generatorModel.getFile();
 		String genModelPath = genModelFile.getAbsolutePath();
 
@@ -72,8 +73,8 @@ public class GenerateGenModelCodeStep extends AbstractAntTargetGenerator {
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
 		sb.append("<jvmarg value=\"-Xmx2048m\"/>");
 		sb.append("<arg value=\"" + genModelPath + "\"/>");
-		sb.append("<arg value=\"" + generatorModel.getProjectDir().getName() + "\"/>");
-		sb.append("<arg value=\"" + generatorModel.getProjectDir() + "\"/>");
+		sb.append("<arg value=\"" + genModelProject.getName() + "\"/>");
+		sb.append("<arg value=\"" + genModelProject + "\"/>");
 		for (Plugin plugin : plugins) {
 			sb.append("<arg value=\"" + plugin.getAbsolutePath()+ "\"/>");
 		}
