@@ -24,9 +24,12 @@ import java.util.Map.Entry;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
+import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.toolproduct.IConstants;
 import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
+import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.AntScriptUtil;
+import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
@@ -40,15 +43,20 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
-		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
-		return Collections.singletonList(updateSiteTarget);
+		AntTarget antTarget = generateAntTarget();
+		return Collections.singletonList(antTarget);
 	}
 
-	protected AntTarget generateUpdateSiteAntTarget() throws BuildException {
+	protected AntTarget generateAntTarget() throws BuildException {
 		if (specification == null) {
 			throw new BuildException("Can't find tool product specification.");
 		}
 		
+		Plugin buildExtPlugin = findBuildExtensionPlugin();
+		if (buildExtPlugin == null) {
+			throw new BuildException("Can't find build extension plug-in in dependencies of tool product specification.");
+		}
+
 		XMLContent content = new XMLContent();
 		
 		content.append("<property environment=\"env\"/>");
@@ -95,9 +103,14 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File productInstallationFolder = new File(productFolderPath + "/" + productType + "/eclipse");
 			File brandedProductFolder = new File(productFolderPath + "/" + productType + "/" + productName);
 			
+			// Extract product base
 			content.append("<mkdir dir=\"" + productInstallationFolder.getParentFile().getAbsolutePath() + "\" />");
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
+			
+			// Add DirectorWrapper to dropins folder
+			File dropinsFolder = new File(productInstallationFolder, "dropins");
+			new PluginPackagingHelper().addPackageAsJarFileScript(content, dropinsFolder.getAbsolutePath(), buildExtPlugin);
 			
 			content.append("<exec executable=\"eclipse\" failonerror=\"true\">");
 			
@@ -225,5 +238,18 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		String updateSiteID = specification.getUpdateSite().getIdentifier();
 		AntTarget target = new AntTarget("build-eclipse-tool-product-" + updateSiteID, content);
 		return target;
+	}
+
+	private Plugin findBuildExtensionPlugin() {
+		Collection<IDependable> dependencies = specification.getDependencies();
+		for (IDependable dependable : dependencies) {
+			if (dependable instanceof Plugin) {
+				Plugin plugin = (Plugin) dependable;
+				if (IConstants.BUILDEXT_PLUGIN_ID.equals(plugin.getIdentifier())) {
+					return plugin;
+				}
+			}
+		}
+		return null;
 	}
 }
