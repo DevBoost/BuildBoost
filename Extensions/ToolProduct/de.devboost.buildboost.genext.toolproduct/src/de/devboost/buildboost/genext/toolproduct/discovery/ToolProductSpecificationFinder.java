@@ -21,12 +21,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.discovery.AbstractFileFinder;
+import de.devboost.buildboost.genext.toolproduct.IConstants;
 import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
 import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildListener;
+import de.devboost.buildboost.model.UnresolvedDependency;
 import de.devboost.buildboost.util.ArtifactUtil;
 
 public class ToolProductSpecificationFinder extends AbstractFileFinder<ToolProductSpecification> {
@@ -49,7 +52,15 @@ public class ToolProductSpecificationFinder extends AbstractFileFinder<ToolProdu
 			String message = "Discovered tool product specification: " + file.getAbsolutePath();
 			buildListener.handleBuildEvent(BuildEventType.INFO, message);
 		}
-		return new ToolProductSpecification(file);
+		
+		ToolProductSpecification specification = new ToolProductSpecification(file);
+		// We must add a dependency to the buildext plug-in to make sure it is
+		// available.
+		UnresolvedDependency buildextDependency = new UnresolvedDependency(Plugin.class, 
+				IConstants.BUILDEXT_PLUGIN_ID, null, true, null, true, false, false);
+		specification.getUnresolvedDependencies().add(buildextDependency);
+
+		return specification;
 	}
 
 	protected FileFilter getFileFilter() {

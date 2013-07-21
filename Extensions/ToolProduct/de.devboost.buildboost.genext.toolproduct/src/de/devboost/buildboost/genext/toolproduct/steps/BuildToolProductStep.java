@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
+import de.devboost.buildboost.genext.toolproduct.IConstants;
 import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
 import de.devboost.buildboost.util.AntScriptUtil;
 import de.devboost.buildboost.util.XMLContent;
@@ -103,7 +104,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"--launcher.suppressErrors\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
 			content.append("<arg value=\"-application\"/>");
-			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
+			content.append("<arg value=\"" + IConstants.DIRECTOR_WRAPPER_ID + "\"/>");
 			
 			content.append("<arg value=\"-repository\"/>");
 			String associateSites = specification.getAssociateSites();
