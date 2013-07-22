@@ -15,30 +15,34 @@
  ******************************************************************************/
 package de.devboost.buildboost.buildext.toolproduct;
 
-import org.eclipse.equinox.app.IApplication;
-import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
+import org.eclipse.equinox.launcher.Main;
+
+import de.devboost.buildboost.buildext.toolproduct.localdns.LocalNameService;
 
 /**
- * The {@link DirectorWrapper} is a wrapper for the p2
- * {@link DirectorApplication} that uses a special DNS to retrieve all artifacts
- * from localhost.
+ * The {@link LauncherWrapper} is a wrapper for the Eclipse launcher that
+ * activates a special DNS service which resolves all domain names to a single
+ * IP address.
  */
 @SuppressWarnings("restriction")
-public class DirectorWrapper implements IApplication {
-	
-	private DirectorApplication delegate = new DirectorApplication();
+public class LauncherWrapper {
 
-	@Override
-	public Object start(IApplicationContext context) throws Exception {
+	public static void main(String[] args) {
+		// We use the first argument as host IP
+		String hostAddressString = args[0];
+		String[] parts = hostAddressString.split("\\.");
+		byte[] hostAddress = new byte[4];
+		for (int i = 0; i < hostAddress.length; i++) {
+			hostAddress[i] = (byte) Integer.parseInt(parts[i]);
+		}
+		LocalNameService.HOST = hostAddress;
+		
 		// Configure VM to use local DNS
 		System.setProperty("sun.net.spi.nameservice.provider.1", "dns,localdns");
 		
-		return delegate.start(context);
-	}
-
-	@Override
-	public void stop() {
-		delegate.stop();
+		// Pass remaining arguments to Eclipse launcher
+		String[] otherArgs = new String[args.length - 1];
+		System.arraycopy(args, 1, otherArgs, 0, otherArgs.length);
+		Main.main(otherArgs);
 	}
 }

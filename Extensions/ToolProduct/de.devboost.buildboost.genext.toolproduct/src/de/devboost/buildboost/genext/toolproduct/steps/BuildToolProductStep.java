@@ -29,7 +29,6 @@ import de.devboost.buildboost.genext.toolproduct.IConstants;
 import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.AntScriptUtil;
-import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
@@ -105,13 +104,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<echo file=\"" + eclipsePath + "eclipse.ini\" append=\"true\" message=\"-Dsun.net.spi.nameservice.provider.1=dns,localdns\" />");
 		}
 		
-		// Add DirectorWrapper to plugins folder of installation platform
 		File pluginsFolder = new File(installationPlatformPath + "/eclipse", "plugins");
-		PluginPackagingHelper pluginPackagingHelper = new PluginPackagingHelper();
-		pluginPackagingHelper.addUpdateManifestScript(content, buildExtPlugin,
-				"1.0.0", null, null);
-		pluginPackagingHelper.addPackageAsJarFileScript(content,
-				pluginsFolder.getAbsolutePath(), buildExtPlugin);
 		
 		String productName = specification.getProductName();
 		String productFeatureID = specification.getProductFeature();
@@ -144,9 +137,25 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
 			content.appendLineBreak();
 			
-			content.append("<exec executable=\"./" + eclipseBinary + "\" failonerror=\"true\">");
+			content.append("<path id=\"toolproduct.path\">");
+			content.append("<pathelement location=\"" + buildExtPlugin.getLocation().getAbsolutePath() + "\"/>");
+			content.append("<fileset dir=\"" + pluginsFolder.getAbsolutePath() + "\">");
+			content.append("<include name=\"org.eclipse.equinox.launcher_*.jar\"/>");
+			content.append("</fileset>");
+			content.append("</path>");
+
+			// TODO Use constant for class name
+			content.append("<java classname=\"de.devboost.buildboost.buildext.toolproduct.LauncherWrapper\" failonerror=\"true\">");
 			
-			content.append("<arg value=\"--launcher.suppressErrors\"/>");
+			content.append("<classpath refid=\"toolproduct.path\"/>");
+			
+			content.append("<jvmarg value=\"-Xms40m\"/>");
+			content.append("<jvmarg value=\"-Xmx1024m\"/>");
+			content.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
+			content.append("<jvmarg value=\"-Declipse.pde.launch=true\"/>");
+			content.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
+
+			content.append("<arg value=\"" + specification.getEclipseMirror() + "\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
 			content.append("<arg value=\"-application\"/>");
 			content.append("<arg value=\"" + IConstants.DIRECTOR_WRAPPER_ID + "\"/>");
@@ -167,11 +176,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"-profile\"/>");
 			content.append("<arg value=\"SDKProfile\"/>");
 			
-			content.append("<arg value=\"--launcher.appendVmargs\"/>");
-			content.append("<arg value=\"-vmargs\"/>");
-			content.append("<arg value=\"-Dsun.net.spi.nameservice.provider.1=dns,localdns\"/>");
-			
-			content.append("</exec>");
+			content.append("</java>");
 			content.appendLineBreak();
 			
 			

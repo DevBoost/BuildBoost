@@ -6,13 +6,14 @@ import java.net.UnknownHostException;
 import sun.net.spi.nameservice.NameService;
 
 public class LocalNameService implements NameService {
+	
+	public static byte[] HOST;
 
 	@Override
 	public InetAddress[] lookupAllHostAddr(String name) {
-		byte[] array = new byte[] {127, 0, 0, 1};
 		InetAddress inetAddress;
 		try {
-			inetAddress = InetAddress.getByAddress(array);
+			inetAddress = InetAddress.getByAddress(HOST);
 			return new InetAddress[] {inetAddress};
 		} catch (UnknownHostException e) {
 			return null;

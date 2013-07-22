@@ -50,6 +50,10 @@ public class ToolProductSpecification extends AbstractArtifact {
 		return propertyFileReader.getValue("name");
 	}
 
+	public String getEclipseMirror() {
+		return propertyFileReader.getValue("eclipsemirror");
+	}
+
 	public String getProductFeature() {
 		return propertyFileReader.getValue("feature");
 	}
