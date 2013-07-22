@@ -158,7 +158,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"" + specification.getEclipseMirror() + "\"/>");
 			content.append("<arg value=\"-noSplash\"/>");
 			content.append("<arg value=\"-application\"/>");
-			content.append("<arg value=\"" + IConstants.DIRECTOR_WRAPPER_ID + "\"/>");
+			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
 			
 			content.append("<arg value=\"-repository\"/>");
 			String associateSites = specification.getAssociateSites();
