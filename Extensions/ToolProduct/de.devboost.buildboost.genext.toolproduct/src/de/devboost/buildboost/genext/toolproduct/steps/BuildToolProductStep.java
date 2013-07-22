@@ -145,7 +145,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("</path>");
 
 			// TODO Use constant for class name
-			content.append("<java classname=\"de.devboost.buildboost.buildext.toolproduct.LauncherWrapper\" failonerror=\"true\">");
+			content.append("<java classname=\"de.devboost.buildboost.buildext.toolproduct.LauncherWrapper\" fork=\"true\" failonerror=\"true\">");
 			
 			content.append("<classpath refid=\"toolproduct.path\"/>");
 			
