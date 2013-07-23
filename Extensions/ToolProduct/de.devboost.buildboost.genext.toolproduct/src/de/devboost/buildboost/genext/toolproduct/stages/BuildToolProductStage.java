@@ -38,7 +38,8 @@ import de.devboost.buildboost.stages.AbstractBuildStage;
  * and icons can be provided as well as an example workspace that is packaged
  * with the distribution and used when the custom distribution is started.
  */
-public class BuildToolProductStage extends AbstractBuildStage implements IUniversalBuildStage {
+public class BuildToolProductStage extends AbstractBuildStage implements
+		IUniversalBuildStage {
 
 	private String artifactsFolder;
 
@@ -49,19 +50,17 @@ public class BuildToolProductStage extends AbstractBuildStage implements IUniver
 	@Override
 	public AntScript getScript() throws BuildException {
 		File artifactsDir = new File(artifactsFolder);
+		File distDir = new File(artifactsDir, "dist");
 
 		BuildContext context = createContext(false);
 
+		// Add finders
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsDir));
-
 		context.addBuildParticipant(new PluginFinder(artifactsDir));
 		context.addBuildParticipant(new EclipseFeatureFinder(artifactsDir));
-
 		context.addBuildParticipant(new ToolProductSpecificationFinder(artifactsDir));
-		
-		File distDir = new File(artifactsDir, "dist");
 		context.addBuildParticipant(new EclipseUpdateSiteFinder(distDir));
-		
+		// Add build step to create tool products
 		context.addBuildParticipant(new BuildToolProductStepProvider());
 		
 		AutoBuilder builder = new AutoBuilder(context);
