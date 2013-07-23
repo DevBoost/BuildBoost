@@ -77,7 +77,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 
 	private Set<String> allLibs;
 
-	private Set<String> sourceFolders;
+	private Set<String> sourceFolders = new LinkedHashSet<String>();
 	
 	private Set<Plugin> allDependencies;
 	
