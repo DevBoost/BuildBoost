@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -15,10 +15,21 @@
  ******************************************************************************/
 package de.devboost.buildboost.discovery.reader;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import de.devboost.buildboost.util.StreamUtil;
 
@@ -28,28 +39,63 @@ import de.devboost.buildboost.util.StreamUtil;
 public class DotClasspathReader {
 
 	private String content;
-	
-	public DotClasspathReader(InputStream dotClasspathInputStream) throws IOException {
+	private Set<String> libs;
+	private Set<String> sourceFolders;
+
+	public DotClasspathReader(InputStream dotClasspathInputStream)
+			throws IOException {
 		content = new StreamUtil().getContentAsString(dotClasspathInputStream);
 	}
 
-	public Set<String> getDependencies() {
-		Set<String> libs = new LinkedHashSet<String>();
-		
-		String beginString = "kind=\"lib\" path=\"";
-		String endString = "\"";
-		
-		int idx = content.indexOf(beginString);
-		while (idx != -1) {
-			int begin = idx + beginString.length();
-			int end = content.indexOf(endString, begin);
-			
-			String path = content.substring(begin, end);
-			libs.add(path);
-			
-			idx = content.indexOf(beginString, end);
+	public Set<String> getLibraries() {
+		if (libs == null) {
+			initialize();
 		}
-		
 		return libs;
+	}
+
+	public Set<String> getSourceFolders() {
+		if (sourceFolders == null) {
+			initialize();
+		}
+		return sourceFolders;
+	}
+
+	private void initialize() {
+		libs = new LinkedHashSet<String>();
+		sourceFolders = new LinkedHashSet<String>();
+		
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		try {
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(new ByteArrayInputStream(content.getBytes()));
+			NodeList classPathEntryNodes = doc.getElementsByTagName("classpathentry");
+			for (int i = 0; i < classPathEntryNodes.getLength(); i++) {
+				Node classPathEntryNode = classPathEntryNodes.item(i);
+				if (classPathEntryNode.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
+				}
+				
+				Element element = (Element) classPathEntryNode;
+				String kind = element.getAttribute("kind");
+				String path = element.getAttribute("path");
+				if ("lib".equals(kind)) {
+					if (path != null) {
+						libs.add(path);
+					}
+				}
+				if ("src".equals(kind)) {
+					if (path != null) {
+						sourceFolders.add(path);
+					}
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException(e.getClass().getSimpleName() + " while reading .classpath file: " + e.getMessage());
+		} catch (SAXException e) {
+			throw new RuntimeException(e.getClass().getSimpleName() + " while reading .classpath file: " + e.getMessage());
+		} catch (IOException e) {
+			throw new RuntimeException(e.getClass().getSimpleName() + " while reading .classpath file: " + e.getMessage());
+		}
 	}
 }

@@ -77,6 +77,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 
 	private Set<String> allLibs;
 
+	private Set<String> sourceFolders;
+	
 	private Set<Plugin> allDependencies;
 	
 	private Set<Package> exportedPackages;
@@ -84,7 +86,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	private String name;
 
 	private String version;
-	
+
 	/**
 	 * Create a descriptor for the plug-in at the given location. Reads the
 	 * manifest and class path information if available.
@@ -315,18 +317,18 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		if (location.isFile()) {
 			return new File[0];
 		}
-		File[] sourceFolders = location.listFiles(new FileFilter() {
-			
-			public boolean accept(File pathname) {
-				return pathname.getName().equals("src") || 
-						pathname.getName().startsWith("src-") ||
-						pathname.getName().equals("xtend-gen");
-			}
-		});
+		
 		if (sourceFolders == null) {
 			return new File[0];
 		}
-		return sourceFolders;
+
+		File[] sourceFolderFiles = new File[sourceFolders.size()];
+		int i = 0;
+		for (String	sourceFolder : sourceFolders) {
+			sourceFolderFiles[i] = new File(location, sourceFolder);
+			i++;
+		}
+		return sourceFolderFiles;
 	}
 
 	/**
@@ -407,7 +409,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		InputStream dotClassPathInputStream = getDotClasspathInputStream();
 		if (dotClassPathInputStream != null) {
 			DotClasspathReader classpathReader = new DotClasspathReader(dotClassPathInputStream);
-			this.libs.addAll(classpathReader.getDependencies());
+			this.libs.addAll(classpathReader.getLibraries());
+			this.sourceFolders.addAll(classpathReader.getSourceFolders());
 			dotClassPathInputStream.close();
 		}
 	}
