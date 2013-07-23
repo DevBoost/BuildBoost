@@ -79,13 +79,15 @@ public class DotClasspathReader {
 				Element element = (Element) classPathEntryNode;
 				String kind = element.getAttribute("kind");
 				String path = element.getAttribute("path");
+				String combineaccessrules = element.getAttribute("combineaccessrules");;
+				boolean combineaccessrulesIsSet = combineaccessrules != null && !combineaccessrules.isEmpty();
 				if ("lib".equals(kind)) {
 					if (path != null) {
 						libs.add(path);
 					}
 				}
 				if ("src".equals(kind)) {
-					if (path != null) {
+					if (path != null && !combineaccessrulesIsSet) {
 						sourceFolders.add(path);
 					}
 				}

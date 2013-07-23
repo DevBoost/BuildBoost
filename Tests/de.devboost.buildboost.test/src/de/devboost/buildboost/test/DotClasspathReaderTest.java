@@ -35,6 +35,7 @@ public class DotClasspathReaderTest {
 			"<classpathentry kind=\"con\" path=\"org.eclipse.pde.core.requiredPlugins\"/>" +
 			"<classpathentry kind=\"src\" path=\"src\"/>" +
 			"<classpathentry kind=\"src\" path=\"src-gen\"/>" +
+			"<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/otherproject\"/>" +
 			"<classpathentry kind=\"lib\" path=\"lib/some-third-party-lib-1.0.0.jar\"/>" +
 			"<classpathentry kind=\"lib\" path=\"lib/some-lib-with-source-2.0.0.jar\" sourcepath=\"/Users/Me/Downloads/some-lib-with-source-2.0.0-src.zip\"/>" +
 			"<classpathentry kind=\"output\" path=\"bin\"/>" +
