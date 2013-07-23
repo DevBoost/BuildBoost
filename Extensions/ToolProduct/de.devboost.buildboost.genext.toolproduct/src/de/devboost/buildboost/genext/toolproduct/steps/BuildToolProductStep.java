@@ -129,7 +129,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			content.appendLineBreak();
 			
-			File productInstallationFolder = new File(productFolderPath + "/" + productType + "/eclipse");
+			File productInstallationFolder = new File("temp/toolproducts/" + productName + "/" + productType + "/eclipse");
 			File brandedProductFolder = new File(productFolderPath + "/" + productType + "/" + productName);
 			
 			// Extract product base
