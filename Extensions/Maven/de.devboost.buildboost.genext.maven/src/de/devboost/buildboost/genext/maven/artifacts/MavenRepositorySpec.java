@@ -36,9 +36,19 @@ public class MavenRepositorySpec extends AbstractArtifact {
 	public MavenRepositorySpec(File file) {
 		propertyFileReader = new PropertyFileReader(file);
 		// use parent directory name as identifier
-		String identifier = file.getParentFile().getName();
+		String identifier = getIdentifier(file);
 		setIdentifier(identifier);
 		getUnresolvedDependencies().add(new UnresolvedDependency(EclipseUpdateSiteDeploymentSpec.class, identifier, null, true, null, true, false, false));
+	}
+
+	private String getIdentifier(File file) {
+		String updatesiteid = propertyFileReader.getValue("updatesiteid");
+		if (updatesiteid != null) {
+			return updatesiteid;
+		}
+		
+		// If not update site is given, we use the parent folder's name as id
+		return file.getParentFile().getName();
 	}
 
 	public EclipseUpdateSiteDeploymentSpec getUpdateSite() {
