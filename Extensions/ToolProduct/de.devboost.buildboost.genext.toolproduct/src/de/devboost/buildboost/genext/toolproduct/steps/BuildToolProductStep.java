@@ -226,9 +226,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 					continue;
 				}
 				String pattern = "<property.*name=\"" + property + "\".*value=\"FFFFFF\"/>";
-				pattern = pattern.replace("\"", "&quot;");
+				pattern = escape(pattern);
 				String newValue = "<property name=\"" + property + "\" value=\"" + value + "\"/>";
-				newValue = newValue.replace("\"", "&quot;");
+				newValue = escape(newValue);
 				content.append("<replaceregexp file=\"${toString:platformPlugin}/plugin.xml\" match=\"" + pattern + "\" replace=\"" + newValue + "\" flags=\"m\" />");
 			}
 			
@@ -292,6 +292,13 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		String updateSiteID = specification.getUpdateSite().getIdentifier();
 		AntTarget target = new AntTarget("build-eclipse-tool-product-" + updateSiteID, content);
 		return target;
+	}
+
+	private String escape(String text) {
+		String result = text.replace("\"", "&quot;");
+		result = result.replace(">", "&gt;");
+		result = result.replace("<", "&lt;");
+		return result;
 	}
 
 	private Plugin findBuildExtensionPlugin() {
