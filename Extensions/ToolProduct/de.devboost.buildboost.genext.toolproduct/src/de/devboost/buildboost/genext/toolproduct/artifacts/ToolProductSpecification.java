@@ -83,4 +83,8 @@ public class ToolProductSpecification extends AbstractArtifact {
 	public File getFile() {
 		return file;
 	}
+
+	public String getPlatformPluginProperty(String property) {
+		return propertyFileReader.getValue("platform", "plugin.xml", property);
+	}
 }

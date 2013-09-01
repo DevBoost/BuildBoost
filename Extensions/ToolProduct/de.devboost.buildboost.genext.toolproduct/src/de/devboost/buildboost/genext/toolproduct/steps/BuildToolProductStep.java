@@ -218,6 +218,19 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			
 			content.append("<copy overwrite=\"true\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+
+			// Customize plugin.xml file of plug-in org.eclipse.platform
+			for (String property : new String[] {"startupForegroundColor", "startupMessageRect", "startupProgressRect"}) {
+				String value = specification.getPlatformPluginProperty(property);
+				if (value == null) {
+					continue;
+				}
+				String pattern = "<property.*name=\"" + property + "\".*value=\"FFFFFF\"/>";
+				pattern = pattern.replace("\"", "\\\"");
+				String newValue = "<property name=\"" + property + "\" value=\"" + value + "\"/>";
+				newValue = newValue.replace("\"", "\\\"");
+				content.append("<replaceregexp file=\"${toString:platformPlugin}/plugin.xml\" match=\"" + pattern + "\" replace=\"" + newValue + "\" flags=\"m\" />");
+			}
 			
 			//copy icon osx
 			if (productType.startsWith("osx")) {
