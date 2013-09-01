@@ -226,9 +226,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 					continue;
 				}
 				String pattern = "<property.*name=\"" + property + "\".*value=\"FFFFFF\"/>";
-				pattern = pattern.replace("\"", "\\\"");
+				pattern = pattern.replace("\"", "&quot;");
 				String newValue = "<property name=\"" + property + "\" value=\"" + value + "\"/>";
-				newValue = newValue.replace("\"", "\\\"");
+				newValue = newValue.replace("\"", "&quot;");
 				content.append("<replaceregexp file=\"${toString:platformPlugin}/plugin.xml\" match=\"" + pattern + "\" replace=\"" + newValue + "\" flags=\"m\" />");
 			}
 			
