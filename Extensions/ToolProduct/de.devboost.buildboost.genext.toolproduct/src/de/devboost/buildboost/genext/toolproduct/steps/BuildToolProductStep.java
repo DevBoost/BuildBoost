@@ -225,7 +225,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				if (value == null) {
 					continue;
 				}
-				String pattern = "<property.*name=\"" + property + "\".*value=\"[^\"]+\"/>";
+				String pattern = "<property\\s+name=\"" + property + "\"\\s+value=\"[^\"]+\"/>";
 				pattern = escape(pattern);
 				String newValue = "<property name=\"" + property + "\" value=\"" + value + "\"/>";
 				newValue = escape(newValue);
