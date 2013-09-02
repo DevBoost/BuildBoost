@@ -225,12 +225,12 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				if (value == null) {
 					continue;
 				}
-				String pattern = "<property.*name=\"" + property + "\".*value=\"FFFFFF\"/>";
+				String pattern = "<property.*name=\"" + property + "\".*value=\"[^\"]+\"/>";
 				pattern = escape(pattern);
 				String newValue = "<property name=\"" + property + "\" value=\"" + value + "\"/>";
 				newValue = escape(newValue);
 				content.append("<echo message=\"Replacing property " + property + " in file ${toString:platformPlugin}/plugin.xml\" />");
-				content.append("<replaceregexp file=\"${toString:platformPlugin}/plugin.xml\" match=\"" + pattern + "\" replace=\"" + newValue + "\" flags=\"m\" />");
+				content.append("<replaceregexp file=\"${toString:platformPlugin}/plugin.xml\" match=\"" + pattern + "\" replace=\"" + newValue + "\" flags=\"gis\" />");
 			}
 			
 			//copy icon osx
