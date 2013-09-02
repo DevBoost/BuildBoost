@@ -268,12 +268,17 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				userHomeWorkspace = "osgi.instance.area.default=@user.home/workspace";
 				appRelativeWorkspace = "osgi.instance.area.default=./workspace";
 			}
-			//change default workspace
+			// Change default workspace location
 			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"" + userHomeWorkspace + "\" value=\"" + appRelativeWorkspace + "\"/>");
+			// Change product to launch, remove application to launch (this is
+			// required to make the splash screen settings work)
+			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"eclipse.product=org.eclipse.sdk.ide\" value=\"eclipse.product=org.eclipse.platform.ide\"/>");
+			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"eclipse.product=eclipse.application=org.eclipse.ui.ide.workbench\" value=\"\"/>");
+			
 			content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
 			content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
 			
-			//rename base folder
+			// Rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
 			File productsDistFolder = new File("dist/products");
