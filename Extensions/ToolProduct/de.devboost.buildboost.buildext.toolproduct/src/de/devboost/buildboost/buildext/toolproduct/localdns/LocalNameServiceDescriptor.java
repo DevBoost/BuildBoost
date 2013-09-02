@@ -12,12 +12,10 @@ public class LocalNameServiceDescriptor implements NameServiceDescriptor {
 	}
 
 	public String getType() {
-		System.out.println("LocalNameServiceDescriptor.getType()");
 		return "dns";
 	}
 
 	public String getProviderName() {
-		System.out.println("LocalNameServiceDescriptor.getProviderName()");
 		return "localdns";
 	}
 }
