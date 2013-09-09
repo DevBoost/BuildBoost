@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -112,25 +112,23 @@ public class ScriptSaver {
 	}
 	
 	/**
-	 * Saves the content of the given {@link StringBuffer} to a file.
+	 * Saves the given content to a file.
 	 * 
-	 * This method is deprecated. Use {@link IBuildStage}s instead of creating
-	 * the content of build scripts directly.
+	 * @param targetDir the directory to save the file to
+	 * @param content the content to save
+	 * @param fileName the name of the file to save
 	 * 
-	 * @param targetDir
-	 * @param content
-	 * @param fileName
-	 * @throws BuildException
+	 * @throws BuildException if something goes wrong
 	 */
-	@Deprecated // TODO make this method private once all references are removed
-	public void save(File targetDir, StringBuffer content, String fileName) throws BuildException {
-		save(targetDir, content.toString(), fileName);
-	}
-
-	@Deprecated // TODO make this method private once all references are removed
-	public void save(File targetDir, String content, String fileName) throws BuildException {
+	private void save(File targetDir, String content, String fileName) throws BuildException {
+		if (!targetDir.exists()) {
+			boolean success = targetDir.mkdirs();
+			if (!success) {
+				throw new BuildException("Can't create directory '" + targetDir + "'.");
+			}
+		}
+		
 		try {
-			targetDir.mkdirs();
 			FileWriter writer = new FileWriter(new File(targetDir.getAbsolutePath() + File.separator + fileName));
 			writer.append(content);
 			writer.close();
