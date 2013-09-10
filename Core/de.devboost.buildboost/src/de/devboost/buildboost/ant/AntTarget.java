@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -22,15 +22,16 @@ import de.devboost.buildboost.artifacts.AbstractArtifact;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * An {@link AntTarget} is a representation of a generated Ant script fragment.
+ * An {@link AntTarget} is a representation of a generated Ant script fragment,
+ * namely an ANT target element.
  * 
- * TODO Add parameter Class<?> creator to all constructors to avoid interfering
- *      name for generated targets.
+ * TODO Add parameter Class<?> creator to all constructors to avoid duplicate
+ * names for generated targets.
  */
 public class AntTarget extends AbstractArtifact {
 
 	private static final long serialVersionUID = -7935166108004658132L;
-	
+
 	private String name;
 	private String content;
 	private Collection<String> dependencies;
@@ -41,7 +42,9 @@ public class AntTarget extends AbstractArtifact {
 		this(name, content.toString());
 	}
 
-	public AntTarget(String name, XMLContent content, Collection<String> dependencies) {
+	public AntTarget(String name, XMLContent content,
+			Collection<String> dependencies) {
+		
 		this(name, content.toString(), dependencies);
 	}
 
@@ -49,7 +52,15 @@ public class AntTarget extends AbstractArtifact {
 		this(name, content, new LinkedHashSet<String>());
 	}
 
-	private AntTarget(String name, String content, Collection<String> dependencies) {
+	private AntTarget(String name, String content,
+			Collection<String> dependencies) {
+		
+		super();
+		if (name.contains(",")) {
+			throw new RuntimeException(
+					"Names for ANT targets must not contain the ',' character, but '"
+							+ name + "' does.");
+		}
 		this.name = name;
 		this.content = content;
 		this.dependencies = dependencies;
