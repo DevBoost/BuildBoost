@@ -67,7 +67,9 @@ public class AntScript {
 			if (allDeps.length() > 0) {
 				allDeps = allDeps.substring(0, allDeps.length() - 2);
 			}
-			script.append("<target name=\"" + target.getName() + "\" " + (allDeps.length() > 0 ? "depends=\"" + allDeps + "\"" : "") + ">");
+			String ifConditions = target.getIfConditions();
+			String unlessConditions = target.getUnlessConditions();
+			script.append("<target name=\"" + target.getName() + "\" " + (allDeps.length() > 0 ? "depends=\"" + allDeps + "\"" : "") + (ifConditions != null ? " if=\"" + ifConditions + "\"" : "") + (unlessConditions != null ? " unless=\"" + unlessConditions + "\"" : "") + ">");
 			script.append(target.getContent());
 			script.append("</target>");
 			script.append(NL);

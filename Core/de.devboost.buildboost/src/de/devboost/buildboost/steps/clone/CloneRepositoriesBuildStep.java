@@ -27,7 +27,7 @@ import de.devboost.buildboost.util.AntScriptUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link CloneRepositoriesBuildStep} generates Ant task to clone/check 
+ * The {@link CloneRepositoriesBuildStep} generates Ant tasks to clone/check 
  * out/update/pull/download repositories.
  */
 public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
@@ -53,6 +53,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 
 	private void generateCloneLocationTasks(Collection<AntTarget> result,
 			Location location) {
+		
 		String locationURL = location.getUrl();
 		String localRepositoryFolderName = url2FolderName(locationURL);
 		
@@ -91,7 +92,13 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			addCloneOtherTasks(location, locationURL, rootName, localRepo,
 					content, localRepositoryPath, true);
 		}
-		result.add(new AntTarget("update-" + localRepositoryFolderName, content));
+		
+		String taskName = "update-" + localRepositoryFolderName;
+		String propertyName = "performed-" + taskName;
+		content.append("<property name=\"" + propertyName + "\" value=\"true\"/>");
+		AntTarget cloneTarget = new AntTarget(taskName, content);
+		cloneTarget.setUnlessConditions(propertyName);
+		result.add(cloneTarget);
 	}
 
 	private void addCloneDynamicFileTask(String locationURL,

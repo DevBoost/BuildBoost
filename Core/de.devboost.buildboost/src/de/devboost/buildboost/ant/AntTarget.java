@@ -36,6 +36,9 @@ public class AntTarget extends AbstractArtifact {
 	private String content;
 	private Collection<String> dependencies;
 
+	private String ifConditions;
+	private String unlessConditions;
+
 	// TODO the content must not change after calling this constructor as
 	// changes will not be reflected because we call toString() right here.
 	public AntTarget(String name, XMLContent content) {
@@ -65,6 +68,14 @@ public class AntTarget extends AbstractArtifact {
 		this.content = content;
 		this.dependencies = dependencies;
 	}
+	
+	public void setIfConditions(String ifConditions) {
+		this.ifConditions = ifConditions;
+	}
+
+	public void setUnlessConditions(String unlessConditions) {
+		this.unlessConditions = unlessConditions;
+	}
 
 	/**
 	 * Returns the name of this target.
@@ -85,5 +96,13 @@ public class AntTarget extends AbstractArtifact {
 	 */
 	public Collection<String> getRequiredTargets() {
 		return dependencies;
+	}
+
+	public String getIfConditions() {
+		return ifConditions;
+	}
+
+	public String getUnlessConditions() {
+		return unlessConditions;
 	}
 }
