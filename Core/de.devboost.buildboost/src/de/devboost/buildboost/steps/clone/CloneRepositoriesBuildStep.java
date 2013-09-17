@@ -95,6 +95,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		
 		String taskName = "update-" + localRepositoryFolderName;
 		String propertyName = "performed-" + taskName;
+		content.append("<echo message=\"Setting property " + propertyName + "\"/>");
 		content.append("<property name=\"" + propertyName + "\" value=\"true\"/>");
 		AntTarget cloneTarget = new AntTarget(taskName, content);
 		cloneTarget.setUnlessConditions(propertyName);
