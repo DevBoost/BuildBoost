@@ -178,6 +178,10 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 
 		// update a second time, since the first update might have revealed new
 		// '.repository' files
+		// TODO This is not correct and it also makes the builds slow. There 
+		// can be new '.repositories' files after the second clone and this 
+		// might go on even further. We need to come up with a more clever 
+		// solution here.
 		CloneRepositoriesStage stage2 = new CloneRepositoriesStage();
 		stage2.setReposFolder(reposFolder.getAbsolutePath());
 		
