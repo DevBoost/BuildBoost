@@ -28,7 +28,7 @@ import de.devboost.buildboost.util.XMLContent;
 
 /**
  * The {@link CopyProjectsBuildStep} generates a script that copies plug-in
- * projects from one directory (typically a SVN working copy) to another
+ * projects from one directory (typically a SCM working copy) to another
  * directory (typically a directory where the actual build is performed). The
  * {@link CopyProjectsBuildStep} uses synchronization instead of pure copying
  * to avoid unnecessary copy operations.
