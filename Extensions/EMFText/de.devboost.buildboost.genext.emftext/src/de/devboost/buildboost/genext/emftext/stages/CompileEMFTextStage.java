@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -34,27 +34,29 @@ import de.devboost.buildboost.steps.compile.CompileProjectStepProvider;
 
 public class CompileEMFTextStage extends AbstractBuildStage implements IUniversalBuildStage {
 
-	private static final Set<String> EMFTEXT_SDK_PLUGIN_IDENTIFIERS = new LinkedHashSet<String>();
+	private static final Set<String> REQUIRED_PLUGIN_IDENTIFIERS = new LinkedHashSet<String>();
 	
 	static {
+		// Code Composers
+		REQUIRED_PLUGIN_IDENTIFIERS.add("de.devboost.codecomposers");
 		// EMFText core
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.access");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.ant");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.antlr3_4_0");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.automaton");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.antlr");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.newproject");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.resource");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.resource.ui");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.edit");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.resource.cs");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.resource.cs.ui");
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.ui");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.access");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.ant");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.antlr3_4_0");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.automaton");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.antlr");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.newproject");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.resource");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.codegen.resource.ui");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.edit");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.resource.cs");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.concretesyntax.resource.cs.ui");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("org.emftext.sdk.ui");
 		// BuildBoost EMFText plug-in
-		EMFTEXT_SDK_PLUGIN_IDENTIFIERS.add("de.devboost.buildboost.buildext.emftext");
+		REQUIRED_PLUGIN_IDENTIFIERS.add("de.devboost.buildboost.buildext.emftext");
 	}
 
 	private String artifactsFolder;
@@ -64,19 +66,21 @@ public class CompileEMFTextStage extends AbstractBuildStage implements IUniversa
 	}
 
 	public AntScript getScript() throws BuildException {
+		File artifactsFolderFile = new File(artifactsFolder);
+
 		BuildContext context = createContext(false);
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(artifactsFolder)));
-		context.addBuildParticipant(new PluginFinder(new File(artifactsFolder)));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsFolderFile));
+		context.addBuildParticipant(new PluginFinder(artifactsFolderFile));
 		
 		context.addBuildParticipant(new CompileProjectStepProvider());
 		
-		context.addBuildParticipant(new IdentifierFilter(EMFTEXT_SDK_PLUGIN_IDENTIFIERS).or(
+		context.addBuildParticipant(new IdentifierFilter(REQUIRED_PLUGIN_IDENTIFIERS).or(
 				new ArtifactTypeFilter(CompiledPlugin.class)));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 
 		AntScript script = new AntScript();
-		script.setName("Compile EMFText SDK plug-ins");
+		script.setName("Compile EMFText SDK plug-ins and its dependencies");
 		script.addTargets(builder.generateAntTargets());
 		return script;
 	}
