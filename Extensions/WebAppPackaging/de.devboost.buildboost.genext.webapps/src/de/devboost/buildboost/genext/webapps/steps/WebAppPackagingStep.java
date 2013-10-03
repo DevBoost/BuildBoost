@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -16,9 +16,12 @@
 package de.devboost.buildboost.genext.webapps.steps;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
@@ -30,6 +33,8 @@ import de.devboost.buildboost.util.PluginPackagingHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 public class WebAppPackagingStep extends AbstractAntTargetGenerator {
+
+	private static final String PLUGIN_ID = "de.devboost.buildboost.genext.webapps";
 
 	private static final String WEB_CONTENT_DIR_NAME = "WebContent";
 	
@@ -107,9 +112,38 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 			Plugin plugin = (Plugin) iterator.next();
 	    	// we do not include artificial dependencies that have been only
 	    	// added to compile correctly
-			if (plugin.getIdentifier().startsWith("javax.servlet")) {
+			if (isContainerLibrary(plugin)) {
 				iterator.remove();
 			}
 		}
+	}
+
+	private boolean isContainerLibrary(Plugin plugin) {
+		File pluginFile = plugin.getLocation();
+		if (!pluginFile.isFile()) {
+			return false;
+		}
+
+		File propertiesFile = new File(pluginFile, PLUGIN_ID + ".properties");
+		if (!propertiesFile.exists()) {
+			return false;
+		}
+		
+		Properties properties = new Properties();
+		FileInputStream inStream = null;
+		try {
+			inStream = new FileInputStream(propertiesFile);
+			properties.load(inStream);
+		} catch (IOException ioe) {
+			if (inStream != null) {
+				try {
+					inStream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		
+		return "true".equals(properties.getProperty("containerLibrary"));
 	}
 }
