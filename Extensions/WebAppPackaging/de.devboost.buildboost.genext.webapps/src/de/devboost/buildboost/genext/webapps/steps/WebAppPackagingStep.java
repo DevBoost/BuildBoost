@@ -38,7 +38,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 
 	private static final String WEB_CONTENT_DIR_NAME = "WebContent";
 	
-	private Plugin plugin;
+	private final Plugin plugin;
 
 	public WebAppPackagingStep(Plugin plugin) {
 		super();
@@ -120,7 +120,7 @@ public class WebAppPackagingStep extends AbstractAntTargetGenerator {
 
 	private boolean isContainerLibrary(Plugin plugin) {
 		File pluginFile = plugin.getLocation();
-		if (!pluginFile.isFile()) {
+		if (!pluginFile.isDirectory()) {
 			return false;
 		}
 
