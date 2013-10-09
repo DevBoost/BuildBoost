@@ -156,7 +156,13 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<jvmarg value=\"-Declipse.pde.launch=true\"/>");
 				content.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
 	
-				content.append("<arg value=\"" + specification.getEclipseMirror() + "\"/>");
+				String eclipseMirror = specification.getEclipseMirror();
+				if (eclipseMirror == null) {
+					content.append("<arg value=\"noeclipsemirror\"/>");
+				} else {
+					content.append("<arg value=\"" + eclipseMirror + "\"/>");
+				}
+				
 				content.append("<arg value=\"-noSplash\"/>");
 				content.append("<arg value=\"-application\"/>");
 				content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");

@@ -30,6 +30,17 @@ public class LauncherWrapper {
 	public static void main(String[] args) {
 		// We use the first argument as host IP
 		String hostAddressString = args[0];
+		if (!"noeclipsemirror".equals(hostAddressString)) {
+			configureLocalDNS(hostAddressString);
+		}
+		
+		// Pass remaining arguments to Eclipse launcher
+		String[] otherArgs = new String[args.length - 1];
+		System.arraycopy(args, 1, otherArgs, 0, otherArgs.length);
+		Main.main(otherArgs);
+	}
+
+	private static void configureLocalDNS(String hostAddressString) {
 		String[] parts = hostAddressString.split("\\.");
 		byte[] hostAddress = new byte[4];
 		for (int i = 0; i < hostAddress.length; i++) {
@@ -39,10 +50,5 @@ public class LauncherWrapper {
 		
 		// Configure VM to use local DNS
 		System.setProperty("sun.net.spi.nameservice.provider.1", "dns,localdns");
-		
-		// Pass remaining arguments to Eclipse launcher
-		String[] otherArgs = new String[args.length - 1];
-		System.arraycopy(args, 1, otherArgs, 0, otherArgs.length);
-		Main.main(otherArgs);
 	}
 }
