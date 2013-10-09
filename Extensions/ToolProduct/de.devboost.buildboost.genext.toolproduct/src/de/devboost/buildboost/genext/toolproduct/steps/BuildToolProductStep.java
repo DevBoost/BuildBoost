@@ -317,7 +317,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 
 		String associateSites = specification.getAssociateSites();
 		if (associateSites != null) {
-			argument.append("," + associateSites);
+			if (!argument.toString().isEmpty()) {
+				argument.append(",");
+			}
+			argument.append(associateSites);
 		}
 		return argument.toString();
 	}
