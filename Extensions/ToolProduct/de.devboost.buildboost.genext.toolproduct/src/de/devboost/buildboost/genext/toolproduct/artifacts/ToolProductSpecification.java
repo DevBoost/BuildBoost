@@ -28,9 +28,9 @@ public class ToolProductSpecification extends AbstractArtifact {
 
 	private static final long serialVersionUID = -756727502003553869L;
 
-	private PropertyFileReader propertyFileReader;
+	private final PropertyFileReader propertyFileReader;
 
-	private File file;
+	private final File file;
 
 	public ToolProductSpecification(File file) {
 		super();
@@ -43,7 +43,12 @@ public class ToolProductSpecification extends AbstractArtifact {
 		setIdentifier(identifier);
 		
 		String updateSiteID = propertyFileReader.getValue("updatesite");
-		getUnresolvedDependencies().add(new UnresolvedDependency(EclipseUpdateSite.class, updateSiteID, null, true, null, true, false, false));
+		// Tool products do not necessarily require a local update site. They  
+		// can also be built using remote repositories only.
+		if (updateSiteID != null) {
+			UnresolvedDependency updateSiteDependency = new UnresolvedDependency(EclipseUpdateSite.class, updateSiteID, null, true, null, true, false, false);
+			getUnresolvedDependencies().add(updateSiteDependency);
+		}
 	}
 
 	public String getProductName() {
