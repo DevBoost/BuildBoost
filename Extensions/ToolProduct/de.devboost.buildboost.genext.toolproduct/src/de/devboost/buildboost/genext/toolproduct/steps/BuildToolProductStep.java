@@ -27,6 +27,7 @@ import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.toolproduct.IConstants;
 import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecification;
+import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.AntScriptUtil;
 import de.devboost.buildboost.util.XMLContent;
@@ -74,7 +75,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
 		
-		File deployedUpdateSiteFolder = specification.getUpdateSite().getFile().getParentFile();
+		EclipseUpdateSite updateSite = specification.getUpdateSite();
 		File toolProductFolder = specification.getFile().getParentFile();
 		
 		String distProductsPath = "dist/products";
@@ -107,8 +108,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		File pluginsFolder = new File(installationPlatformPath + "/eclipse", "plugins");
 		
 		String productName = specification.getProductName();
-		String productFeatureID = specification.getProductFeature();
-		String siteVersion = specification.getUpdateSite().getFeature(productFeatureID).getVersion();
+		String[] featureIDs = specification.getProductFeature().split(",");
 		
 		String sdkFolderPath = "../eclipse-sdks";
 		content.append("<mkdir dir=\"" + sdkFolderPath + "\" />");
@@ -144,41 +144,37 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("</fileset>");
 			content.append("</path>");
 
-			// TODO Use constant for class name
-			content.append("<java classname=\"de.devboost.buildboost.buildext.toolproduct.LauncherWrapper\" fork=\"true\" failonerror=\"true\">");
-			
-			content.append("<classpath refid=\"toolproduct.path\"/>");
-			
-			content.append("<jvmarg value=\"-Xms40m\"/>");
-			content.append("<jvmarg value=\"-Xmx1024m\"/>");
-			content.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
-			content.append("<jvmarg value=\"-Declipse.pde.launch=true\"/>");
-			content.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
-
-			content.append("<arg value=\"" + specification.getEclipseMirror() + "\"/>");
-			content.append("<arg value=\"-noSplash\"/>");
-			content.append("<arg value=\"-application\"/>");
-			content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
-			
-			content.append("<arg value=\"-repository\"/>");
-			String associateSites = specification.getAssociateSites();
-			if (associateSites == null) {
-				content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + "\"/>");
-			} else {
-				content.append("<arg value=\"file:" + deployedUpdateSiteFolder.getAbsolutePath() + "," + associateSites + "\"/>");
+			for (String featureID : featureIDs) {
+				// TODO Use constant for class name
+				content.append("<java classname=\"de.devboost.buildboost.buildext.toolproduct.LauncherWrapper\" fork=\"true\" failonerror=\"true\">");
+				
+				content.append("<classpath refid=\"toolproduct.path\"/>");
+				
+				content.append("<jvmarg value=\"-Xms40m\"/>");
+				content.append("<jvmarg value=\"-Xmx1024m\"/>");
+				content.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
+				content.append("<jvmarg value=\"-Declipse.pde.launch=true\"/>");
+				content.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
+	
+				content.append("<arg value=\"" + specification.getEclipseMirror() + "\"/>");
+				content.append("<arg value=\"-noSplash\"/>");
+				content.append("<arg value=\"-application\"/>");
+				content.append("<arg value=\"org.eclipse.equinox.p2.director\"/>");
+				
+				content.append("<arg value=\"-repository\"/>");
+				content.append("<arg value=\"" + getRepositoryArgument() + "\"/>");
+				content.append("<arg value=\"-installIU\"/>");
+				content.append("<arg value=\"" + featureID + ".feature.group\"/>");
+				content.append("<arg value=\"-tag\"/>");
+				content.append("<arg value=\"InstallationOf_" + featureID + "\"/>");
+				content.append("<arg value=\"-destination\"/>");
+				content.append("<arg value=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
+				content.append("<arg value=\"-profile\"/>");
+				content.append("<arg value=\"SDKProfile\"/>");
+				
+				content.append("</java>");
+				content.appendLineBreak();
 			}
-			content.append("<arg value=\"-installIU\"/>");
-			content.append("<arg value=\"" + productFeatureID + ".feature.group\"/>");
-			content.append("<arg value=\"-tag\"/>");
-			content.append("<arg value=\"InstallationOf" + productName + "\"/>");
-			content.append("<arg value=\"-destination\"/>");
-			content.append("<arg value=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
-			content.append("<arg value=\"-profile\"/>");
-			content.append("<arg value=\"SDKProfile\"/>");
-			
-			content.append("</java>");
-			content.appendLineBreak();
-			
 			
 			File splashScreenFile = new File(toolProductFolder, "splash.bmp");
 			File pluginFolder = new File(productInstallationFolder, "plugins");
@@ -290,14 +286,40 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			} else {
 				zipType = "tar.gz";
 			}
-			String productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + "." + zipType).getAbsolutePath();
+			
+			String productZipPath;
+			if (updateSite != null) {
+				// If the tool product is installed from a local update site,
+				// we include the version of the first feature in the ZIP name 
+				String siteVersion = updateSite.getFeature(featureIDs[0]).getVersion();
+				productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + "." + zipType).getAbsolutePath();
+			} else {
+				productZipPath = new File(productsDistFolder, productName + "-" + productType + "." + zipType).getAbsolutePath();
+			}
+			
 			AntScriptUtil.addZipFileCompressionScript(content, productZipPath,  brandedProductFolder.getParentFile().getAbsolutePath());
 			content.appendLineBreak();
 		}
 
-		String updateSiteID = specification.getUpdateSite().getIdentifier();
-		AntTarget target = new AntTarget("build-eclipse-tool-product-" + updateSiteID, content);
+		String specificationID = specification.getIdentifier();
+		AntTarget target = new AntTarget("build-eclipse-tool-product-" + specificationID, content);
 		return target;
+	}
+
+	private String getRepositoryArgument() {
+		StringBuilder argument = new StringBuilder();
+
+		EclipseUpdateSite updateSite = specification.getUpdateSite();
+		if (updateSite != null) {
+			File deployedUpdateSiteFolder = updateSite.getFile().getParentFile();
+			argument.append("file:" + deployedUpdateSiteFolder.getAbsolutePath());
+		}
+
+		String associateSites = specification.getAssociateSites();
+		if (associateSites != null) {
+			argument.append("," + associateSites);
+		}
+		return argument.toString();
 	}
 
 	private String escape(String text) {
