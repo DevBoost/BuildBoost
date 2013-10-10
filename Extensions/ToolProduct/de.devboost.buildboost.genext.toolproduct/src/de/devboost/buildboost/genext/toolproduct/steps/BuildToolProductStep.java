@@ -205,8 +205,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File linuxBrandedExe = new File(productInstallationFolder, productName);
 			
 			File workspace = new File(toolProductFolder, "workspace");
-			File configIni = new File(productInstallationFolder, "configuration/config.ini");	
-			File eclipseIni = new File(productInstallationFolder, "eclipse.ini");	
+			File configIni = new File(productInstallationFolder, "configuration/config.ini");
 			File uiPrefs = new File(productInstallationFolder, "configuration/.settings/org.eclipse.ui.ide.prefs");	
 			
 			//copy splash
@@ -236,8 +235,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<replaceregexp file=\"${toString:platformPlugin}/plugin.xml\" match=\"" + pattern + "\" replace=\"" + newValue + "\" flags=\"gis\" />");
 			}
 			
+			File eclipseIni;	
 			//copy icon osx
 			if (productType.startsWith("osx")) {
+				eclipseIni = new File(productInstallationFolder, "JetPack.app/Contents/MacOS/eclipse.ini");	
 				//copy icon osx
 				content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
 				//rename app folder
@@ -245,12 +246,14 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				//remove command line "eclipse"
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse").getAbsolutePath() + "\"/>");
 			} else if (productType.startsWith("win")) {
+				eclipseIni = new File(productInstallationFolder, "eclipse.ini");
 				//use prepared exe
 				content.append("<copy overwrite=\"true\" file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
 				//remove command line "eclipse"
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse.exe").getAbsolutePath() + "\"/>");
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
 			} else {
+				eclipseIni = new File(productInstallationFolder, "eclipse.ini");
 				//copy icon linux
 				content.append("<copy overwrite=\"true\" file=\"" + linuxIconFile.getAbsolutePath() + "\" todir=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
 				//rename exe
@@ -282,7 +285,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
 			
 			content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
-			content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
+			if (!productType.startsWith("osx")) {
+				// Only rename the eclipse.ini for Windows and OSX
+				content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
+			}
 			// Rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
