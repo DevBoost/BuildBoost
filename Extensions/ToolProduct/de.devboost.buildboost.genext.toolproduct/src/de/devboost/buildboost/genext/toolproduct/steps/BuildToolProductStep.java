@@ -206,6 +206,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			File workspace = new File(toolProductFolder, "workspace");
 			File configIni = new File(productInstallationFolder, "configuration/config.ini");	
+			File eclipseIni = new File(productInstallationFolder, "eclipse.ini");	
 			File uiPrefs = new File(productInstallationFolder, "configuration/.settings/org.eclipse.ui.ide.prefs");	
 			
 			//copy splash
@@ -280,6 +281,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
 			content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
 			
+			content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
+			content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
 			// Rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
 
