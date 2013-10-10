@@ -238,7 +238,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File eclipseIni;	
 			//copy icon osx
 			if (productType.startsWith("osx")) {
-				eclipseIni = new File(productInstallationFolder, "JetPack.app/Contents/MacOS/eclipse.ini");	
+				eclipseIni = new File(productInstallationFolder, productName + ".app/Contents/MacOS/eclipse.ini");	
 				//copy icon osx
 				content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
 				//rename app folder
