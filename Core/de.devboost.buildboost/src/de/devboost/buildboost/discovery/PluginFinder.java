@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IArtifact;
@@ -41,18 +42,18 @@ import de.devboost.buildboost.util.EclipsePluginHelper;
  */
 public class PluginFinder extends AbstractArtifactDiscoverer {
 
-	private File directory;
+	private final File directory;
 
 	public PluginFinder(File directory) {
 		this.directory = directory;
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		IBuildListener buildListener = context.getBuildListener();
 
 		Collection<File> allProjectDirs = findProjectDirs(directory, buildListener);
 		allProjectDirs = sortByPathName(allProjectDirs);
-		checkForDuplicates(allProjectDirs);
+		checkForDuplicates(allProjectDirs, buildListener);
 		Set<IArtifact> allPlugins = convertToPlugins(allProjectDirs, context.getBuildListener());
 		// make unmodifiable
 		return Collections.unmodifiableSet(new ArtifactUtil().getSetOfArtifacts(allPlugins));
@@ -67,6 +68,7 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 			);
 			return projectDirs;
 		}
+		
 		if (!directory.isDirectory()) {
 			buildListener.handleBuildEvent(
 				BuildEventType.ERROR, 
@@ -74,6 +76,7 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 			);
 			return projectDirs;
 		}
+		
 		boolean isProject = new EclipsePluginHelper().isProject(directory);
 		if (isProject) {
 			projectDirs.add(directory);
@@ -100,42 +103,48 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 		Collections.sort(unsorted, new Comparator<File>() {
 
 			public int compare(File file1, File file2) {
-				return file1.getAbsolutePath().compareTo(file2.getAbsolutePath());
+				String path1 = file1.getAbsolutePath();
+				String path2 = file2.getAbsolutePath();
+				return path1.compareTo(path2);
 			}
 		});
 		return unsorted;
 	}
 
-	private void checkForDuplicates(Collection<File> allProjectDirs) {
+	private void checkForDuplicates(Collection<File> allProjectDirs, IBuildListener listener) {
 		// check whether there are multiple projects with the same name
 		for (File projectDir : allProjectDirs) {
 			for (File otherDir : allProjectDirs) {
 				if (projectDir == otherDir) {
 					continue;
 				}
+				
 				if (otherDir.getName().equals(projectDir.getName())) {
-					System.out.println("WARNING: Found plug-ins with duplicate name at: " + projectDir.getAbsolutePath() + " and " + otherDir.getAbsolutePath());
+					listener.handleBuildEvent(BuildEventType.WARNING, "Found plug-ins with duplicate name at: " + projectDir.getAbsolutePath() + " and " + otherDir.getAbsolutePath());
 				}
 			}
 		}
 	}
 
-	private Set<IArtifact> convertToPlugins(Collection<File> projectDirs, IBuildListener listener) {
+	private Set<IArtifact> convertToPlugins(Collection<File> projectDirs, IBuildListener listener) throws BuildException {
 		Set<IArtifact> pluginsAndExportedPackages = new LinkedHashSet<IArtifact>();
 		for (File projectDir : projectDirs) {
 			Plugin newPlugin;
 			try {
 				newPlugin = new Plugin(projectDir);
 			} catch (IOException e) {
-				throw new RuntimeException(e.getMessage());
+				throw new BuildException(e.getMessage());
 			}
+			
 			if (newPlugin.isExperimental()) {
 				listener.handleBuildEvent(BuildEventType.INFO, "Ignoring EXPERIMENTAL project: " + newPlugin.getIdentifier());
 				continue;
 			}
+			
 			if (newPlugin.getSourceFolders().length == 0) {
 				listener.handleBuildEvent(BuildEventType.INFO, "Project without source folders: " + newPlugin.getIdentifier());
 			}
+			
 			listener.handleBuildEvent(BuildEventType.INFO, "Discovered project: " + newPlugin.getIdentifier());
 			pluginsAndExportedPackages.add(newPlugin);
 			pluginsAndExportedPackages.addAll(newPlugin.getExportedPackages());
