@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -16,6 +16,8 @@
 package de.devboost.buildboost.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * An UnresolvedDependency is a pair consisting of a symbolic artifact 
@@ -30,6 +32,7 @@ public class UnresolvedDependency implements Serializable {
 
 	private Class<?> type;
 	private String identifier;
+	private Set<String> alternativeIdentifiers = new LinkedHashSet<String>(1);
 	private String minVersion;
 	private String maxVersion;
 	private boolean optional;
@@ -89,6 +92,10 @@ public class UnresolvedDependency implements Serializable {
 	public boolean isInclusiveMax() {
 		return inclusiveMax;
 	}
+	
+	public void addAlternativeIdentifier(String alternativeIdentifier) {
+		alternativeIdentifiers.add(alternativeIdentifier);
+	}
 
 	@Override
 	public int hashCode() {
@@ -139,10 +146,18 @@ public class UnresolvedDependency implements Serializable {
 		if (!type.isInstance(artifact)) {
 			return false;
 		}
+		
 		// check symbolic identifier
-		if (artifact.getIdentifier().equals(getIdentifier())) {
+		String artifactIdentifier = artifact.getIdentifier();
+		if (artifactIdentifier.equals(getIdentifier())) {
 			return true;
 		}
+		
+		// check alternative symbolic identifiers
+		if (alternativeIdentifiers.contains(artifactIdentifier)) {
+			return true;
+		}
+		
 		// TODO check versions for compatibility
 		return false;
 	}

@@ -61,7 +61,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 			try {
 				readFeatureInputStream(new FileInputStream(file));
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				e.printStackTrace(); // TODO
 			}
 		} else {
 			// this is JAR

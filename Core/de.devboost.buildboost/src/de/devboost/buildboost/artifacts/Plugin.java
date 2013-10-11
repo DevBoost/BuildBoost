@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -112,6 +113,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			manifestInputStream.close();
 			
 			Set<UnresolvedDependency> unresolvedDependencies = reader.getDependencies();
+			addAlternativeIdentifiers(unresolvedDependencies);
 			getUnresolvedDependencies().addAll(unresolvedDependencies);
 			unresolvedFragmentHost = reader.getFragmentHost();
 			libs.addAll(reader.getBundleClassPath());
@@ -129,6 +131,55 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 	}
 	
+	private void addAlternativeIdentifiers(
+			Set<UnresolvedDependency> unresolvedDependencies) {
+		Properties properties = new Properties();
+		File location = getLocation();
+		if (!location.isDirectory()) {
+			return;
+		}
+		File alternativesFile = new File(location, "alternative_dependencies.properties");
+		if (!alternativesFile.exists()) {
+			return;
+		}
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(alternativesFile);
+			properties.load(fis);
+		} catch (IOException ioe) {
+			// TODO Auto-generated catch block
+			ioe.printStackTrace();
+		} finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+		
+		Set<UnresolvedDependency> removableDependencies = new LinkedHashSet<UnresolvedDependency>();
+		for (UnresolvedDependency unresolvedDependency : unresolvedDependencies) {
+			String identifier = unresolvedDependency.getIdentifier();
+			String alternativesValue = properties.getProperty(identifier);
+			if (alternativesValue == null) {
+				continue;
+			}
+			if (alternativesValue.trim().isEmpty()) {
+				removableDependencies.add(unresolvedDependency);
+				continue;
+			}
+			
+			String[] alternatives = alternativesValue.split(",");
+			for (String alternative : alternatives) {
+				unresolvedDependency.addAlternativeIdentifier(alternative);
+			}
+		}
+		
+		unresolvedDependencies.removeAll(removableDependencies);
+	}
+
 	public String getVersion() {
 		return version;
 	}
