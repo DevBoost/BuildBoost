@@ -186,10 +186,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File pluginFolder = new File(productInstallationFolder, "plugins");
 			File iconFolder = new File(toolProductFolder, "icons");
 
-			File osxIconFile = new File(iconFolder, "Eclipse.icns");
+			//File osxIconFile = new File(iconFolder, "Eclipse.icns");
 			File osxAppFolder = new File(productInstallationFolder, "Eclipse.app");
 			File osxBrandedAppFolder = new File(productInstallationFolder, productName + ".app");
-			File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
+			//File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
 			String[] iconFormats = new String[] { "16.gif", "16.png", "32.gif", "32.png", "48.gif", "48.png", "256.png" };
 			
 			File windowsExe = null;
@@ -240,7 +240,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			if (productType.startsWith("osx")) {
 				eclipseIni = new File(productInstallationFolder, productName + ".app/Contents/MacOS/eclipse.ini");	
 				//copy icon osx
-				content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
+				//content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
 				//rename app folder
 				content.append("<move file=\"" + osxAppFolder.getAbsolutePath() + "\" tofile=\"" + osxBrandedAppFolder.getAbsolutePath() +"\"/>");
 				//remove command line "eclipse"
@@ -284,8 +284,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
 			content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
 			
-			content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
 			if (!productType.startsWith("osx")) {
+				// TODO We must also patch the eclipse.ini for OSX, but 
+				// currently we can't because this breaks the signing
+				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
 				// Only rename the eclipse.ini for Windows and OSX
 				content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
 			}
