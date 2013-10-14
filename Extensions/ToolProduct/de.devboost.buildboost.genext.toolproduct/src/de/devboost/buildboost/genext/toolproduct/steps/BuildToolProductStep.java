@@ -286,7 +286,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			if (!productType.startsWith("osx")) {
 				// TODO We must also patch the eclipse.ini for OSX, but 
-				// currently we can't because this breaks the signing
+				// currently we can't because this breaks the signature
 				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
 				// Only rename the eclipse.ini for Windows and OSX
 				content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
