@@ -42,6 +42,7 @@ public class BuildUpdateSiteStage extends AbstractBuildStage implements IUnivers
 	@Override
 	public AntScript getScript() throws BuildException {
 		File artifactsFolder = new File(artifactsFolderPath);
+		File distFolder = new File(new File(artifactsFolderPath).getParentFile(), "dist");
 		File projectsFolder = new File(artifactsFolder, IConstants.PROJECTS_FOLDER);
 		File targetPlatformFolder = new File(artifactsFolder, IConstants.TARGET_PLATFORM_FOLDER);
 
@@ -54,7 +55,7 @@ public class BuildUpdateSiteStage extends AbstractBuildStage implements IUnivers
 		context.addBuildParticipant(new EclipseUpdateSiteFinder(projectsFolder));
 		context.addBuildParticipant(new EclipseUpdateSiteDeploymentSpecFinder(projectsFolder));
 		
-		context.addBuildParticipant(new BuildUpdateSiteStepProvider(artifactsFolder));
+		context.addBuildParticipant(new BuildUpdateSiteStepProvider(distFolder));
 		
 		AutoBuilder builder = new AutoBuilder(context);
 		

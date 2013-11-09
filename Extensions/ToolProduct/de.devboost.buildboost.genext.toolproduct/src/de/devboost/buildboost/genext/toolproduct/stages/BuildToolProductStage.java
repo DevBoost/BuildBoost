@@ -50,7 +50,7 @@ public class BuildToolProductStage extends AbstractBuildStage implements
 	@Override
 	public AntScript getScript() throws BuildException {
 		File artifactsDir = new File(artifactsFolder);
-		File distDir = new File(artifactsDir, "dist");
+		File distDir = new File(artifactsDir.getParent(), "dist");
 
 		BuildContext context = createContext(false);
 
