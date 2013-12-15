@@ -38,13 +38,15 @@ import de.devboost.buildboost.util.StreamUtil;
  */
 public class DotClasspathReader {
 
-	private String content;
+	private final String content;
+	
 	private Set<String> libs;
 	private Set<String> sourceFolders;
 
 	public DotClasspathReader(InputStream dotClasspathInputStream)
 			throws IOException {
-		content = new StreamUtil().getContentAsString(dotClasspathInputStream);
+		super();
+		this.content = new StreamUtil().getContentAsString(dotClasspathInputStream);
 	}
 
 	public Set<String> getLibraries() {
@@ -93,11 +95,17 @@ public class DotClasspathReader {
 				}
 			}
 		} catch (ParserConfigurationException e) {
-			throw new RuntimeException(e.getClass().getSimpleName() + " while reading .classpath file: " + e.getMessage());
+			throwRuntimeException(e);
 		} catch (SAXException e) {
-			throw new RuntimeException(e.getClass().getSimpleName() + " while reading .classpath file: " + e.getMessage());
+			throwRuntimeException(e);
 		} catch (IOException e) {
-			throw new RuntimeException(e.getClass().getSimpleName() + " while reading .classpath file: " + e.getMessage());
+			throwRuntimeException(e);
 		}
+	}
+
+	private void throwRuntimeException(Exception e) {
+		String className = e.getClass().getSimpleName();
+		String message = className + " while reading .classpath file: " + e.getMessage();
+		throw new RuntimeException(message);
 	}
 }

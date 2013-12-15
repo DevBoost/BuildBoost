@@ -35,6 +35,7 @@ public class DotClasspathReaderTest {
 			"<classpathentry kind=\"con\" path=\"org.eclipse.pde.core.requiredPlugins\"/>" +
 			"<classpathentry kind=\"src\" path=\"src\"/>" +
 			"<classpathentry kind=\"src\" path=\"src-gen\"/>" +
+			"<classpathentry kind=\"src\" path=\"src/main/java\"/>" +
 			"<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/otherproject\"/>" +
 			"<classpathentry kind=\"lib\" path=\"lib/some-third-party-lib-1.0.0.jar\"/>" +
 			"<classpathentry kind=\"lib\" path=\"lib/some-lib-with-source-2.0.0.jar\" sourcepath=\"/Users/Me/Downloads/some-lib-with-source-2.0.0-src.zip\"/>" +
@@ -55,10 +56,11 @@ public class DotClasspathReaderTest {
 	public void testSourceFolderReading() throws IOException {
 		DotClasspathReader reader = read();
 		Set<String> sourceFolders = reader.getSourceFolders();
-		assertEquals("Unexpected number of source folders", 2, sourceFolders.size());
+		assertEquals("Unexpected number of source folders", 3, sourceFolders.size());
 		
 		assertTrue(sourceFolders.contains("src"));
 		assertTrue(sourceFolders.contains("src-gen"));
+		assertTrue(sourceFolders.contains("src/main/java"));
 	}
 
 	private DotClasspathReader read() throws IOException {

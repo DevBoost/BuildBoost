@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2013
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -72,7 +72,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		content.append(javacTag);
 		// add all source folders
 		for (File sourceFolder : sourceFolders) {
-			content.append("<src path=\"" + getSourceFolderPath(sourceFolder) + "\"/>");
+			content.append("<src path=\"" + getAbsolutePath(sourceFolder) + "\"/>");
 		}
 		content.append(NL);
 		content.append("<classpath>");
@@ -84,7 +84,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		// copy resource files from source folder to binary folder
 		for (File sourceFolder : sourceFolders) {
 			content.append("<copy todir=\"" + binPath + "\">");
-			content.append("<fileset dir=\"" + getSourceFolderPath(sourceFolder) + "\">");
+			content.append("<fileset dir=\"" + getAbsolutePath(sourceFolder) + "\">");
 			content.append("<exclude name=\"**/*.java\"/>");
 			content.append("</fileset>");
 			content.append("</copy>");
@@ -93,8 +93,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		return Collections.singleton(new AntTarget("compile-" + projectName, content));
 	}
 
-	private String getSourceFolderPath(File sourceFolder) {
-		// TODO this does not work for source folders that are not directly contained in the project root directory
-		return new File(project.getFile(), sourceFolder.getName()).getAbsolutePath();
+	private String getAbsolutePath(File file) {
+		return file.getAbsolutePath();
 	}
 }

@@ -430,8 +430,10 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	
 	/**
 	 * Returns an input stream to access the manifest of this plug-in.
+	 * 
+	 * This method is protected to allow test to override it.
 	 */
-	private InputStream getManifestInputStream() throws IOException {
+	protected InputStream getManifestInputStream() throws IOException {
 		File pluginLocation = getLocation();
 		if (pluginLocation.isFile()) {
 			ZipFile zipFile = new ZipFile(pluginLocation);
@@ -466,7 +468,10 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 	}
 
-	private InputStream getDotClasspathInputStream() throws FileNotFoundException {
+	/**
+	 * This method is protected to allow test to override it.
+	 */
+	protected InputStream getDotClasspathInputStream() throws FileNotFoundException {
 		File pluginLocation = getLocation();
 		if (pluginLocation.isDirectory()) {
 			File dotClassPathFile = new File(pluginLocation, ".classpath");
