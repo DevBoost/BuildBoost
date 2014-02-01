@@ -160,7 +160,7 @@ public class ManifestReader {
 				String allOptions = matcher2.group(3).trim();
 				String[] options = allOptions.split(";( )*");
 				
-				// TODO use this two properties
+				// TODO use these two properties
 				boolean inclusiveMin = true;
 				boolean inclusiveMax = true;
 				String minVersion = null;
