@@ -38,7 +38,8 @@ public class JUnitTestProjectDetector {
 	public boolean containsTests(Plugin plugin) {
 		// We explicitly exclude JUnit because it contains classes that have the
 		// suffix 'Test', but which are not JUnit tests.
-		if (plugin.getIdentifier().startsWith("org.junit")) {
+		String identifier = plugin.getIdentifier();
+		if (identifier != null && identifier.startsWith("org.junit")) {
 			return false;
 		}
 		
