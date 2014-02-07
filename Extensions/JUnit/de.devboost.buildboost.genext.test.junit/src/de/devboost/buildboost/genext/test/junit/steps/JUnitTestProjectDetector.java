@@ -36,6 +36,12 @@ public class JUnitTestProjectDetector {
 	}
 
 	public boolean containsTests(Plugin plugin) {
+		// We explicitly exclude JUnit because it contains classes that have the
+		// suffix 'Test', but which are not JUnit tests.
+		if (plugin.getName().startsWith("org.junit")) {
+			return false;
+		}
+		
 		File[] sourceFolders = plugin.getSourceFolders();
 		if (sourceFolders.length == 0) {
 			// we can skip projects without source folders, because these
