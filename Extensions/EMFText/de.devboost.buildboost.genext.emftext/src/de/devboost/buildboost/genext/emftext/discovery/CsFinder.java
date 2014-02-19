@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -29,7 +29,7 @@ import de.devboost.buildboost.util.ArtifactUtil;
 
 /**
  * A {@link CsFinder} can be used to discover EMFText concrete syntax 
- * definitions. File with extension 'cs' are recognized as such.
+ * definitions. Files with extension 'cs' are recognized as such.
  */
 public class CsFinder extends AbstractFileFinder<ConcreteSyntaxDefinition> {
 	

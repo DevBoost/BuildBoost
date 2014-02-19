@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -33,7 +33,7 @@ import de.devboost.buildboost.steps.ClasspathHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link GenerateResourcePluginsStep} generates a build script the can be
+ * The {@link GenerateResourcePluginsStep} generates a build script that can be
  * used to run the EMFText code generators for a syntax definition.
  */
 public class GenerateResourcePluginsStep extends AbstractAntTargetGenerator {
