@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -362,7 +362,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	}
 	
 	/**
-	 * Returns the source folders of this plug-in, if there are any.
+	 * Returns the absolute locations of the source folders in this plug-in, if
+	 * there are any.
 	 */
 	public File[] getSourceFolders() {
 		if (location.isFile()) {
@@ -380,6 +381,22 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			i++;
 		}
 		return sourceFolderFiles;
+	}
+
+	/**
+	 * Returns the relative paths of the source folders in this plug-in, if
+	 * there are any.
+	 */
+	public Set<String> getRelativeSourceFolders() {
+		if (location.isFile()) {
+			return Collections.emptySet();
+		}
+		
+		if (sourceFolders == null) {
+			return Collections.emptySet();
+		}
+
+		return sourceFolders;
 	}
 
 	/**
