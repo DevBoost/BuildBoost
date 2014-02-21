@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -32,12 +32,15 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	
-	private EclipseUpdateSiteDeploymentSpec updateSiteSpec;
-	private File targetDir;
+	private final EclipseUpdateSiteDeploymentSpec updateSiteSpec;
+	private final File targetDir;
+	
 	private String usernameProperty = null;
 	private String passwordProperty = null;
 
-	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec, File targetDir) {
+	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec,
+			File targetDir) {
+		
 		super();
 		this.updateSiteSpec = updateSiteSpec;
 		this.targetDir = targetDir;
@@ -160,7 +163,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			Collection<Plugin> plugins = feature.getPlugins();
 			for (Plugin plugin : plugins) {
 				addPackagePluginTasks(content, updateSiteID, updateSiteDir,
-						excludeSrc, featureVersion, featureVendor, plugin);
+						Boolean.parseBoolean(excludeSrc), featureVersion, featureVendor, plugin);
 			}
 		}
 		
@@ -228,7 +231,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	}
 
 	private void addPackagePluginTasks(XMLContent content, String updateSiteID,
-			String updateSiteDir, String excludeSrc, String featureVersion,
+			String updateSiteDir, boolean excludeSrc, String featureVersion,
 			String featureVendor, Plugin plugin) {
 		
 		String pluginID = plugin.getIdentifier();
@@ -258,9 +261,12 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<fileset dir=\"" + pluginPath + "\">");
 			// TODO make this configurable or read the build.properties file for this
 			content.append("<exclude name=\"**/.*/**\"/>");
-			if (Boolean.parseBoolean(excludeSrc)) {
+			if (excludeSrc) {
 				content.append("<exclude name=\"**/src*/**\"/>");
 			}
+			// Include Javadocs
+			content.append("<include name=\"doc/**\"/>");
+			
 			content.append("</fileset>");
 			content.append("</jar>");
 		}
