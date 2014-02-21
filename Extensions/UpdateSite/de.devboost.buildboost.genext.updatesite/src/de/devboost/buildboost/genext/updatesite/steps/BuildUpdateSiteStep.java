@@ -18,6 +18,7 @@ package de.devboost.buildboost.genext.updatesite.steps;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
@@ -262,7 +263,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			// TODO make this configurable or read the build.properties file for this
 			content.append("<exclude name=\"**/.*/**\"/>");
 			if (excludeSrc) {
-				content.append("<exclude name=\"**/src*/**\"/>");
+				Set<String> relativeSourceFolders = plugin.getRelativeSourceFolders();
+				for (String relativeSourceFolder : relativeSourceFolders) {
+					content.append("<exclude name=\"" + relativeSourceFolder + "/**\"/>");
+				}
 			}
 			
 			content.append("</fileset>");
