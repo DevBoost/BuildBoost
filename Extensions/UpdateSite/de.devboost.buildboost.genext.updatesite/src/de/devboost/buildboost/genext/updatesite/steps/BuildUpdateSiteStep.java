@@ -264,8 +264,6 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			if (excludeSrc) {
 				content.append("<exclude name=\"**/src*/**\"/>");
 			}
-			// Include Javadocs
-			content.append("<include name=\"doc/**\"/>");
 			
 			content.append("</fileset>");
 			content.append("</jar>");
