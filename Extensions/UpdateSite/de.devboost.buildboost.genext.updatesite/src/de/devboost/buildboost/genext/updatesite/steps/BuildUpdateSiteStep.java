@@ -66,7 +66,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			throw new BuildException("Can't find update site for update site specification.");
 		}
 		
-		String distDir = targetDir.getAbsolutePath() + File.separator + "dist";
+		String distDir = targetDir.getAbsolutePath();
 
 		XMLContent content = new XMLContent();
 		
