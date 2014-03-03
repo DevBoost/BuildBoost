@@ -288,7 +288,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				// TODO We must also patch the eclipse.ini for OSX, but 
 				// currently we can't because this breaks the signature
 				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
-				// Only rename the eclipse.ini for Windows and OSX
+				// Disable SSL option to make sure SVN works over HTTPS with Java 1.7 
+				content.append("<echo file=\"" + eclipsePath + "eclipse.ini\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
+				// Only rename the eclipse.ini for Windows and Unix
 				content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
 			}
 			// Rename base folder
