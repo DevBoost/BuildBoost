@@ -38,7 +38,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	private static final String INSTALLATION_PLATFORM_FILE = "eclipse-platform-4.3-linux-gtk-x86_64.tar.gz";
 	private static final String INSTALLATION_PLATFORM_URL = "http://www.devboost.de/eclipse-mirror/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
 	
-	private ToolProductSpecification specification;
+	private final ToolProductSpecification specification;
 
 	public BuildToolProductStep(ToolProductSpecification specification) {
 		super();
@@ -289,7 +289,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				// currently we can't because this breaks the signature
 				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
 				// Disable SSL option to make sure SVN works over HTTPS with Java 1.7 
-				content.append("<echo file=\"" + eclipsePath + "eclipse.ini\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
+				content.append("<echo file=\"" + eclipseIni.getAbsolutePath() + "\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
 				// Only rename the eclipse.ini for Windows and Unix
 				content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
 			}
