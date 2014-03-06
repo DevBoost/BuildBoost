@@ -58,13 +58,15 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	private static final String SNAPSHOT_SUFFIX = "-snapshot";
 	private static final String SNAPSHOT_SUFFIX_UPPER = SNAPSHOT_SUFFIX.toUpperCase();
 	
-	private IBuildContext context;
-	private File artifactsFolder;
-	private MavenRepositorySpec repositorySpec;
+	private final IBuildContext context;
+	private final File artifactsFolder;
+	private final MavenRepositorySpec repositorySpec;
+	
 	private EclipseUpdateSiteDeploymentSpec deploymentSpec;
 	private EclipseUpdateSite updateSite;
 
-	public BuildMavenRepositoryStep(IBuildContext context, MavenRepositorySpec repositorySpec, File artifactsFolder) {
+	public BuildMavenRepositoryStep(IBuildContext context,
+			MavenRepositorySpec repositorySpec, File artifactsFolder) {
 		super();
 		this.context = context;
 		this.repositorySpec = repositorySpec;
@@ -79,16 +81,17 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			throw new BuildException("Can't find update site for update site deployment specification (required by to build maven repository).");
 		}
 		
-		AntTarget mavenRepositoryTarget1 = generateMavenRepositoryAntTarget(true);
-		AntTarget mavenRepositoryTarget2 = generateMavenRepositoryAntTarget(false);
+		AntTarget mavenSnapshotRepositoryTarget = generateMavenRepositoryAntTarget(true);
+		AntTarget mavenReleaseRepositoryTarget = generateMavenRepositoryAntTarget(false);
 		
-		Collection<AntTarget> targets = new ArrayList<AntTarget>();
-		targets.add(mavenRepositoryTarget1);
-		targets.add(mavenRepositoryTarget2);
+		Collection<AntTarget> targets = new ArrayList<AntTarget>(2);
+		targets.add(mavenSnapshotRepositoryTarget);
+		targets.add(mavenReleaseRepositoryTarget);
 		return targets;
 	}
 
-	private AntTarget generateMavenRepositoryAntTarget(boolean buildSnapshot) throws BuildException {
+	private AntTarget generateMavenRepositoryAntTarget(boolean buildSnapshot)
+			throws BuildException {
 
 		XMLContent content = new XMLContent();
 
@@ -219,16 +222,20 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		
 		String usernameProperty = repositorySpec.getUserNameProperty();
 		if (usernameProperty == null) {
-			buildListener.handleBuildEvent(BuildEventType.ERROR, "Maven repository specification does not contain username property (required to upload repository).");
+			String message = "Maven repository specification does not contain username property (required to upload repository).";
+			buildListener.handleBuildEvent(BuildEventType.ERROR, message);
 		}
+		
 		String passwordProperty = repositorySpec.getPasswordProperty();
 		if (passwordProperty == null) {
-			buildListener.handleBuildEvent(BuildEventType.ERROR, "Maven repository specification does not contain password property (required to upload repository).");
+			String message = "Maven repository specification does not contain password property (required to upload repository).";
+			buildListener.handleBuildEvent(BuildEventType.ERROR, message);
 		}
 		
 		String targetPath = repositorySpec.getRepositoryPath();
 		if (targetPath == null) {
-			buildListener.handleBuildEvent(BuildEventType.ERROR, "Maven repository specification does not contain target path (required to upload repository).");
+			String message = "Maven repository specification does not contain target path (required to upload repository).";
+			buildListener.handleBuildEvent(BuildEventType.ERROR, message);
 		}
 		
 		if (usernameProperty != null && passwordProperty != null && targetPath != null) {
@@ -265,6 +272,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		String pluginVersion = compiledPlugin.getVersion();
 		String pluginName = getName(compiledPlugin);
 		
+		// TODO
 		String pluginVendor = "Eclipse Modeling Project";
 		
 		String pomXMLContent = generatePomXML(compiledPlugin,
@@ -369,7 +377,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		String pomFile = writeFile(pomXMLContent, pluginID, "xml", buildSnapshot).getAbsolutePath();
 		writeFile(pomPropertiesContent, pluginID, "properties", buildSnapshot);
 		
-		// package plugin(s)
+		// Package plug-in(s)
 		String destBinJarFile = jarsDir + File.separator + pluginID + "-" + pluginVersion + ".jar";
 		String destSrcJarFile = jarsDir + File.separator + pluginID + "-" + pluginVersion + "-sources.jar";
 		File pomFolder = getTemporaryFolderForPOM(pluginID, buildSnapshot);
