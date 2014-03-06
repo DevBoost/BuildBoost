@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -15,20 +15,16 @@
  ******************************************************************************/
 package de.devboost.buildboost.buildext.emftext;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.emftext.sdk.codegen.IResourceMarker;
 
 public class BuildBoostLogMarker implements IResourceMarker {
 
-	public void mark(Resource resource) throws CoreException {
-		// TODO Auto-generated method stub
-
+	public void mark(Resource resource) throws Exception {
+		// Do nothing
 	}
 
-	public void unmark(Resource resource) throws CoreException {
-		// TODO Auto-generated method stub
-
+	public void unmark(Resource resource) throws Exception {
+		// Do nothing
 	}
-
 }
