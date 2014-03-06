@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -30,8 +30,10 @@ import de.devboost.buildboost.model.UnresolvedDependency;
 public class MavenRepositorySpec extends AbstractArtifact {
 
 	private static final long serialVersionUID = -169241029129248435L;
+
+	private static final String STOP_ON_ERROR = "stop_on_error";
 	
-	private PropertyFileReader propertyFileReader;
+	private final PropertyFileReader propertyFileReader;
 
 	public MavenRepositorySpec(File file) {
 		propertyFileReader = new PropertyFileReader(file);
@@ -79,6 +81,10 @@ public class MavenRepositorySpec extends AbstractArtifact {
 		return getList(path);
 	}
 
+	public boolean isStopOnError() {
+		return "true".equalsIgnoreCase(propertyFileReader.getValue(STOP_ON_ERROR));
+	}
+	
 	private Set<String> getList(String path) {
 		String includes = propertyFileReader.getValue(path);
 		if (includes == null) {

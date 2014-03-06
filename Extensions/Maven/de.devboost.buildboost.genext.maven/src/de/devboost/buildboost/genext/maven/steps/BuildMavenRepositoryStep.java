@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -244,7 +244,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	private void addRepackScripts(XMLContent content, String jarsDir,
 			String mavenRepositoryDir, Collection<Plugin> pluginsToPackage,
 			Set<CompiledPlugin> pluginsToRepack,
-			Map<String, String> pluginIdToVersionMap, boolean buildSnapshot) {
+			Map<String, String> pluginIdToVersionMap, boolean buildSnapshot)
+			throws BuildException {
 		
 		for (CompiledPlugin compiledPlugin : pluginsToRepack) {
 			addRepackScript(content, jarsDir, mavenRepositoryDir,
@@ -255,9 +256,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	
 	private void addRepackScript(XMLContent content, String jarsDir,
 			String mavenRepositoryDir, Collection<Plugin> pluginsToPackage,
-			CompiledPlugin compiledPlugin,
-			Set<CompiledPlugin> pluginsToRepack,
-			Map<String, String> pluginIdToVersionMap, boolean buildSnapshot) {
+			CompiledPlugin compiledPlugin, Set<CompiledPlugin> pluginsToRepack,
+			Map<String, String> pluginIdToVersionMap, boolean buildSnapshot)
+			throws BuildException {
 		
 		String pluginID = compiledPlugin.getIdentifier();
 		String pluginPath = compiledPlugin.getFile().getAbsolutePath();
@@ -322,7 +323,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			XMLContent content, String jarsDir, String mavenRepositoryDir,
 			Map<String, String> pluginIdToVersionMap,
 			Set<String> includedPlugins, Collection<Plugin> pluginsToPackage,
-			Set<CompiledPlugin> pluginsToRepack, boolean buildSnapshot) {
+			Set<CompiledPlugin> pluginsToRepack, boolean buildSnapshot)
+			throws BuildException {
 		
 		Plugin plugin = packagingTask.getPlugin();
 		EclipseUpdateSiteDeploymentSpec deploymentSpec = packagingTask.getDeploymentSpec();
@@ -500,7 +502,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			String pluginName, String pluginVendor,
 			Map<String, String> plugin2VersionMap,
 			Collection<Plugin> pluginsToPackage,
-			Set<CompiledPlugin> pluginsToRepack) {
+			Set<CompiledPlugin> pluginsToRepack) throws BuildException {
 		
 		Set<String> pluginsAssumedAvailable = repositorySpec.getPluginsAssumedAvailable();
 		
@@ -535,9 +537,14 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				!isContainedIn(pluginsToRepack, dependencyID) &&
 				!pluginsAssumedAvailable.contains(dependencyID)) {
 				
+				String message = "Can not create Maven artifact for " + plugin.getIdentifier() 
+					+ " since " + dependencyID + " is not available nor assumed as being available in another Maven repository.";
 				context.getBuildListener().handleBuildEvent(BuildEventType.ERROR, 
-						"Can not create Maven artifact for " + plugin.getIdentifier() 
-						+ " since " + dependencyID + " is not available nor assumed as being available in another Maven repository.");
+						message);
+				
+				if (repositorySpec.isStopOnError()) {
+					throw new BuildException(message);
+				}
 				return null;
 			}
 			String dependencyVersion = plugin2VersionMap.get(dependencyID);
