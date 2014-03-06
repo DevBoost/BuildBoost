@@ -55,6 +55,7 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	
+	private static final String MAVEN_REPOSITORIES = "maven-repositories";
 	private static final String SNAPSHOT_SUFFIX = "-snapshot";
 	private static final String SNAPSHOT_SUFFIX_UPPER = SNAPSHOT_SUFFIX.toUpperCase();
 	
@@ -159,11 +160,11 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	private String getMavenRepositoryPath(boolean buildSnapshot) {
 
 		String tempDir = getTempPath();
-		String mavenRepositoryDir = tempDir + File.separator
-				+ "maven-repositories" + File.separator
+		String tempMavenRepositoryDir = tempDir + File.separator
+				+ MAVEN_REPOSITORIES + File.separator
 				+ getRepositoryDirName(buildSnapshot);
-		
-		return mavenRepositoryDir;
+
+		return tempMavenRepositoryDir;
 	}
 
 	private String getRepositoryDirName(boolean buildSnapshot) {
@@ -186,10 +187,11 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	}
 
 	private void addZipMavenRepositoryScript(XMLContent content, boolean buildSnapshot) {
-		File targetFolder = new File(artifactsFolder.getParent(), IConstants.DIST_FOLDER);
-		File targetFile = new File(targetFolder, getRepositoryDirName(buildSnapshot) + ".zip");
+		File distFolder = new File(artifactsFolder.getParent(), IConstants.DIST_FOLDER);
+		File distMavenFolder = new File(distFolder.getAbsolutePath(), MAVEN_REPOSITORIES);
+		File targetFile = new File(distMavenFolder, getRepositoryDirName(buildSnapshot) + ".zip");
 		String repositoryDir = getMavenRepositoryPath(buildSnapshot);
-		content.append("<mkdir dir=\"" + targetFolder + "\" />");
+		content.append("<mkdir dir=\"" + distFolder + "\" />");
 		content.append("<zip destfile=\"" + targetFile + "\" basedir=\"" + repositoryDir + "\" />");
 	}
 
