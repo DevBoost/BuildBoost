@@ -588,11 +588,12 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 
 	protected String composePomProperties(Plugin plugin, String pluginVersion) {
 		String identifier = plugin.getIdentifier();
+		String mavenGroup = getMavenGroup(identifier);
 
 		StringBuilder content = new StringBuilder();
-		content.append("version=" + pluginVersion + "\n");
-		content.append("groupId=" + getMavenGroup(identifier) + "\n");
+		content.append("groupId=" + mavenGroup + "\n");
 		content.append("artifactId=" + identifier + "\n");
+		content.append("version=" + pluginVersion + "\n");
 		return content.toString();
 	}
 
