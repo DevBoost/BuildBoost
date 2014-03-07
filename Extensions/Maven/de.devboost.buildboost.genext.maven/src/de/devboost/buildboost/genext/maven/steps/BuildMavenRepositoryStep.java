@@ -547,8 +547,11 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				!isContainedIn(pluginsToRepack, dependencyID) &&
 				!pluginsAssumedAvailable.contains(dependencyID)) {
 				
-				String message = "Can not create Maven artifact for " + plugin.getIdentifier() 
-					+ " since " + dependencyID + " is not available nor assumed as being available in another Maven repository.";
+				String message = "Can not create Maven artifact for '"
+						+ plugin.getIdentifier()
+						+ "' since its dependency '"
+						+ dependencyID
+						+ "' is not available nor assumed as being available in another Maven repository.";
 				context.getBuildListener().handleBuildEvent(BuildEventType.ERROR, 
 						message);
 				
