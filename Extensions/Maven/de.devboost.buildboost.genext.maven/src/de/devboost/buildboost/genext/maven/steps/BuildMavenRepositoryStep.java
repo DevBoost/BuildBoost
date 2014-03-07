@@ -17,6 +17,7 @@ package de.devboost.buildboost.genext.maven.steps;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -62,9 +63,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	private final IBuildContext context;
 	private final File artifactsFolder;
 	private final MavenRepositorySpec repositorySpec;
-	
-	private EclipseUpdateSiteDeploymentSpec deploymentSpec;
-	private EclipseUpdateSite updateSite;
+	private final EclipseUpdateSiteDeploymentSpec updateSiteDeploymentSpec;
+	private final EclipseUpdateSite updateSite;
 
 	public BuildMavenRepositoryStep(IBuildContext context,
 			MavenRepositorySpec repositorySpec, File artifactsFolder) {
@@ -72,14 +72,14 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		this.context = context;
 		this.repositorySpec = repositorySpec;
 		this.artifactsFolder = artifactsFolder;
+		this.updateSiteDeploymentSpec = repositorySpec.getUpdateSite();
+		this.updateSite = updateSiteDeploymentSpec.getUpdateSite();
 	}
 	
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
-		this.deploymentSpec = repositorySpec.getUpdateSite();
-		this.updateSite = deploymentSpec.getUpdateSite();
 		if (updateSite == null) {
-			throw new BuildException("Can't find update site for update site deployment specification (required by to build maven repository).");
+			throw new BuildException("Can't find update site for update site deployment specification (required by to build Maven repository).");
 		}
 		
 		AntTarget mavenSnapshotRepositoryTarget = generateMavenRepositoryAntTarget(true);
@@ -117,7 +117,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		Collection<PackagePluginTask> packagingTasks = new ArrayList<PackagePluginTask>();
 		for (EclipseFeature feature : updateSite.getFeatures()) {
 			String featureVersion = feature.getVersion();
-			String featureVendor = deploymentSpec.getFeatureVendor(feature.getIdentifier());
+			String featureVendor = updateSiteDeploymentSpec.getFeatureVendor(feature.getIdentifier());
 			Collection<Plugin> plugins = feature.getPlugins();
 
 			for (Plugin plugin : plugins) {
@@ -129,7 +129,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 					continue;
 				}
 				
-				PackagePluginTask task = new PackagePluginTask(plugin, featureVersion, featureVendor, deploymentSpec);
+				PackagePluginTask task = new PackagePluginTask(plugin, featureVersion, featureVendor, updateSiteDeploymentSpec);
 				packagingTasks.add(task);
 				pluginsToPackage.add(plugin);
 			}
@@ -422,7 +422,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				if (!includedPlugins.contains(pluginID)) {
 					continue;
 				}
-				String pluginVersion = deploymentSpec.getPluginVersion(pluginID);
+				String pluginVersion = updateSiteDeploymentSpec.getPluginVersion(pluginID);
 				if (pluginVersion == null) {
 					pluginVersion = featureVersion;
 				}
@@ -599,16 +599,27 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 
 	// TODO This must not be done here, but in the ANT Script
 	protected File writeFile(String pomXMLContent, String pluginID,
-			String extension, boolean buildSnapshot) {
+			String pomExtension, boolean buildSnapshot) {
 		
 		File pomFolder = getTemporaryFolderForPOM(pluginID, buildSnapshot);
-		
 		pomFolder.mkdirs();
-		File pomXMLFile = new File(pomFolder, "pom." + extension);
+		
+		File pomXMLFile = new File(pomFolder, "pom." + pomExtension);
+		FileOutputStream fos = null;
 		try {
-			new FileOutputStream(pomXMLFile).write(pomXMLContent.getBytes());
-		} catch (Exception e) {
-			e.printStackTrace();
+			fos = new FileOutputStream(pomXMLFile);
+			// TODO Use explicit encoding?
+			fos.write(pomXMLContent.getBytes());
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
 		}
 		return pomXMLFile;
 	}
@@ -641,16 +652,16 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			return true;
 		}
 		
-		//This dependency is not marked optional in EMF plugins although it is optional.
-		//See also: https://bugs.eclipse.org/bugs/show_bug.cgi?id=328227
-		if (dependency.getIdentifier().equals("org.eclipse.core.runtime")) {
+		// This dependency is not marked optional in EMF plug-ins although it is
+		// optional.
+		// See also: https://bugs.eclipse.org/bugs/show_bug.cgi?id=328227
+		if ("org.eclipse.core.runtime".equals(dependency.getIdentifier())) {
 			return true;
 		}
 		return false;
 	}
 
 	protected boolean includeInMavenRepository(CompiledPlugin compiledPlugin) {
-		
 		Set<String> includedPlugins = repositorySpec.getIncludedPlugins();
 		if (includedPlugins.contains(compiledPlugin.getIdentifier())) {
 			return true;
@@ -672,7 +683,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		return name.trim();
 	}
 
-	private String firstToUpper(String s) {
-		return s.substring(0,1).toUpperCase() + s.substring(1);
+	private String firstToUpper(String text) {
+		return text.substring(0,1).toUpperCase() + text.substring(1);
 	}
 }
