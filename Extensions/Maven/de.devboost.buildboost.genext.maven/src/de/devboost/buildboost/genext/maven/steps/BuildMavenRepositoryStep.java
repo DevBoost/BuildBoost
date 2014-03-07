@@ -140,8 +140,10 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 				buildSnapshot);
 		
 		for (PackagePluginTask packagingTask : packagingTasks) {
-			packagedSomething |= addPackageScript(packagingTask, content, tempJarsDir, mavenRepositoryDir,
-					pluginIdToVersionMap, includedPlugins, pluginsToPackage, pluginsToRepack, buildSnapshot);
+			packagedSomething |= addPackageScript(packagingTask, content,
+					tempJarsDir, mavenRepositoryDir, pluginIdToVersionMap,
+					includedPlugins, pluginsToPackage, pluginsToRepack,
+					buildSnapshot);
 		}
 		
 		if (packagedSomething && buildSnapshot) {
@@ -292,7 +294,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		String destBinJarFile = jarsDir + File.separator + pluginID + "-" + pluginVersion + ".jar";
 		
 		// Repackage binary version
-		content.append("<echo message=\"Repacking plug-in '" + pluginID  + "' for maven repository\"/>");
+		content.append("<echo message=\"Repacking plug-in '" + pluginID  + "' for Maven repository\"/>");
 		content.append("<jar destfile=\"" + destBinJarFile + "\">");
 		content.append("<zipfileset src=\"" + pluginPath + "\">");	
 		content.append("<exclude name=\"META-INF/**\"/>");
@@ -301,11 +303,14 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.append("</jar>");
 		
 		// Repackage source version
-		String srcPluginFile = compiledPlugin.getFile().getName().replace(pluginID, pluginID + ".source");
-		pluginPath = new File(compiledPlugin.getFile().getParent(), srcPluginFile).getAbsolutePath();
+		String srcPluginPath = compiledPlugin.getFile().getName().replace(pluginID, pluginID + ".source");
+		File srcPluginFile = new File(compiledPlugin.getFile().getParent(), srcPluginPath);
+		pluginPath = srcPluginFile.getAbsolutePath();
 		String destSrcJarFile = jarsDir + File.separator + pluginID + "-" + pluginVersion + "-sources.jar";
+		
 		content.append("<jar destfile=\"" + destSrcJarFile + "\">");
-		content.append("<zipfileset src=\"" + pluginPath + "\">");
+		// If there is not source JAR, we create an empty JAR
+		content.append("<zipfileset src=\"" + pluginPath + "\" erroronmissingarchive=\"false\">");
 		content.append("<exclude name=\"META-INF/**\"/>");
 		content.append("</zipfileset>");
 		content.append("</jar>");
