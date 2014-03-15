@@ -316,7 +316,9 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				productZipPath = new File(productsDistFolder, productName + "-" + productType + "." + zipType).getAbsolutePath();
 			}
 			
-			AntScriptUtil.addZipFileCompressionScript(content, productZipPath, brandedProductFolder.getParentFile().getAbsolutePath());
+			String brandedProductFolderParentPath = brandedProductFolder.getParentFile().getAbsolutePath();
+			AntScriptUtil.addZipFileCompressionScript(content, productZipPath, brandedProductFolderParentPath);
+			content.append("<delete dir=\"" + brandedProductFolderParentPath + "\"/>");
 			content.appendLineBreak();
 		}
 

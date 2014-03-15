@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -22,7 +22,9 @@ import java.io.File;
  */
 public class AntScriptUtil {
 
-	public static void addZipFileExtractionScript(XMLContent content, File file, File targetDir) {
+	public static void addZipFileExtractionScript(XMLContent content,
+			File file, File targetDir) {
+		
 		if (file.getName().endsWith(".zip")) {
 			content.append("<unzip src=\"" + file.getAbsolutePath() + "\" dest=\"" + targetDir.getAbsolutePath() + "\" />");			
 		} else {
@@ -35,6 +37,7 @@ public class AntScriptUtil {
 
 	public static void addZipFileCompressionScript(XMLContent content,
 			String zipFile, String folderToZip) {
+		
 		if (zipFile.endsWith(".zip")) {
 			content.append("<zip destfile=\"" + zipFile  + "\" basedir=\""+ folderToZip + "\" />");
 		} else {
@@ -50,5 +53,4 @@ public class AntScriptUtil {
 			String destination) {
 		content.append("<get src=\""+ url + "\" dest=\""+ destination + "\"/>");
 	}
-
 }
