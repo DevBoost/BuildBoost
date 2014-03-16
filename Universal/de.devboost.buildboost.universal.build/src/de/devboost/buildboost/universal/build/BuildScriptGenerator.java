@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -52,7 +52,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		
 		setPropertiesInStages(properties, stages);
 
-		System.out.println("INFO: BuildScriptGenerator: Build stage are " + stages);
+		System.out.println("INFO: BuildScriptGenerator: Build stages are " + stages);
 		
 		return stages;
 	}
@@ -70,8 +70,9 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		String setMethodPrefix = "set";
 		// we examine the concrete stage class for setters and invoke them
 		// if we've got a matching property 
-		for (Method m : stage.getClass().getMethods()) {
-			String methodName = m.getName();
+		Class<?> stageClass = stage.getClass();
+		for (Method method : stageClass.getMethods()) {
+			String methodName = method.getName();
 			if (methodName.startsWith(setMethodPrefix)) {
 				String propertyName = methodName.substring(setMethodPrefix.length()).toLowerCase();
 				String propertyValue = properties.get(propertyName);
@@ -83,7 +84,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 					continue;
 				}
 				try {
-					m.invoke(stage, propertyValue);
+					method.invoke(stage, propertyValue);
 				} catch (Exception e) {
 					// TODO
 					e.printStackTrace();
