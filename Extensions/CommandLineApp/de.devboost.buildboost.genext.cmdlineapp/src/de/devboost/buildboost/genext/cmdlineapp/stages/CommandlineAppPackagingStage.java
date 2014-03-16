@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -37,10 +37,11 @@ public class CommandlineAppPackagingStage extends AbstractBuildStage implements 
 	
 	@Override
 	public AntScript getScript() throws BuildException {
+		File artifactsDir = new File(artifactsFolder);
+
 		BuildContext context = createContext(false);
-	
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(artifactsFolder)));
-		context.addBuildParticipant(new PluginFinder(new File(artifactsFolder)));
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(artifactsDir));
+		context.addBuildParticipant(new PluginFinder(artifactsDir));
 		context.addBuildParticipant(new CommandlineAppPackagingStepProvider());
 		
 		AutoBuilder builder = new AutoBuilder(context);
@@ -53,7 +54,7 @@ public class CommandlineAppPackagingStage extends AbstractBuildStage implements 
 
 	@Override
 	public int getPriority() {
-		return 10998; // Used this because WebAppPackagingStage uses 11000 and
-		// CustomZipFileStage uses 10999.
+		return 9998; // Used this because WebAppPackagingStage uses 11000 and
+		// CustomZipFileStage uses 9999.
 	}
 }
