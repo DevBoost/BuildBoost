@@ -162,18 +162,30 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 		this.version = version;
 	}
 
-	public Collection<Plugin> getPlugins() {
+	public Collection<Plugin> getRequiredPlugins() {
 		Set<Plugin> plugins = new LinkedHashSet<Plugin>();
 		Collection<IDependable> dependencies = getDependencies();
 		for (IDependable dependency : dependencies) {
 			if (dependency instanceof Plugin) {
 				Plugin plugin = (Plugin) dependency;
 				if (containedPluginIDs.contains(plugin.getIdentifier())) {
-					plugins.add(plugin);	
+					plugins.add(plugin);
 				}
 			}
 		}
 		return Collections.unmodifiableSet(plugins);
+	}
+
+	public Collection<EclipseFeature> getRequiredFeatures() {
+		Set<EclipseFeature> features = new LinkedHashSet<EclipseFeature>();
+		Collection<IDependable> dependencies = getDependencies();
+		for (IDependable dependency : dependencies) {
+			if (dependency instanceof EclipseFeature) {
+				EclipseFeature feature = (EclipseFeature) dependency;
+				features.add(feature);
+			}
+		}
+		return Collections.unmodifiableSet(features);
 	}
 
 	public File getFile() {

@@ -116,23 +116,8 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		Collection<Plugin> pluginsToPackage = new LinkedHashSet<Plugin>();
 		Collection<PackagePluginTask> packagingTasks = new ArrayList<PackagePluginTask>();
 		for (EclipseFeature feature : updateSite.getFeatures()) {
-			String featureVersion = feature.getVersion();
-			String featureVendor = updateSiteDeploymentSpec.getFeatureVendor(feature.getIdentifier());
-			Collection<Plugin> plugins = feature.getPlugins();
-
-			for (Plugin plugin : plugins) {
-				String pluginID = plugin.getIdentifier();
-				if (!includedPlugins.contains(pluginID)) {
-					context.getBuildListener().handleBuildEvent(BuildEventType.WARNING, 
-						"Skipping plug-in '" + plugin.getIdentifier() + "' as it is not listed to be included in Maven repository."
-					);
-					continue;
-				}
-				
-				PackagePluginTask task = new PackagePluginTask(plugin, featureVersion, featureVendor, updateSiteDeploymentSpec);
-				packagingTasks.add(task);
-				pluginsToPackage.add(plugin);
-			}
+			collectionPluginsFromFeature(feature, includedPlugins,
+					pluginsToPackage, packagingTasks);
 		}
 
 		addRepackScripts(content, tempJarsDir, mavenRepositoryDir,
@@ -157,6 +142,36 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		
 		AntTarget target = new AntTarget("build-" + (buildSnapshot ? "snapshot-" : "") + "maven-repository-" + repositoryID, content);
 		return target;
+	}
+
+	private void collectionPluginsFromFeature(EclipseFeature feature,
+			Set<String> includedPlugins, Collection<Plugin> pluginsToPackage,
+			Collection<PackagePluginTask> packagingTasks) {
+		
+		String featureVersion = feature.getVersion();
+		String featureID = feature.getIdentifier();
+		String featureVendor = updateSiteDeploymentSpec.getFeatureVendor(featureID);
+
+		Collection<Plugin> plugins = feature.getRequiredPlugins();
+		for (Plugin plugin : plugins) {
+			String pluginID = plugin.getIdentifier();
+			if (!includedPlugins.contains(pluginID)) {
+				context.getBuildListener().handleBuildEvent(BuildEventType.WARNING, 
+					"Skipping plug-in '" + plugin.getIdentifier() + "' as it is not listed to be included in Maven repository."
+				);
+				continue;
+			}
+			
+			PackagePluginTask task = new PackagePluginTask(plugin, featureVersion, featureVendor, updateSiteDeploymentSpec);
+			packagingTasks.add(task);
+			pluginsToPackage.add(plugin);
+		}
+		
+		Collection<EclipseFeature> requiredFeatures = feature.getRequiredFeatures();
+		for (EclipseFeature requiredFeature : requiredFeatures) {
+			collectionPluginsFromFeature(requiredFeature, includedPlugins,
+					pluginsToPackage, packagingTasks);
+		}
 	}
 
 	private String getMavenRepositoryPath(boolean buildSnapshot) {
@@ -421,24 +436,40 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		Map<String, String> pluginIdToVersionMap = new LinkedHashMap<String, String>();
 		
 		for (EclipseFeature feature : updateSite.getFeatures()) {
-			String featureVersion = feature.getVersion();
-			for (Plugin plugin : feature.getPlugins()) {
-				String pluginID = plugin.getIdentifier();
-				if (!includedPlugins.contains(pluginID)) {
-					continue;
-				}
-				String pluginVersion = updateSiteDeploymentSpec.getPluginVersion(pluginID);
-				if (pluginVersion == null) {
-					pluginVersion = featureVersion;
-				}
-				if (buildSnapshot) {
-					pluginVersion = pluginVersion + SNAPSHOT_SUFFIX_UPPER;
-				}
-				pluginIdToVersionMap.put(pluginID, pluginVersion);
-				findDependenciesRecursively(plugin, pluginsToRepack, pluginIdToVersionMap, buildSnapshot);
-			}
+			computePluginIdToVersionMap(pluginsToRepack, includedPlugins,
+					buildSnapshot, pluginIdToVersionMap, feature);
 		}
 		return pluginIdToVersionMap;
+	}
+
+	private void computePluginIdToVersionMap(
+			Set<CompiledPlugin> pluginsToRepack,
+			Collection<String> includedPlugins, boolean buildSnapshot,
+			Map<String, String> pluginIdToVersionMap, EclipseFeature feature) {
+		
+		String featureVersion = feature.getVersion();
+		for (Plugin requiredPlugin : feature.getRequiredPlugins()) {
+			String pluginID = requiredPlugin.getIdentifier();
+			if (!includedPlugins.contains(pluginID)) {
+				continue;
+			}
+			
+			String pluginVersion = updateSiteDeploymentSpec.getPluginVersion(pluginID);
+			if (pluginVersion == null) {
+				pluginVersion = featureVersion;
+			}
+			if (buildSnapshot) {
+				pluginVersion = pluginVersion + SNAPSHOT_SUFFIX_UPPER;
+			}
+			pluginIdToVersionMap.put(pluginID, pluginVersion);
+			findDependenciesRecursively(requiredPlugin, pluginsToRepack,
+					pluginIdToVersionMap, buildSnapshot);
+		}
+		
+		for (EclipseFeature requiredFeature : feature.getRequiredFeatures()) {
+			computePluginIdToVersionMap(pluginsToRepack, includedPlugins,
+					buildSnapshot, pluginIdToVersionMap, requiredFeature);
+		}
 	}
 
 	protected void addDeployJarsToLocalRepositoryScript(XMLContent content,

@@ -161,7 +161,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.appendLineBreak();
 			}
 			
-			Collection<Plugin> plugins = feature.getPlugins();
+			Collection<Plugin> plugins = feature.getRequiredPlugins();
 			for (Plugin plugin : plugins) {
 				addPackagePluginTasks(content, updateSiteID, updateSiteDir,
 						Boolean.parseBoolean(excludeSrc), featureVersion, featureVendor, plugin);
