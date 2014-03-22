@@ -154,6 +154,13 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 
 		Collection<Plugin> plugins = feature.getRequiredPlugins();
 		for (Plugin plugin : plugins) {
+			if (plugin instanceof CompiledPlugin) {
+				// We skip compiled plug-ins (i.e., plug-in which already exist
+				// as JAR file) here, because the will not be packaged, but re-
+				// packed instead.
+				continue;
+			}
+			
 			String pluginID = plugin.getIdentifier();
 			if (!includedPlugins.contains(pluginID)) {
 				context.getBuildListener().handleBuildEvent(BuildEventType.WARNING, 
@@ -273,9 +280,9 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			Map<String, String> pluginIdToVersionMap, boolean buildSnapshot)
 			throws BuildException {
 		
-		for (CompiledPlugin compiledPlugin : pluginsToRepack) {
+		for (CompiledPlugin pluginToRepack : pluginsToRepack) {
 			addRepackScript(content, jarsDir, mavenRepositoryDir,
-					pluginsToPackage, compiledPlugin, pluginsToRepack,
+					pluginsToPackage, pluginToRepack, pluginsToRepack,
 					pluginIdToVersionMap, buildSnapshot);
 		}
 	}
