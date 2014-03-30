@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -35,9 +35,9 @@ public class RepositoriesFileFinder extends AbstractFileFinder<RepositoriesFile>
 	}
 
 	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
-		Collection<RepositoriesFile> boostFiles = new ArrayList<RepositoriesFile>();
-		traverse(context, boostFiles);
-		return new ArtifactUtil().getSetOfArtifacts(boostFiles);
+		Collection<RepositoriesFile> repositoriesFiles = new ArrayList<RepositoriesFile>();
+		traverse(context, repositoriesFiles);
+		return new ArtifactUtil().getSetOfArtifacts(repositoriesFiles);
 	}
 
 	protected RepositoriesFile createArtifactFromFile(File file) throws BuildException {
