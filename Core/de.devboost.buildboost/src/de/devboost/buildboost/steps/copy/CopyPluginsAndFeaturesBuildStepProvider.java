@@ -28,12 +28,13 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IBuildContext;
 
 /**
- * The {@link CopyPluginsAndFeaturesBuildStepProvider} add a {@link CopyPluginsAndFeaturesBuildStep} 
- * for each bundled plug-in. This provider does not apply to plug-in projects.
+ * The {@link CopyPluginsAndFeaturesBuildStepProvider} add a
+ * {@link CopyPluginsAndFeaturesBuildStep} for each bundled plug-in. This
+ * provider does not apply to plug-in projects.
  */
 public class CopyPluginsAndFeaturesBuildStepProvider extends AbstractAntTargetGeneratorProvider {
 
-	private File targetDir;
+	private final File targetDir;
 	
 	public CopyPluginsAndFeaturesBuildStepProvider(File targetDir) {
 		super();
