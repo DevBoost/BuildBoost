@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -41,7 +41,7 @@ import de.devboost.buildboost.util.EclipsePluginHelper;
 /**
  * The EclipseTargetPlatformAnalyzer can be used to scan an Eclipse instance
  * to detect all contained plug-ins. This is required to compile Eclipse
- * plug-in projects that depend on plug-in of an Eclipse target platform.
+ * plug-in projects that depend on plug-ins of an Eclipse target platform.
  */
 //TODO is there a overlap with FeatureFinder?
 public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
