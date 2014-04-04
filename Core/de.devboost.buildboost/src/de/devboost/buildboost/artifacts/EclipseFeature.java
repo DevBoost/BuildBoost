@@ -43,7 +43,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 
 	private static final long serialVersionUID = 8136940018246598015L;
 
-	private static final String FEATURE_XML = "feature.xml";
+	public static final String FEATURE_XML = "feature.xml";
 	
 	private File file;
 	

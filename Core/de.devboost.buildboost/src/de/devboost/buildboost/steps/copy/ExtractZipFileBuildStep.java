@@ -33,8 +33,8 @@ import de.devboost.buildboost.util.AntScriptUtil;
 
 public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 
-	private TargetPlatformZip zip;
-	private File targetDir;
+	private final TargetPlatformZip zip;
+	private final File targetDir;
 	
 	public ExtractZipFileBuildStep(TargetPlatformZip zip, File targetDir) {
 		super();

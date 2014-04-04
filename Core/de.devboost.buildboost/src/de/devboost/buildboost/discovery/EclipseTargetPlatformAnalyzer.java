@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.CompiledPlugin;
@@ -100,6 +102,28 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				}
 			} else {
 				if (file.getName().endsWith(".jar")) {
+					// Check whether the JAR contains a file called
+					// 'feature.xml'.
+					ZipFile jar = null;
+					try {
+						jar = new ZipFile(file);
+						ZipEntry entry = jar.getEntry(EclipseFeature.FEATURE_XML);
+						if (entry != null) {
+							return true;
+						}
+					} catch (IOException e) {
+						// FIXME
+						e.printStackTrace();
+					} finally {
+						if (jar != null) {
+							try {
+								jar.close();
+							} catch (IOException e) {
+								// Ignore
+							}
+						}
+					}
+
 					return true;
 				}
 			}
