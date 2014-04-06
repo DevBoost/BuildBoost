@@ -31,10 +31,6 @@ public class EclipseFeatureFileFilter implements FileFilter {
 
 	@Override
 	public boolean accept(File file) {
-		if (!isParentDirCalledFeatures(file)) {
-			return false;
-		}
-
 		return isFeatureDirOrFeatureJar(file);
 	}
 
