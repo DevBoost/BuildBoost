@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -20,17 +20,18 @@ import java.util.Collection;
 import de.devboost.buildboost.BuildException;
 
 /**
- * An IArtifactDiscoverer can be used to discover artifacts that are required 
- * while performing a build. Prominent examples of such discoverers are project
- * finders and target platform analyzers.
- * 
- * IArtifactDiscoverers are use in the very beginning of a build to collect all
- * artifacts that will be incorporated in the build. After the artifacts have
- * been found, the can be filtered using {@link IArtifactFilter}s. The resulting
- * set of artifacts is then sorted according to their dependencies and 
- * appropriate build steps are performed.
+ * An {@link IArtifactDiscoverer} can be used to discover artifacts that are
+ * required while performing a build. Prominent examples of such discoverers are
+ * project finders and target platform analyzers.
+ * <p>
+ * {@link IArtifactDiscoverer}s are used in the very beginning of a build to
+ * collect all artifacts that will be incorporated in the build. After the
+ * artifacts have been found, the can be filtered using {@link IArtifactFilter}
+ * s. The resulting set of artifacts is then sorted according to their
+ * dependencies and appropriate build steps are performed.
  */
 public interface IArtifactDiscoverer extends IBuildParticipant {
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException;
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context)
+			throws BuildException;
 }
