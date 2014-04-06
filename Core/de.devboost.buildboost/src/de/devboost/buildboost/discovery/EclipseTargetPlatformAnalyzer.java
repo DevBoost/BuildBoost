@@ -91,11 +91,11 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		}
 
 		private boolean isFeatureDirOrFeatureJar(File file) {
-			if (!isParentDirCalledFeatures(file)) {
-				return false;
-			}
-			
 			if (file.isDirectory()) {
+				if (!isParentDirCalledFeatures(file)) {
+					return false;
+				}
+				
 				File featureDescriptor = new File(file, "feature.xml");
 				if (featureDescriptor.exists()) {
 					return true;
@@ -124,7 +124,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 						}
 					}
 
-					return true;
+					return false;
 				}
 			}
 
