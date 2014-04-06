@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -31,13 +31,13 @@ import de.devboost.buildboost.util.EclipsePluginHelper;
 @SuppressWarnings("serial")
 public class ConcreteSyntaxDefinition extends AbstractArtifact {
 
-	private File file;
-	private File projectDir;
+	private final File file;
+	private final File projectDir;
 
 	public ConcreteSyntaxDefinition(File file) {
 		super();
 		this.file = file;
-		this.projectDir = new EclipsePluginHelper().findProjectDir(file);
+		this.projectDir = EclipsePluginHelper.INSTANCE.findProjectDir(file);
 		
 		// TODO this is not a unique identifier
 		setIdentifier(file.getName());

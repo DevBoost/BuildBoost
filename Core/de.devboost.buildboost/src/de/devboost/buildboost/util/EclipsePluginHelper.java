@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -21,6 +21,12 @@ import java.io.File;
  * A utility class to process Eclipse plug-ins projects.
  */
 public class EclipsePluginHelper {
+	
+	public final static EclipsePluginHelper INSTANCE = new EclipsePluginHelper();
+	
+	private EclipsePluginHelper() {
+		super();
+	}
 
 	/**
 	 * Checks whether the given directory contains a '.project' file.

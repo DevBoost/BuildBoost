@@ -18,6 +18,7 @@ package de.devboost.buildboost.discovery;
 import java.io.File;
 import java.io.FileFilter;
 
+import de.devboost.buildboost.util.EclipseFeatureHelper;
 import de.devboost.buildboost.util.EclipsePluginHelper;
 
 /**
@@ -35,10 +36,10 @@ public class EclipsePluginFileFilter implements FileFilter {
 		if (name.contains("org.junit_3")) {
 			return false;
 		}
-		if (file.isDirectory() && new EclipsePluginHelper().containsManifest(file)) {
+		if (file.isDirectory() && EclipsePluginHelper.INSTANCE.containsManifest(file)) {
 			return true;
 		}
-		if (file.isFile() && name.endsWith(".jar")) {
+		if (file.isFile() && name.endsWith(".jar") && !EclipseFeatureHelper.INSTANCE.isFeatureJAR(file)) {
 			return true;
 		}
 		return false;

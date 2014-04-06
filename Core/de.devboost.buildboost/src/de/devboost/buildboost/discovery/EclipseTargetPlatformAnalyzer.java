@@ -178,7 +178,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 			// Ignore projects and things inside projects
 			if (isDirectory) {
-				boolean isProject = new EclipsePluginHelper().isProject(file);
+				boolean isProject = EclipsePluginHelper.INSTANCE.isProject(file);
 				if (isProject) {
 					continue;
 				}

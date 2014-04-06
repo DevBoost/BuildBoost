@@ -54,7 +54,7 @@ public class GenModelFinder extends AbstractFileFinder<GeneratorModel> {
 		return new FileFilter() {		
 			public boolean accept(File file) {
 				return file.getName().endsWith(".genmodel") && file.isFile() &&
-						new EclipsePluginHelper().findProjectDir(file) != null;
+						EclipsePluginHelper.INSTANCE.findProjectDir(file) != null;
 			}
 		};
 	}

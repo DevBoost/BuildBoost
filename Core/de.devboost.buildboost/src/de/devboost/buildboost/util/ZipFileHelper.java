@@ -13,21 +13,41 @@
  *   DevBoost GmbH - Berlin, Germany
  *      - initial API and implementation
  ******************************************************************************/
-package de.devboost.buildboost.discovery;
+package de.devboost.buildboost.util;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import de.devboost.buildboost.util.EclipseFeatureHelper;
+public class ZipFileHelper {
+	
+	public final static ZipFileHelper INSTANCE = new ZipFileHelper();
+	
+	private ZipFileHelper() {
+		super();
+	}
 
-/**
- * The {@link EclipseFeatureFileFilter} accepts JARs that contain Eclipse
- * features and directories which contain extracted features.
- */
-public class EclipseFeatureFileFilter implements FileFilter {
-
-	@Override
-	public boolean accept(File file) {
-		return EclipseFeatureHelper.INSTANCE.isFeatureDirOrFeatureJar(file);
+	public boolean containsZipEntry(File file, String entryName) {
+		ZipFile jar = null;
+		try {
+			jar = new ZipFile(file);
+			ZipEntry entry = jar.getEntry(entryName);
+			if (entry != null) {
+				return true;
+			}
+		} catch (IOException e) {
+			// FIXME
+			e.printStackTrace();
+		} finally {
+			if (jar != null) {
+				try {
+					jar.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+		return false;
 	}
 }

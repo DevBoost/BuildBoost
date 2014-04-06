@@ -60,7 +60,7 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 			Collection<TargetPlatformZip> artifacts) throws BuildException {
 		
 		// ignore projects and things inside projects
-		boolean isProject = new EclipsePluginHelper().isProject(directory);
+		boolean isProject = EclipsePluginHelper.INSTANCE.isProject(directory);
 		if (isProject) {
 			return;
 		}
