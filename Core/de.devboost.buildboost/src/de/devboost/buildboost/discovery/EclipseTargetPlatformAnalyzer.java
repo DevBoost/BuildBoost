@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.CompiledPlugin;
@@ -49,94 +47,6 @@ import de.devboost.buildboost.util.EclipsePluginHelper;
 public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	public static final String ARTIFACT_CACHE_FILE_NAME = "artifact_cache.ser";
-
-	/**
-	 * The {@link PluginFileFilter} accepts JARs that contain bundled Eclipse
-	 * plug-ins and directories which contain extract plug-in JARs.
-	 */
-	private static class PluginFileFilter implements FileFilter {
-
-		@Override
-		public boolean accept(File file) {
-			// exclude JUnit 3, because this requires to check the bundle
-			// version when resolving dependencies
-			// TODO remove this once the versions are checked
-			String name = file.getName();
-			if (name.contains("org.junit_3")) {
-				return false;
-			}
-			if (file.isDirectory() && new EclipsePluginHelper().containsManifest(file)) {
-				return true;
-			}
-			if (file.isFile() && name.endsWith(".jar")) {
-				return true;
-			}
-			return false;
-		}
-	}
-
-	/**
-	 * The {@link FeatureFileFinder} accepts JARs that contain Eclipse features
-	 * and directories which contain extracted features.
-	 */
-	private static class FeatureFileFinder implements FileFilter {
-
-		@Override
-		public boolean accept(File file) {
-			if (!isParentDirCalledFeatures(file)) {
-				return false;
-			}
-
-			return isFeatureDirOrFeatureJar(file);
-		}
-
-		private boolean isFeatureDirOrFeatureJar(File file) {
-			if (file.isDirectory()) {
-				if (!isParentDirCalledFeatures(file)) {
-					return false;
-				}
-				
-				File featureDescriptor = new File(file, "feature.xml");
-				if (featureDescriptor.exists()) {
-					return true;
-				}
-			} else {
-				if (file.getName().endsWith(".jar")) {
-					// Check whether the JAR contains a file called
-					// 'feature.xml'.
-					ZipFile jar = null;
-					try {
-						jar = new ZipFile(file);
-						ZipEntry entry = jar.getEntry(EclipseFeature.FEATURE_XML);
-						if (entry != null) {
-							return true;
-						}
-					} catch (IOException e) {
-						// FIXME
-						e.printStackTrace();
-					} finally {
-						if (jar != null) {
-							try {
-								jar.close();
-							} catch (IOException e) {
-								// Ignore
-							}
-						}
-					}
-
-					return false;
-				}
-			}
-
-			return false;
-		}
-
-		private boolean isParentDirCalledFeatures(File file) {
-			File parentFile = file.getParentFile();
-			String parentName = parentFile.getName();
-			return parentName.equals("features");
-		}
-	}
 
 	private interface IArtifactCreator {
 		
@@ -171,9 +81,10 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		}
 	}
 
-	private File targetPlatformLocation;
+	private final File targetPlatformLocation;
 
 	public EclipseTargetPlatformAnalyzer(File targetPlatform) {
+		super();
 		this.targetPlatformLocation = targetPlatform;
 	}
 
@@ -198,11 +109,11 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		
 		// first, find plug-ins and create respective artifact objects
-		Set<File> pluginJarsAndDirs = findFiles(targetPlatformLocation, new PluginFileFilter());
+		Set<File> pluginJarsAndDirs = findFiles(targetPlatformLocation, new EclipsePluginFileFilter());
 		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new CompiledPluginCreator());
 		
 		// second, find features and create respective artifact objects
-		Set<File> featureJarsAndDirs = findFiles(targetPlatformLocation, new FeatureFileFinder());
+		Set<File> featureJarsAndDirs = findFiles(targetPlatformLocation, new EclipseFeatureFileFilter());
 		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new EclipseFeatureCreator());
 
 		// third, add all found artifacts to result set
@@ -305,14 +216,18 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 			try {
 				artifact = creator.create(targetPlatformFile);
 			} catch (IOException e) {
-				buildListener.handleBuildEvent(BuildEventType.WARNING, "Exception while analyzing target platform " + type + " " + targetPlatformFile.toString() + ": " + e.getMessage());
+				buildListener.handleBuildEvent(BuildEventType.WARNING,
+						"Exception while analyzing target platform " + type
+								+ " " + targetPlatformFile.toString() + ": "
+								+ e.getMessage());
 				continue;
 			}
 			if (artifact.getIdentifier() == null) {
 				buildListener.handleBuildEvent(
-						BuildEventType.INFO, 
-						"Ignoring target platform " + type + " without name at " + targetPlatformFile.getAbsolutePath()
-				);
+						BuildEventType.INFO,
+						"Ignoring target platform " + type
+								+ " without name at "
+								+ targetPlatformFile.getAbsolutePath());
 				continue;
 			}
 			artifacts.add(artifact);
@@ -321,9 +236,10 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 				artifacts.addAll(plugin.getExportedPackages());				
 			}
 			buildListener.handleBuildEvent(
-					BuildEventType.INFO, 
-					"Found target platform " + type + " '" + artifact.getIdentifier() + "' at " + targetPlatformFile.getAbsolutePath()
-			);
+					BuildEventType.INFO,
+					"Found target platform " + type + " '"
+							+ artifact.getIdentifier() + "' at "
+							+ targetPlatformFile.getAbsolutePath());
 		}
 		
 		return new ArtifactUtil().getSetOfArtifacts(artifacts);

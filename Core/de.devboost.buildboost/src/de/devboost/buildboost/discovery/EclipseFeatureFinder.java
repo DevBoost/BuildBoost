@@ -28,7 +28,10 @@ import de.devboost.buildboost.util.ArtifactUtil;
 
 /**
  * An {@link EclipseFeatureFinder} can be used to discover Eclipse features
- * (i.e., files with name 'feature.xml').
+ * (i.e., files with name 'feature.xml'). In contrast to the
+ * {@link EclipseTargetPlatformAnalyzer} which does also discover Eclipse
+ * features, this class is only used to search for features in projects (i.e.,
+ * it does not consider packaged features in JAR files).
  * 
  * TODO inherit from {@link AbstractFileFinder}?
  */
@@ -37,6 +40,7 @@ public class EclipseFeatureFinder extends AbstractArtifactDiscoverer {
 	private final File directory;
 
 	public EclipseFeatureFinder(File directory) {
+		super();
 		this.directory = directory;
 	}
 
@@ -56,6 +60,7 @@ public class EclipseFeatureFinder extends AbstractArtifactDiscoverer {
 
 	private void traverseSubDirectories(IBuildContext context, File directory,
 			Collection<EclipseFeature> features) {
+		
 		File[] subDirectories = directory.listFiles(new FileFilter() {
 			
 			public boolean accept(File file) {

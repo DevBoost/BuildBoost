@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -46,7 +46,8 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 		XMLContent content = new XMLContent();
 		File file = zip.getZipFile();
 		AntScriptUtil.addZipFileExtractionScript(content, file, new File(targetDir, determineEclipseTargetStructurePrefix(file)));
-		return Collections.singleton(new AntTarget("unzip-target-platform-" + zip.getIdentifier(), content));
+		AntTarget antTarget = new AntTarget("unzip-target-platform-" + zip.getIdentifier(), content);
+		return Collections.singleton(antTarget);
 	}
 
 	public String determineEclipseTargetStructurePrefix(File file) {

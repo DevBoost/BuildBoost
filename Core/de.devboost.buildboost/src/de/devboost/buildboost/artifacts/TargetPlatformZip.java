@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -18,13 +18,13 @@ package de.devboost.buildboost.artifacts;
 import java.io.File;
 
 /**
- * A ConcreteSyntaxDefinition represents an EMFText syntax specification (a
- * file with extension 'cs').
+ * A {@link TargetPlatformZip} represents a ZIP or TAR/GZ file containing
+ * Eclipse plug-ins or features.
  */
 @SuppressWarnings("serial")
 public class TargetPlatformZip extends AbstractArtifact {
 
-	private File zipFile;
+	private final File zipFile;
 
 	public TargetPlatformZip(File zipFile) {
 		super();

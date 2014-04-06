@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -29,19 +29,28 @@ import de.devboost.buildboost.model.IBuildListener;
 import de.devboost.buildboost.util.ArtifactUtil;
 import de.devboost.buildboost.util.EclipsePluginHelper;
 
+/**
+ * The {@link TargetPlatformZipFinder} can be used to discover ZIP and TAR/GZ 
+ * files which contain Eclipse plug-ins or features.
+ */
 public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZip> {
 
 	public TargetPlatformZipFinder(File directory) {
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context)
+			throws BuildException {
+		
 		IBuildListener buildListener = context.getBuildListener();
 
 		Collection<TargetPlatformZip> zipFiles = new ArrayList<TargetPlatformZip>();
 		traverse(context, zipFiles);
 		for (TargetPlatformZip targetPlatformZip : zipFiles) {
-			buildListener.handleBuildEvent(BuildEventType.INFO, "Found target platform zip: " + targetPlatformZip.getIdentifier());
+			buildListener.handleBuildEvent(
+					BuildEventType.INFO,
+					"Found target platform zip: "
+							+ targetPlatformZip.getIdentifier());
 		}
 		return new ArtifactUtil().getSetOfArtifacts(zipFiles);
 	}
@@ -66,8 +75,9 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 		return new FileFilter() {
 			
 			public boolean accept(File file) {
-				return !file.isDirectory() && 
-						(file.getName().endsWith(".zip") || file.getName().endsWith(".tar.gz"));
+				String name = file.getName();
+				boolean isArchive = name.endsWith(".zip") || name.endsWith(".tar.gz");
+				return file.isFile() && isArchive;
 			}
 		};
 	}
