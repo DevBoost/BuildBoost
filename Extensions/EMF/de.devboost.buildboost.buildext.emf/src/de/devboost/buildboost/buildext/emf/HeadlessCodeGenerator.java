@@ -43,6 +43,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 
+import de.devboost.buildboost.artifacts.InvalidMetadataException;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.genext.emf.stages.GenerateEMFCodeStage;
 import de.devboost.buildboost.genext.emf.steps.GenerateGenModelCodeStep;
@@ -198,11 +199,11 @@ public class HeadlessCodeGenerator {
 		URIConverter uriConverter = rs.getURIConverter();
 		Map<URI, URI> uriMap = uriConverter.getURIMap();
 		for (String pluginPath : pluginPaths) {
-			pluginPath = registerURIMapping(uriMap, pluginPath);
+			registerURIMapping(uriMap, pluginPath);
 		}
 	}
 
-	private String registerURIMapping(Map<URI, URI> uriMap, String pluginPath)
+	private void registerURIMapping(Map<URI, URI> uriMap, String pluginPath)
 			throws IOException {
 		
 		File pluginFile = new File(pluginPath);
@@ -210,7 +211,12 @@ public class HeadlessCodeGenerator {
 			pluginPath = pluginPath + "/";
 		}
 		
-		Plugin plugin = new Plugin(pluginFile);
+		Plugin plugin;
+		try {
+			plugin = new Plugin(pluginFile);
+		} catch (InvalidMetadataException e) {
+			return;
+		}
 		String identifier = plugin.getIdentifier();
 		URI from = URI.createPlatformPluginURI(identifier + "/", true);
 		URI to = URI.createFileURI(pluginPath);
@@ -223,7 +229,6 @@ public class HeadlessCodeGenerator {
 		
 		System.out.println("Mapping URI " + from + " to " + to);
 		uriMap.put(from, to);
-		return pluginPath;
 	}
 
 	private void registerFactoriesAndPackages(ResourceSet rs) {

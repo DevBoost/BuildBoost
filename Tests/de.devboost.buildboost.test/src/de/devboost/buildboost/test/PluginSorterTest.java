@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -29,6 +29,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.devboost.buildboost.artifacts.InvalidMetadataException;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IDependable;
@@ -40,7 +41,7 @@ public class PluginSorterTest {
 
 		private static final long serialVersionUID = -213212871802614893L;
 
-		public AccessiblePlugin(File location) throws IOException {
+		public AccessiblePlugin(File location) throws IOException, InvalidMetadataException {
 			super(location);
 		}
 

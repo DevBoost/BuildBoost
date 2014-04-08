@@ -30,6 +30,7 @@ import java.util.Set;
 import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.artifacts.CompiledPlugin;
 import de.devboost.buildboost.artifacts.EclipseFeature;
+import de.devboost.buildboost.artifacts.InvalidMetadataException;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IArtifact;
@@ -50,7 +51,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	private interface IArtifactCreator {
 		
-		public IArtifact create(File file) throws IOException;
+		public IArtifact create(File file) throws IOException, InvalidMetadataException;
 	}
 	
 	/**
@@ -60,7 +61,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 	private static class CompiledPluginCreator implements IArtifactCreator {
 		
 		@Override
-		public IArtifact create(File file) throws IOException {
+		public IArtifact create(File file) throws IOException, InvalidMetadataException {
 			return new CompiledPlugin(file);
 		}
 	}
@@ -220,6 +221,11 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 						"Exception while analyzing target platform " + type
 								+ " " + targetPlatformFile.toString() + ": "
 								+ e.getMessage());
+				continue;
+			} catch (InvalidMetadataException e) {
+				buildListener.handleBuildEvent(BuildEventType.INFO,
+						"Skipping invalid target platform JAR "
+								+ targetPlatformFile.getAbsolutePath());
 				continue;
 			}
 			if (artifact.getIdentifier() == null) {

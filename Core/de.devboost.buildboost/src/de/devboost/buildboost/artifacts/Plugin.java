@@ -50,7 +50,9 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	/**
 	 * The set of plug-in fragments that complement this plug-in.
 	 */
-	private Set<Plugin> fragments = new LinkedHashSet<Plugin>();	
+	private Set<Plugin> fragments = new LinkedHashSet<Plugin>();
+	
+	// TODO Add documentation
 	private Plugin fragmentHost = null;
 
 	/**
@@ -93,17 +95,23 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	 * manifest and class path information if available.
 	 * 
 	 * @param location
-	 * @throws IOException 
-	 * @throws Exception
+	 *            a folder or a JAR file that contains the plug-in
+	 * 
+	 * @throws IOException
+	 *             if reading plug-ins files fails
+	 * @throws InvalidMetadataException
+	 *             if the plug-in is missing required meta data
 	 */
-	public Plugin(File location) throws IOException {
+	public Plugin(File location) throws IOException, InvalidMetadataException {
 		super();
 		this.location = location;
+		
+		// Read meta-data
 		analyzeManifest();
 		analyzeClassPath();
 	}
 	
-	private void analyzeManifest() throws IOException {
+	private void analyzeManifest() throws IOException, InvalidMetadataException {
 		InputStream manifestInputStream = getManifestInputStream();
 		if (manifestInputStream == null) {
 			setIdentifier(location.getName());
@@ -119,7 +127,11 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			libs.addAll(reader.getBundleClassPath());
 			addWebLibraries();
 			
-			setIdentifier(reader.getSymbolicName());
+			String symbolicName = reader.getSymbolicName();
+			if (ManifestReader.UNKNOWN_SYMBOLIC_NAME.equals(symbolicName)) {
+				throw new InvalidMetadataException();
+			}
+			setIdentifier(symbolicName);
 			setName(reader.getName());
 			setVersion(reader.getVersion());
 			
@@ -133,6 +145,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	
 	private void addAlternativeIdentifiers(
 			Set<UnresolvedDependency> unresolvedDependencies) {
+		
 		Properties properties = new Properties();
 		File location = getLocation();
 		if (!location.isDirectory()) {

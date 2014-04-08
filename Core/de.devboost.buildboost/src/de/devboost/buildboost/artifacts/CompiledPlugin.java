@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -27,7 +27,8 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class CompiledPlugin extends Plugin {
 
-	public CompiledPlugin(File location) throws IOException {
+	public CompiledPlugin(File location) throws IOException,
+			InvalidMetadataException {
 		super(location);
 	}
 	

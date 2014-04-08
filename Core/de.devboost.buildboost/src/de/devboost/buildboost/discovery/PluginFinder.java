@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.devboost.buildboost.BuildException;
+import de.devboost.buildboost.artifacts.InvalidMetadataException;
 import de.devboost.buildboost.artifacts.Plugin;
 import de.devboost.buildboost.model.BuildEventType;
 import de.devboost.buildboost.model.IArtifact;
@@ -134,6 +135,9 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 				newPlugin = new Plugin(projectDir);
 			} catch (IOException e) {
 				throw new BuildException(e.getMessage());
+			} catch (InvalidMetadataException e) {
+				// Skip plug-ins with invalid meta data
+				continue;
 			}
 			
 			if (newPlugin.isExperimental()) {

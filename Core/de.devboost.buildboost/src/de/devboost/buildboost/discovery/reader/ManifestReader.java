@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -32,6 +32,7 @@ import de.devboost.buildboost.model.UnresolvedDependency;
  */
 public class ManifestReader {
 
+	public static final String UNKNOWN_SYMBOLIC_NAME = "UNKNOWN_SYMBOLIC_NAME";
 	public final static String ALPHA = "[a-zA-Z0-9_\\.-]";
 	public final static String ALPHA_AND_MINUS = "[a-zA-Z0-9_\\.]|-";
 	public final static String QUALIFIED_NAME_REGEX = "(" + ALPHA + "+)";
@@ -111,7 +112,7 @@ public class ManifestReader {
 	
 	public String getSymbolicName() {
 		if (symbolicName == null) {
-			symbolicName = getValue(SYMBOLIC_NAME_REGEX, SYMBOLIC_NAME_PREFIX, "UNKNOWN_SYMBOLIC_NAME");
+			symbolicName = getValue(SYMBOLIC_NAME_REGEX, SYMBOLIC_NAME_PREFIX, UNKNOWN_SYMBOLIC_NAME);
 		}
 		return symbolicName;
 	}
