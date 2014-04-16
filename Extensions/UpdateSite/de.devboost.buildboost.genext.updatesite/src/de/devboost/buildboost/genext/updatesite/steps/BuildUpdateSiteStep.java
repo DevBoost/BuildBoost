@@ -96,6 +96,12 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			content.append("<copy file=\"" + associatedSitesXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/associateSites.xml\"/>");			
 		}
 		content.appendLineBreak();
+		
+		File categoryXML = new File(updateSiteFile.getParent(), "category.xml");
+		if (categoryXML.exists()) {
+			content.append("<copy file=\"" + categoryXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/category.xml\"/>");			
+		}
+		content.appendLineBreak();
 
 		String updateSiteVendor = updateSiteSpec.getSiteVendor();
 		if (updateSiteVendor == null) {
@@ -121,6 +127,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" todir=\"" + updateSiteDir + "/features\"/>");
 				content.append("<!-- set correct reference in site.xml -->");
 				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion + "\"'/>");
+				if(categoryXML.exists()){
+					// <feature url="features/org.modelrefactoring.smells_0.0.0.v0.jar" id="org.modelrefactoring.smells" version="0.0.0.v0">
+					content.append("<replaceregexp file=\"" + updateSiteDir + "/category.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion + "\"'/>");
+				}
 				content.appendLineBreak();
 			} else {
 				// the feature is not packaged yet, we need to create a JAR file
@@ -158,6 +168,10 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 				content.append("<!-- set version in site.xml -->");
 				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
+				if(categoryXML.exists()){
+					// <feature url="features/org.modelrefactoring.smells_0.0.0.v0.jar" id="org.modelrefactoring.smells" version="0.0.0.v0">
+					content.append("<replaceregexp file=\"" + updateSiteDir + "/category.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
+				}
 				content.appendLineBreak();
 			}
 			
