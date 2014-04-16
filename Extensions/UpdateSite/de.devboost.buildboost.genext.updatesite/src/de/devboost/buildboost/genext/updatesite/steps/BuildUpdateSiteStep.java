@@ -225,7 +225,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		if(!categoryXML.exists()){
 			// if it doesn't exist just create a copy of site.xml and rename it
 			// must be done before uploading
-			content.append("<copy file=\"" + updateSiteDir + File.separator + "site.xml\" tofile=\"" + updateSiteDir + File.separator + "category.xml\" overwrite=\"true\">");
+			content.append("<copy file=\"" + updateSiteDir + File.separator + "site.xml\" tofile=\"" + updateSiteDir + File.separator + "category.xml\" overwrite=\"true\"/>");
 		}
 		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
