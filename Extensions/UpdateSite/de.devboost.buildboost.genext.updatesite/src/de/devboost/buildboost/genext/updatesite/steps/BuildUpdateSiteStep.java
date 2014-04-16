@@ -186,7 +186,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		
 		String targetPath = updateSiteSpec.getSiteUploadPath();
 		if (targetPath != null) {
-			addUploadTasks(content, updateSiteID, updateSiteDir, targetPath);
+			addUploadTasks(content, updateSiteID, updateSiteDir, targetPath, categoryXML);
 		}
 		
 		AntTarget target = new AntTarget("build-update-site-" + updateSiteID, content);
@@ -204,7 +204,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 	}
 
 	private void addUploadTasks(XMLContent content, String updateSiteID, 
-			String updateSiteDir, String targetPath) {
+			String updateSiteDir, String targetPath, File categoryXML) {
 		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
 		// should figure out a way to provide this JAR together with BuildBoost.
 		content.append("<!-- Copy new version of update site to server -->");
@@ -222,11 +222,17 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
 		content.append("are the last files that are replaced. Otherwise the files might point to JARs that ");
 		content.append("have not been uploaded yet. -->");
+		if(!categoryXML.exists()){
+			// if it doesn't exist just create a copy of site.xml and rename it
+			// must be done before uploading
+			content.append("<copy file=\"" + updateSiteDir + File.separator + "site.xml\" tofile=\"" + updateSiteDir + File.separator + "category.xml\" overwrite=\"true\">");
+		}
 		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"artifacts.jar\"/>");
 		content.append("<include name=\"content.jar\"/>");
 		content.append("<include name=\"site.xml\"/>");
+		content.append("<include name=\"category.xml\"/>");
 		content.append("</fileset>");
 		content.append("</scp>");
 		content.appendLineBreak();
