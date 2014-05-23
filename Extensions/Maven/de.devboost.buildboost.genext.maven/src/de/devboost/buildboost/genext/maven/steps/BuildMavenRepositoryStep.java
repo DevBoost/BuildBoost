@@ -203,7 +203,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		EclipseUpdateSiteDeploymentSpec deploymentSpec = repositorySpec.getUpdateSite();
 		EclipseUpdateSite updateSite = deploymentSpec.getUpdateSite();
 		String repositoryID = updateSite.getIdentifier();
-		return repositoryID;
+		return repositoryID + "-maven-repository";
 	}
 
 	private String getTempPath() {
