@@ -190,7 +190,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File osxAppFolder = new File(productInstallationFolder, "Eclipse.app");
 			File osxBrandedAppFolder = new File(productInstallationFolder, productName + ".app");
 			//File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
-			String[] iconFormats = new String[] { "16.gif", "16.png", "32.gif", "32.png", "48.gif", "48.png", "256.png" };
+			String[] iconFormats = new String[] { "16.gif", "16.png", "32.gif", "32.png", "48.gif", "48.png", "256.png", "512.png", "1024.png" };
 			
 			File windowsExe = null;
 			if (productType.contains("64")) {
