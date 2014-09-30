@@ -247,7 +247,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			} else if (productType.startsWith("win")) {
 				eclipseIni = new File(productInstallationFolder, "eclipse.ini");
 				//use prepared exe
-				content.append("<copy overwrite=\"true\" file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
+				content.append("<copy overwrite=\"true\" failonerror=\"false\" file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
 				//remove command line "eclipse"
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse.exe").getAbsolutePath() + "\"/>");
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
