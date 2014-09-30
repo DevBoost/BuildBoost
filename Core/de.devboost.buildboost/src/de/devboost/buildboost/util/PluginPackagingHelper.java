@@ -80,6 +80,7 @@ public class PluginPackagingHelper {
 			// package plug-in
 			content.append("<echo message=\"Updating manifest of plug-in '" + pluginID + "'.\"/>");
 			content.append("<manifest file=\"" + pluginPath + "/META-INF/MANIFEST.MF\" mode=\"update\">");
+			// FIXME Only set bundle version if it does not end with .v[0-9]*
 			content.append("<attribute name=\"Bundle-Version\" value=\"" + pluginVersion + ".v${buildid}\"/>");
 			// only replace vendor if one is specified in the update site
 			// specification
