@@ -254,7 +254,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			} else {
 				eclipseIni = new File(productInstallationFolder, "eclipse.ini");
 				//copy icon linux
-				content.append("<copy overwrite=\"true\" file=\"" + linuxIconFile.getAbsolutePath() + "\" todir=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
+				content.append("<copy overwrite=\"true\" failonerror=\"false\" file=\"" + linuxIconFile.getAbsolutePath() + "\" todir=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
 				//rename exe
 				content.append("<move file=\"" + linuxExe.getAbsolutePath() + "\" tofile=\"" + linuxBrandedExe.getAbsolutePath() +"\"/>");
 			}
