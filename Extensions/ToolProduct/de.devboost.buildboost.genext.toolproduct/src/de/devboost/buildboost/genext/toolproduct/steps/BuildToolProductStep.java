@@ -213,10 +213,11 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<dirset dir=\"" + pluginFolder.getAbsolutePath() + "\" includes=\"org.eclipse.platform_*\"/>");
 			content.append("</first>");
 			
-			content.append("<copy overwrite=\"true\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+			content.append("<copy overwrite=\"true\" failonerror=\"false\" file=\"" + splashScreenFile.getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+			
 			//copy icons
 			for (String iconFormat : iconFormats) {
-				content.append("<copy overwrite=\"true\" file=\"" + new File(iconFolder, "eclipse" + iconFormat).getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
+				content.append("<copy overwrite=\"true\" failonerror=\"false\" file=\"" + new File(iconFolder, "eclipse" + iconFormat).getAbsolutePath() + "\" todir=\"${toString:platformPlugin}\"/>");
 			}
 			
 			// Customize plugin.xml file of plug-in org.eclipse.platform
