@@ -292,7 +292,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				// Disable SSL option to make sure SVN works over HTTPS with Java 1.7 
 				content.append("<echo file=\"" + eclipseIni.getAbsolutePath() + "\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
 				// Only rename the eclipse.ini for Unix and for Windows (if branded binary was provided)
-				if (windowsExe.exists()) {
+				if (windowsExe.exists() && productType.startsWith("win")) {
 					content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
 				}
 			}
