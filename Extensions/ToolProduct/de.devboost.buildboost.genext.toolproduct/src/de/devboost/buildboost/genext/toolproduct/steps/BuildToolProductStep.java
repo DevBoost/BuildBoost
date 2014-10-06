@@ -246,20 +246,22 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse").getAbsolutePath() + "\"/>");
 			} else if (productType.startsWith("win")) {
 				eclipseIni = new File(productInstallationFolder, "eclipse.ini");
-				//use prepared exe
+				// Use branded binary (if available)
 				content.append("<copy overwrite=\"true\" failonerror=\"false\" file=\"" + windowsExe.getAbsolutePath() + "\" tofile=\"" + windowsBrandedExe.getAbsolutePath() +"\"/>");
-				//remove command line "eclipse"
-				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse.exe").getAbsolutePath() + "\"/>");
-				content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
+				// Remove default binary "eclipse" (if a branded version was provided)
+				if (windowsExe.exists()) {
+					content.append("<delete file=\"" + new File(productInstallationFolder, "eclipse.exe").getAbsolutePath() + "\"/>");
+					content.append("<delete file=\"" + new File(productInstallationFolder, "eclipsec.exe").getAbsolutePath() + "\"/>");
+				}
 			} else {
 				eclipseIni = new File(productInstallationFolder, "eclipse.ini");
-				//copy icon linux
+				// Copy Linux icon
 				content.append("<copy overwrite=\"true\" failonerror=\"false\" file=\"" + linuxIconFile.getAbsolutePath() + "\" todir=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
-				//rename exe
+				// Rename binary
 				content.append("<move file=\"" + linuxExe.getAbsolutePath() + "\" tofile=\"" + linuxBrandedExe.getAbsolutePath() +"\"/>");
 			}
 			
-			//copy workspace
+			// Copy workspace
 			content.append("<copy todir=\"" + new File(productInstallationFolder, "workspace").getAbsolutePath() + "\">");
 			content.append("<fileset dir=\""+ workspace.getAbsolutePath() + "\"/>");
 			content.append("</copy>");
