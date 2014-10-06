@@ -291,8 +291,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
 				// Disable SSL option to make sure SVN works over HTTPS with Java 1.7 
 				content.append("<echo file=\"" + eclipseIni.getAbsolutePath() + "\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
-				// Only rename the eclipse.ini for Windows and Unix
-				content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
+				// Only rename the eclipse.ini for Unix and for Windows (if branded binary was provided)
+				if (windowsExe.exists()) {
+					content.append("<move file=\"" + eclipseIni.getAbsolutePath() + "\" tofile=\"" + productInstallationFolder.getAbsolutePath() + "/" + productName + ".ini\"/>");
+				}
 			}
 			// Rename base folder
 			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
