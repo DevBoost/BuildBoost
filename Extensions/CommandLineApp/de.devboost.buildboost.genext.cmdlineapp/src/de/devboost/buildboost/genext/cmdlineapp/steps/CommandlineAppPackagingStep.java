@@ -16,6 +16,7 @@
 package de.devboost.buildboost.genext.cmdlineapp.steps;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +57,11 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 		// TODO this is a dirty hack and will not work when BuildBoost is used in its packaged form
 		URL classLocation = getClass().getProtectionDomain().getCodeSource().getLocation();
 		String pathTail = getClass().getPackage().getName().replace(".", File.separator) + File.separator + "jar-in-jar-loader.zip";
-		content.append("<zipfileset src=\"" + new File(classLocation.getPath(), pathTail).getAbsolutePath() + "\"/>");
+		try {
+			content.append("<zipfileset src=\"" + new File(classLocation.toURI().getPath(), pathTail).getAbsolutePath() + "\"/>");
+		} catch (URISyntaxException e) {
+			throw new BuildException(e.getMessage());
+		}
 		
 		List<String> allLibraries = new ArrayList<String>();
 		// add the project itself
