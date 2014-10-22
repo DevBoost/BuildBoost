@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -91,5 +91,17 @@ public class ToolProductSpecification extends AbstractArtifact {
 
 	public String getPlatformPluginProperty(String property) {
 		return propertyFileReader.getValue("platform", "plugin.xml", property);
+	}
+
+	public String getUploadUsernameProperty() {
+		return propertyFileReader.getValue("upload.username_property");
+	}
+
+	public String getUploadPasswordProperty() {
+		return propertyFileReader.getValue("upload.password_property");
+	}
+
+	public String getUploadTargetPathProperty() {
+		return propertyFileReader.getValue("upload.target_path");
 	}
 }

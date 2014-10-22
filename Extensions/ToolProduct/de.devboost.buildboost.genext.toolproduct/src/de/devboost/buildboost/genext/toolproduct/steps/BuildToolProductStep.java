@@ -309,25 +309,57 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				zipType = "tar.gz";
 			}
 			
-			String productZipPath;
+			String productArchiveFileName;
 			if (updateSite != null) {
 				// If the tool product is installed from a local update site,
 				// we include the version of the first feature in the ZIP name 
 				String siteVersion = updateSite.getFeature(featureIDs[0]).getVersion();
-				productZipPath = new File(productsDistFolder, productName + "-" + siteVersion + "-" + productType + "." + zipType).getAbsolutePath();
+				productArchiveFileName = productName + "-" + siteVersion + "-" + productType + "." + zipType;
 			} else {
-				productZipPath = new File(productsDistFolder, productName + "-" + productType + "." + zipType).getAbsolutePath();
+				productArchiveFileName = productName + "-" + productType + "." + zipType;
 			}
+			
+			String productZipPath = new File(productsDistFolder, productArchiveFileName).getAbsolutePath();
 			
 			String brandedProductFolderParentPath = brandedProductFolder.getParentFile().getAbsolutePath();
 			AntScriptUtil.addZipFileCompressionScript(content, productZipPath, brandedProductFolderParentPath);
 			content.append("<delete dir=\"" + brandedProductFolderParentPath + "\"/>");
 			content.appendLineBreak();
+			
+			addUploadTask(content, productsDistFolder, productArchiveFileName);
 		}
 
 		String specificationID = specification.getIdentifier();
 		AntTarget target = new AntTarget("build-eclipse-tool-product-" + specificationID, content);
 		return target;
+	}
+
+	private void addUploadTask(XMLContent content, File productsDistFolder, String productArchiveFileName) {
+		String usernameProperty = specification.getUploadUsernameProperty();
+		if (usernameProperty == null) {
+			content.append("<!-- Can't copy tool product archive to server. Username property for upload is missing. -->");
+			return;
+		}
+		
+		String passwordProperty = specification.getUploadPasswordProperty();
+		if (passwordProperty == null) {
+			content.append("<!-- Can't copy tool product archive to server. Password property for upload is missing. -->");
+			return;
+		}
+		
+		String targetPath = specification.getUploadTargetPathProperty();
+		if (targetPath == null) {
+			content.append("<!-- Can't copy tool product archive to server. Target path for upload is missing. -->");
+			return;
+		}
+
+		content.append("<!-- Copy tool product archive to server -->");
+		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append("<fileset dir=\"" + productsDistFolder.getAbsolutePath() + "\">");
+		content.append("<include name=\"" + productArchiveFileName + "\"/>");
+		content.append("</fileset>");
+		content.append("</scp>");
+		content.appendLineBreak();
 	}
 
 	private String getRepositoryArgument() {
