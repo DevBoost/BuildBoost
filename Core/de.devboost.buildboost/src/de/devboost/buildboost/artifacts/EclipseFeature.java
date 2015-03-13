@@ -70,6 +70,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 				ZipEntry entry = jar.getEntry(FEATURE_XML);
 				InputStream is = jar.getInputStream(entry);
 				readFeatureInputStream(is);
+				jar.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
