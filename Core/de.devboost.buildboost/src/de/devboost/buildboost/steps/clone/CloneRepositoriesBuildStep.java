@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -18,8 +18,6 @@ package de.devboost.buildboost.steps.clone;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
@@ -29,13 +27,9 @@ import de.devboost.buildboost.util.AntScriptUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link CloneRepositoriesBuildStep} generates Ant tasks to clone/check 
- * out/update/pull/download repositories.
+ * The {@link CloneRepositoriesBuildStep} generates Ant tasks to clone/check out/update/pull/download repositories.
  */
 public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
-
-	private static final String CREDENTIALS_REGEX = "\\{([a-z|A-Z|_]+)\\}:\\{([a-z|A-Z|_]+)\\}@";
-	private static final Pattern CREDENTIALS_PATTERN = Pattern.compile(CREDENTIALS_REGEX);
 
 	private File reposFolder;
 	private Collection<Location> locations;
@@ -60,9 +54,8 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			Location location) {
 		
 		String locationURL = location.getUrl();
-		String localRepositoryFolderName = url2FolderName(locationURL);
-		
-		String rootName = url2FolderName(locationURL.substring(locationURL.lastIndexOf("/") + 1));
+		String localRepositoryFolderName = URLToFolderConverter.INSTANCE.url2FolderName(locationURL);
+		String rootName = URLToFolderConverter.INSTANCE.url2RootFolderName(locationURL);
 
 		File localRepo = new File(new File(reposFolder, localRepositoryFolderName), rootName);
 		
@@ -159,7 +152,7 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 	private void addCloneSVNTasks(String locationURL, File localRepo,
 			XMLContent content, String localRepositoryPath) {
 		
-		String locationURLWithoutCredentials = removeCredentialPlaceholders(locationURL);
+		String locationURLWithoutCredentials = URLToFolderConverter.INSTANCE.removeCredentialPlaceholders(locationURL);
 		if (localRepo.exists()) {
 			// execute update
 			content.append("<exec executable=\"svn\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
@@ -171,11 +164,11 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			content.append("<arg value=\"co\"/>");
 			content.append("<arg value=\"" + locationURLWithoutCredentials + "\"/>");
 			content.append("<arg value=\"" + localRepositoryPath + "\"/>");
-			if (containsCredentialPlaceholders(locationURL)) {
-				String usernameVar = getUsernameVar(locationURL);
-				String passwordVar = getPasswordVar(locationURL);
+			if (URLToFolderConverter.INSTANCE.containsCredentialPlaceholders(locationURL)) {
+				String username = URLToFolderConverter.INSTANCE.getUsername(locationURL);
+				String passwordVar = URLToFolderConverter.INSTANCE.getPasswordVar(locationURL);
 				content.append("<arg value=\"--username\"/>");
-				content.append("<arg value=\"${env." + usernameVar + "}\"/>");
+				content.append("<arg value=\"" + username + "\"/>");
 				content.append("<arg value=\"--password\"/>");
 				content.append("<arg value=\"${env." + passwordVar + "}\"/>");
 			}
@@ -258,69 +251,8 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 
 	protected String getLocalRepositoryPath(Location location) {
 		String locationURL = location.getUrl();
-		String localRepositoryFolderName = url2FolderName(locationURL);
-		String rootName = url2FolderName(locationURL.substring(locationURL.lastIndexOf("/") + 1));
+		String localRepositoryFolderName = URLToFolderConverter.INSTANCE.url2FolderName(locationURL);
+		String rootName = URLToFolderConverter.INSTANCE.url2RootFolderName(locationURL);
 		return new File(new File(reposFolder, localRepositoryFolderName), rootName).getAbsolutePath();
-	}
-
-	/**
-	 * Converts the given URL to a folder names. This is used to compute the
-	 * names for the folder where to checkout the repository with the given URL 
-	 * to.
-	 * 
-	 * @param url a URL of a repository
-	 * @return a folder name
-	 */
-	protected String url2FolderName(String url) {
-		int idx;
-		String folderName = url;
-		
-		// Cut leading protocol
-		idx = folderName.indexOf("//");
-		if (idx != -1) {
-			folderName = folderName.substring(idx + 2);
-		}
-		
-		// Cut arguments
-		idx = folderName.indexOf("?");
-		if (idx != -1) {
-			folderName = folderName.substring(0, idx);
-		}
-		
-		// Remove credential place holders
-		folderName = removeCredentialPlaceholders(folderName);
-		
-		// Replace special character that are not allows in folder names
-		folderName = folderName.replace(":", "");
-		folderName = folderName.replace("~", "_");
-		folderName = folderName.replace("@", "_");
-		folderName = folderName.replace("/", "_");
-		folderName = folderName.replace("\\", "_");
-		folderName = folderName.replace(" ", "-");
-		return folderName;
-	}
-
-	protected String removeCredentialPlaceholders(String path) {
-		return path.replaceAll(CREDENTIALS_REGEX, "");
-	}
-
-	protected boolean containsCredentialPlaceholders(String path) {
-		return !path.equals(removeCredentialPlaceholders(path));
-	}
-
-	protected String getUsernameVar(String path) {
-		return getCredentialVar(path, 1);
-	}
-
-	protected String getPasswordVar(String path) {
-		return getCredentialVar(path, 2);
-	}
-	
-	private String getCredentialVar(String path, int group) {
-		Matcher matcher = CREDENTIALS_PATTERN.matcher(path);
-		if (matcher.find()) {
-			return matcher.group(group);
-		}
-		return null;
 	}
 }

@@ -43,9 +43,10 @@ public class RepositoriesFile extends AbstractArtifact {
 	public static String[] SUPPORTED_TYPES = { SVN + ":", GIT + ":", GET + ":", DYNAMICFILE + ":" };
 	
 	public class Location {
-		private String type;
-		private String url;
-		private Set<String> subDirectories;
+		
+		private final String type;
+		private final String url;
+		private final Set<String> subDirectories;
 		
 		public Location(String type, String url) {
 			super();
@@ -53,7 +54,7 @@ public class RepositoriesFile extends AbstractArtifact {
 			this.url = url;
 			this.subDirectories = new LinkedHashSet<String>();
 			//TODO we wouldn't need this if we create an extra repository for extensions
-			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) { 
+			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) {
 				subDirectories.add("Core/");
 				subDirectories.add("Universal/");
 			}
@@ -70,7 +71,6 @@ public class RepositoriesFile extends AbstractArtifact {
 		public Set<String> getSubDirectories() {
 			return subDirectories;
 		}
-		
 	}
 
 	private File file;
