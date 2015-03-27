@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2014
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
  * 
@@ -18,10 +18,14 @@ package de.devboost.buildboost.genext.test.junit.steps;
 import static de.devboost.buildboost.IConstants.NL;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
@@ -30,9 +34,8 @@ import de.devboost.buildboost.steps.ClasspathHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link RunJUnitTestsStep} creates a script that runs all JUnit tests in
- * a given plug-in project. The results of the test are collected in a result
- * directory.
+ * The {@link RunJUnitTestsStep} creates a script that runs all JUnit tests in a given plug-in project. The results of
+ * the tests are collected in a result directory.
  */
 public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 
@@ -68,6 +71,12 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 	
 	public XMLContent generate(List<String> excludedTestClasses) {
 		XMLContent sb = new XMLContent();
+		Properties junitProperties = getJUnitProperties();
+		String forkmode = "perBatch";
+		if (junitProperties.containsKey("forkmode")) {
+			forkmode = junitProperties.get("forkmode").toString();
+		}
+		
 		File[] sourceFolders = testPlugin.getSourceFolders();
 		String name = testPlugin.getIdentifier();
 		String projectTestResultDir = getTestResultDir(testPlugin);
@@ -94,7 +103,7 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 		sb.append("<property environment=\"env\" />");
 		sb.append("<mkdir dir=\"" + projectTestResultDir + "\" />");
 		sb.append(NL);
-		sb.append("<junit forkmode=\"perBatch\" errorproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" failureproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" haltonfailure=\"false\" haltonerror=\"false\" fork=\"true\" dir=\"" + testPlugin.getAbsolutePath() + "\" maxmemory=\"2048m\">");
+		sb.append("<junit forkmode=\"" + forkmode + "\" errorproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" failureproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" haltonfailure=\"false\" haltonerror=\"false\" fork=\"true\" dir=\"" + testPlugin.getAbsolutePath() + "\" maxmemory=\"2048m\">");
 		sb.append("<jvmarg value=\"-ea\" />");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\" />");
 		sb.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
@@ -126,6 +135,34 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 		sb.append("</junitreport>");
 		sb.append(NL);
 		return sb;
+	}
+
+	private Properties getJUnitProperties() {
+		Properties properties = new Properties();
+
+		File propertiesFile = new File(testPlugin.getFile(), "junit.properties");
+		if (!propertiesFile.exists()) {
+			return properties;
+		}
+		
+		FileInputStream inStream = null;
+		try {
+			inStream = new FileInputStream(propertiesFile);
+			properties.load(inStream);
+		} catch (FileNotFoundException e) {
+			// Ignore
+		} catch (IOException e) {
+			// Ignore
+		} finally {
+			if (inStream != null) {
+				try {
+					inStream.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+		return properties;
 	}
 
 	protected String getTestResultDir(Plugin plugin) {
