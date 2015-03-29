@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.steps.clone;
@@ -35,19 +35,17 @@ import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildParticipant;
 
 /**
- * The {@link CloneRepositoriesBuildStepProvider} add a {@link CloneRepositoriesBuildStep} 
- * for each {@link RepositoriesFile}.
+ * The {@link CloneRepositoriesBuildStepProvider} add a {@link CloneRepositoriesBuildStep} for each
+ * {@link RepositoriesFile}.
  */
-public class CloneRepositoriesBuildStepProvider extends AbstractBuildParticipant
-		implements IAntTargetGeneratorProvider {
+public class CloneRepositoriesBuildStepProvider extends AbstractBuildParticipant implements IAntTargetGeneratorProvider {
 
-	private File reposFolder;
-	
+	private final File reposFolder;
+
 	public CloneRepositoriesBuildStepProvider(File reposFolder) {
-		super();
 		this.reposFolder = reposFolder;
 	}
-	
+
 	public void execute(IBuildContext context) throws BuildException {
 		List<IArtifact> antTargets = new ArrayList<IArtifact>();
 		Collection<IArtifact> artifacts = context.getDiscoveredArtifacts();
@@ -75,13 +73,13 @@ public class CloneRepositoriesBuildStepProvider extends AbstractBuildParticipant
 				}
 			}
 		}
-		
+
 		removeOverlapsInSVNLocations(locations);
-		
+
 		CloneRepositoriesBuildStep step = new CloneRepositoriesBuildStep(reposFolder, locations);
 		return step;
 	}
-	
+
 	private void removeOverlapsInSVNLocations(Collection<Location> locations) {
 		for (Location location1 : new ArrayList<Location>(locations)) {
 			if (!"svn".equals(location1.getType())) {
@@ -115,5 +113,4 @@ public class CloneRepositoriesBuildStepProvider extends AbstractBuildParticipant
 		}
 		return false;
 	}
-
 }

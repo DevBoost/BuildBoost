@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.steps.clone;
@@ -31,11 +31,10 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 
-	private File reposFolder;
-	private Collection<Location> locations;
+	private final File reposFolder;
+	private final Collection<Location> locations;
 
 	public CloneRepositoriesBuildStep(File reposFolder, Collection<Location> locations) {
-		super();
 		this.reposFolder = reposFolder;
 		this.locations = locations;
 	}
