@@ -30,6 +30,7 @@ import de.devboost.buildboost.genext.toolproduct.artifacts.ToolProductSpecificat
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.AntScriptUtil;
+import de.devboost.buildboost.util.TimestampUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
@@ -63,12 +64,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 
 		XMLContent content = new XMLContent();
 		
-		content.append("<property environment=\"env\"/>");
-		content.append("<!-- Get BUILD_ID from environment -->");
-		content.append("<condition property=\"buildid\" value=\"${env.BUILD_ID}\">");
-		content.append("<isset property=\"env.BUILD_ID\" />");
-		content.append("</condition>");
-		content.appendLineBreak();
+		new TimestampUtil().addGetBuildTimestampFromEnvironment(content);
+
 		// TODO this is not good, because the time stamp should not be stage dependent
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
