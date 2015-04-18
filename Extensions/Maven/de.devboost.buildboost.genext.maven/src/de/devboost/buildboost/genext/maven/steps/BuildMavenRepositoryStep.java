@@ -42,6 +42,7 @@ import de.devboost.buildboost.model.IBuildListener;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.ResolvedDependency;
 import de.devboost.buildboost.model.UnresolvedDependency;
+import de.devboost.buildboost.util.TimestampUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
@@ -220,12 +221,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 	}
 
 	private void addCreateEnvironmentScript(XMLContent content) {
-		content.append("<property environment=\"env\"/>");
-		content.append("<!-- Get BUILD_ID from environment -->");
-		content.append("<condition property=\"buildid\" value=\"${env.BUILD_ID}\">");
-		content.append("<isset property=\"env.BUILD_ID\" />");
-		content.append("</condition>");
-		content.appendLineBreak();
+		new TimestampUtil().addGetBuildTimestampFromEnvironment(content);
 	
 		content.append("<condition property=\"mvn-executable\" value=\"mvn.bat\">");
 		content.append("<os family=\"windows\"/>");

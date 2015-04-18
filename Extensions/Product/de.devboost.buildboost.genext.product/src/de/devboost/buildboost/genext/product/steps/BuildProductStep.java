@@ -24,6 +24,7 @@ import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.genext.product.artifacts.EclipseProduct;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
+import de.devboost.buildboost.util.TimestampUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildProductStep extends AbstractAntTargetGenerator {
@@ -54,12 +55,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		String siteVersion = deploymentSpec.getSiteVersion();
 		String productSpecPath = productSpec.getFile().getAbsolutePath();
 		
-		content.append("<property environment=\"env\"/>");
-		content.append("<!-- Get BUILD_ID from environment -->");
-		content.append("<condition property=\"buildid\" value=\"${env.BUILD_ID}\">");
-		content.append("<isset property=\"env.BUILD_ID\" />");
-		content.append("</condition>");
-		content.appendLineBreak();
+		new TimestampUtil().addGetBuildTimestampFromEnvironment(content);
 		
 		//TODO this is not good, because the tstamp should not be stage dependent
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");

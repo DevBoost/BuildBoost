@@ -29,6 +29,7 @@ import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSite;
 import de.devboost.buildboost.genext.updatesite.artifacts.EclipseUpdateSiteDeploymentSpec;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.util.PluginPackagingHelper;
+import de.devboost.buildboost.util.TimestampUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
@@ -74,12 +75,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		File updateSiteFile = updateSite.getFile();
 		String updateSiteDir = distDir + File.separator + "updatesites" + File.separator + updateSiteID;
 
-		content.append("<property environment=\"env\"/>");
-		content.append("<!-- Get BUILD_ID from environment -->");
-		content.append("<condition property=\"buildid\" value=\"${env.BUILD_ID}\">");
-		content.append("<isset property=\"env.BUILD_ID\" />");
-		content.append("</condition>");
-		content.appendLineBreak();
+		new TimestampUtil().addGetBuildTimestampFromEnvironment(content);
 	
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
