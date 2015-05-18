@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
@@ -39,9 +39,8 @@ import de.devboost.buildboost.model.IFileArtifact;
 import de.devboost.buildboost.model.UnresolvedDependency;
 
 /**
- * A Plug-in represents an OSGi bundle (i.e., an Eclipse plug-in) that is either
- * found in a target platform (e.g., an Eclipse distribution) or that is part
- * of the workspace that is subject to the build process.
+ * A Plug-in represents an OSGi bundle (i.e., an Eclipse plug-in) that is either found in a target platform (e.g., an
+ * Eclipse distribution) or that is part of the workspace that is subject to the build process.
  */
 public class Plugin extends AbstractArtifact implements IFileArtifact, Serializable {
 
@@ -51,39 +50,36 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	 * The set of plug-in fragments that complement this plug-in.
 	 */
 	private Set<Plugin> fragments = new LinkedHashSet<Plugin>();
-	
+
 	// TODO Add documentation
 	private Plugin fragmentHost = null;
 
 	/**
-	 * The plug-in that is complemented by this plug-in (if this plug-in is a
-	 * fragment).
+	 * The plug-in that is complemented by this plug-in (if this plug-in is a fragment).
 	 */
 	private UnresolvedDependency unresolvedFragmentHost;
-	
+
 	/**
 	 * The libraries that are required by this plug-in.
 	 */
 	private Set<String> libs = new LinkedHashSet<String>();
-	
+
 	/**
-	 * The location of this plug-in. This can be either a directory or a JAR 
-	 * file.
+	 * The location of this plug-in. This can be either a directory or a JAR file.
 	 */
 	protected File location;
-	
+
 	/**
-	 * The absolute path to the location of the plug-in. Stored for performance
-	 * reasons only.
+	 * The absolute path to the location of the plug-in. Stored for performance reasons only.
 	 */
 	private String absolutePath;
 
 	private Set<String> allLibs;
 
 	private Set<String> sourceFolders = new LinkedHashSet<String>();
-	
+
 	private Set<Plugin> allDependencies;
-	
+
 	private Set<Package> exportedPackages;
 
 	private String name;
@@ -91,8 +87,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	private String version;
 
 	/**
-	 * Create a descriptor for the plug-in at the given location. Reads the
-	 * manifest and class path information if available.
+	 * Create a descriptor for the plug-in at the given location. Reads the manifest and class path information if
+	 * available.
 	 * 
 	 * @param location
 	 *            a folder or a JAR file that contains the plug-in
@@ -105,12 +101,12 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	public Plugin(File location) throws IOException, InvalidMetadataException {
 		super();
 		this.location = location;
-		
+
 		// Read meta-data
 		analyzeManifest();
 		analyzeClassPath();
 	}
-	
+
 	private void analyzeManifest() throws IOException, InvalidMetadataException {
 		InputStream manifestInputStream = getManifestInputStream();
 		if (manifestInputStream == null) {
@@ -119,14 +115,14 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		} else {
 			ManifestReader reader = new ManifestReader(manifestInputStream);
 			manifestInputStream.close();
-			
+
 			Set<UnresolvedDependency> unresolvedDependencies = reader.getDependencies();
 			addAlternativeIdentifiers(unresolvedDependencies);
 			getUnresolvedDependencies().addAll(unresolvedDependencies);
 			unresolvedFragmentHost = reader.getFragmentHost();
 			libs.addAll(reader.getBundleClassPath());
 			addWebLibraries();
-			
+
 			String symbolicName = reader.getSymbolicName();
 			if (ManifestReader.UNKNOWN_SYMBOLIC_NAME.equals(symbolicName)) {
 				throw new InvalidMetadataException();
@@ -134,7 +130,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			setIdentifier(symbolicName);
 			setName(reader.getName());
 			setVersion(reader.getVersion());
-			
+
 			Set<String> exportedPackageName = reader.getExportedPackages();
 			exportedPackages = new LinkedHashSet<Package>();
 			for (String packageName : exportedPackageName) {
@@ -142,10 +138,9 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			}
 		}
 	}
-	
-	private void addAlternativeIdentifiers(
-			Set<UnresolvedDependency> unresolvedDependencies) {
-		
+
+	private void addAlternativeIdentifiers(Set<UnresolvedDependency> unresolvedDependencies) {
+
 		Properties properties = new Properties();
 		File location = getLocation();
 		if (!location.isDirectory()) {
@@ -171,7 +166,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 				}
 			}
 		}
-		
+
 		Set<UnresolvedDependency> removableDependencies = new LinkedHashSet<UnresolvedDependency>();
 		for (UnresolvedDependency unresolvedDependency : unresolvedDependencies) {
 			String identifier = unresolvedDependency.getIdentifier();
@@ -183,13 +178,13 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 				removableDependencies.add(unresolvedDependency);
 				continue;
 			}
-			
+
 			String[] alternatives = alternativesValue.split(",");
 			for (String alternative : alternatives) {
 				unresolvedDependency.addAlternativeIdentifier(alternative);
 			}
 		}
-		
+
 		unresolvedDependencies.removeAll(removableDependencies);
 	}
 
@@ -215,7 +210,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			File webLibsDir = new File(new File(new File(location, "WebContent"), "WEB-INF"), "lib");
 			if (webLibsDir.exists()) {
 				File[] webLibs = webLibsDir.listFiles(new FileFilter() {
-					
+
 					public boolean accept(File file) {
 						return file.isFile() && file.getName().endsWith(".jar");
 					}
@@ -225,7 +220,8 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 				}
 				for (File webLib : webLibs) {
 					try {
-						String relativePath = webLib.getCanonicalFile().getAbsolutePath().substring(location.getCanonicalFile().getAbsolutePath().length() + 1);
+						String relativePath = webLib.getCanonicalFile().getAbsolutePath()
+								.substring(location.getCanonicalFile().getAbsolutePath().length() + 1);
 						libs.add(relativePath);
 					} catch (IOException e) {
 						// TODO handle exception
@@ -237,17 +233,18 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	}
 
 	/**
-	 * Resolves all unresolved dependencies (denoted by symbolic names) by 
-	 * replacing them with actual references to plug-in objects in the given set 
-	 * of available plug-ins.
+	 * Resolves all unresolved dependencies (denoted by symbolic names) by replacing them with actual references to
+	 * plug-in objects in the given set of available plug-ins.
 	 * 
-	 * @param allArtifacts all artifacts that were discovered
+	 * @param allArtifacts
+	 *            all artifacts that were discovered
 	 */
 	@Override
 	public void resolveDependencies(Collection<? extends IArtifact> allArtifacts) {
 		for (IArtifact artifact : allArtifacts) {
-			Collection<UnresolvedDependency> unresolvedDependencies = new ArrayList<UnresolvedDependency>(getUnresolvedDependencies());
-			
+			Collection<UnresolvedDependency> unresolvedDependencies = new ArrayList<UnresolvedDependency>(
+					getUnresolvedDependencies());
+
 			for (UnresolvedDependency dependency : unresolvedDependencies) {
 				if (dependency.isFulfilledBy(artifact)) {
 					addResolvedDependency(dependency, artifact);
@@ -264,7 +261,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			}
 		}
 	}
-	
+
 	private void addFragment(Plugin pluginFragment) {
 		fragments.add(pluginFragment);
 	}
@@ -286,10 +283,9 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 		return Collections.unmodifiableCollection(result);
 	}
-	
+
 	/**
-	 * Returns all plug-ins that this plug-in depends on, except the ones that
-	 * are part of the target platform.
+	 * Returns all plug-ins that this plug-in depends on, except the ones that are part of the target platform.
 	 */
 	public Set<Plugin> getDependenciesExcludingTargetPlatform() {
 		Set<Plugin> result = new LinkedHashSet<Plugin>();
@@ -304,11 +300,11 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 		return Collections.unmodifiableSet(result);
 	}
-	
+
 	public Set<Package> getExportedPackages() {
 		return exportedPackages;
 	}
-	
+
 	public Set<String> getLibs() {
 		return libs;
 	}
@@ -319,11 +315,11 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	public Set<Plugin> getAllDependencies() {
 		if (allDependencies == null) {
 			Collection<Plugin> pluginDependencies = getPluginDependencies();
-			
+
 			allDependencies = new LinkedHashSet<Plugin>();
 			allDependencies.addAll(pluginDependencies);
 			allDependencies.addAll(fragments);
-			
+
 			for (Plugin dependency : pluginDependencies) {
 				allDependencies.addAll(dependency.getAllDependencies());
 			}
@@ -333,7 +329,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 		return allDependencies;
 	}
-	
+
 	/**
 	 * Returns the absolute paths of all libraries (transitively).
 	 */
@@ -362,34 +358,33 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			return prefix + lib;
 		}
 	}
-	
+
 	public File getLocation() {
 		return location;
 	}
-	
+
 	public String getAbsolutePath() {
 		if (absolutePath == null) {
 			absolutePath = location.getAbsolutePath();
 		}
 		return absolutePath;
 	}
-	
+
 	/**
-	 * Returns the absolute locations of the source folders in this plug-in, if
-	 * there are any.
+	 * Returns the absolute locations of the source folders in this plug-in, if there are any.
 	 */
 	public File[] getSourceFolders() {
 		if (location.isFile()) {
 			return new File[0];
 		}
-		
+
 		if (sourceFolders == null) {
 			return new File[0];
 		}
 
 		File[] sourceFolderFiles = new File[sourceFolders.size()];
 		int i = 0;
-		for (String	sourceFolder : sourceFolders) {
+		for (String sourceFolder : sourceFolders) {
 			sourceFolderFiles[i] = new File(location, sourceFolder);
 			i++;
 		}
@@ -397,14 +392,13 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	}
 
 	/**
-	 * Returns the relative paths of the source folders in this plug-in, if
-	 * there are any.
+	 * Returns the relative paths of the source folders in this plug-in, if there are any.
 	 */
 	public Set<String> getRelativeSourceFolders() {
 		if (location.isFile()) {
 			return Collections.emptySet();
 		}
-		
+
 		if (sourceFolders == null) {
 			return Collections.emptySet();
 		}
@@ -432,8 +426,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((getIdentifier() == null) ? 0 : getIdentifier().hashCode());
+		result = prime * result + ((getIdentifier() == null) ? 0 : getIdentifier().hashCode());
 		return result;
 	}
 
@@ -457,7 +450,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 	public boolean hasManifest() {
 		return getManifestFile().exists();
 	}
-	
+
 	/**
 	 * Returns an input stream to access the manifest of this plug-in.
 	 * 
@@ -487,7 +480,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		File manifest = new File(new File(getLocation(), "META-INF"), "MANIFEST.MF");
 		return manifest;
 	}
-	
+
 	private void analyzeClassPath() throws IOException {
 		InputStream dotClassPathInputStream = getDotClasspathInputStream();
 		if (dotClassPathInputStream != null) {
@@ -515,20 +508,19 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 			return null;
 		}
 	}
-	
+
 	public boolean isExperimental() {
 		return new File(getAbsolutePath(), "EXPERIMENTAL").exists();
 	}
 
 	/**
-	 * Returns true if this plug-in is a project that is built. If the plug-in
-	 * was obtained from another location (e.g., as a JAR from an Eclipse
-	 * distribution), this method will return false.
+	 * Returns true if this plug-in is a project that is built. If the plug-in was obtained from another location (e.g.,
+	 * as a JAR from an Eclipse distribution), this method will return false.
 	 */
 	public boolean isProject() {
 		return true;
 	}
-	
+
 	public boolean isJarFile() {
 		return location.isFile() && location.getName().endsWith(".jar");
 	}

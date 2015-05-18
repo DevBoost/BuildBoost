@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery;
@@ -36,8 +36,8 @@ import de.devboost.buildboost.util.ArtifactUtil;
 import de.devboost.buildboost.util.EclipsePluginHelper;
 
 /**
- * A {@link PluginFinder} can be used to discover Eclipse plug-in projects.
- * Such projects typically contain a file called '.project'.
+ * A {@link PluginFinder} can be used to discover Eclipse plug-in projects. Such projects typically contain a file
+ * called '.project'.
  * 
  * TODO inherit from {@link AbstractFileFinder}?
  */
@@ -63,21 +63,17 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 	private Set<File> findProjectDirs(File directory, IBuildListener buildListener) {
 		Set<File> projectDirs = new LinkedHashSet<File>();
 		if (!directory.exists()) {
-			buildListener.handleBuildEvent(
-				BuildEventType.ERROR, 
-				"Directory " + directory.getAbsolutePath() + " does not exist."
-			);
+			buildListener.handleBuildEvent(BuildEventType.ERROR, "Directory " + directory.getAbsolutePath()
+					+ " does not exist.");
 			return projectDirs;
 		}
-		
+
 		if (!directory.isDirectory()) {
-			buildListener.handleBuildEvent(
-				BuildEventType.ERROR, 
-				"File " + directory.getAbsolutePath() + " is not a directory."
-			);
+			buildListener.handleBuildEvent(BuildEventType.ERROR, "File " + directory.getAbsolutePath()
+					+ " is not a directory.");
 			return projectDirs;
 		}
-		
+
 		boolean isProject = EclipsePluginHelper.INSTANCE.isProject(directory);
 		if (isProject) {
 			projectDirs.add(directory);
@@ -119,15 +115,17 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 				if (projectDir == otherDir) {
 					continue;
 				}
-				
+
 				if (otherDir.getName().equals(projectDir.getName())) {
-					listener.handleBuildEvent(BuildEventType.WARNING, "Found plug-ins with duplicate name at: " + projectDir.getAbsolutePath() + " and " + otherDir.getAbsolutePath());
+					listener.handleBuildEvent(BuildEventType.WARNING, "Found plug-ins with duplicate name at: "
+							+ projectDir.getAbsolutePath() + " and " + otherDir.getAbsolutePath());
 				}
 			}
 		}
 	}
 
-	private Set<IArtifact> convertToPlugins(Collection<File> projectDirs, IBuildListener listener) throws BuildException {
+	private Set<IArtifact> convertToPlugins(Collection<File> projectDirs, IBuildListener listener)
+			throws BuildException {
 		Set<IArtifact> pluginsAndExportedPackages = new LinkedHashSet<IArtifact>();
 		for (File projectDir : projectDirs) {
 			Plugin newPlugin;
@@ -139,23 +137,25 @@ public class PluginFinder extends AbstractArtifactDiscoverer {
 				// Skip plug-ins with invalid meta data
 				continue;
 			}
-			
+
 			if (newPlugin.isExperimental()) {
-				listener.handleBuildEvent(BuildEventType.INFO, "Ignoring EXPERIMENTAL project: " + newPlugin.getIdentifier());
+				listener.handleBuildEvent(BuildEventType.INFO,
+						"Ignoring EXPERIMENTAL project: " + newPlugin.getIdentifier());
 				continue;
 			}
-			
+
 			if (newPlugin.getSourceFolders().length == 0) {
-				listener.handleBuildEvent(BuildEventType.INFO, "Project without source folders: " + newPlugin.getIdentifier());
+				listener.handleBuildEvent(BuildEventType.INFO,
+						"Project without source folders: " + newPlugin.getIdentifier());
 			}
-			
+
 			listener.handleBuildEvent(BuildEventType.INFO, "Discovered project: " + newPlugin.getIdentifier());
 			pluginsAndExportedPackages.add(newPlugin);
 			pluginsAndExportedPackages.addAll(newPlugin.getExportedPackages());
 		}
 		return pluginsAndExportedPackages;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [" + directory.getAbsolutePath() + "]";

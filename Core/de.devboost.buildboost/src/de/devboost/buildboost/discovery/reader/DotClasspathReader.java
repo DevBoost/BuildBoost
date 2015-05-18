@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery.reader;
@@ -39,12 +39,11 @@ import de.devboost.buildboost.util.StreamUtil;
 public class DotClasspathReader {
 
 	private final String content;
-	
+
 	private Set<String> libs;
 	private Set<String> sourceFolders;
 
-	public DotClasspathReader(InputStream dotClasspathInputStream)
-			throws IOException {
+	public DotClasspathReader(InputStream dotClasspathInputStream) throws IOException {
 		super();
 		this.content = new StreamUtil().getContentAsString(dotClasspathInputStream);
 	}
@@ -66,7 +65,7 @@ public class DotClasspathReader {
 	private void initialize() {
 		libs = new LinkedHashSet<String>();
 		sourceFolders = new LinkedHashSet<String>();
-		
+
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -77,11 +76,12 @@ public class DotClasspathReader {
 				if (classPathEntryNode.getNodeType() != Node.ELEMENT_NODE) {
 					continue;
 				}
-				
+
 				Element element = (Element) classPathEntryNode;
 				String kind = element.getAttribute("kind");
 				String path = element.getAttribute("path");
-				String combineaccessrules = element.getAttribute("combineaccessrules");;
+				String combineaccessrules = element.getAttribute("combineaccessrules");
+				;
 				boolean combineaccessrulesIsSet = combineaccessrules != null && !combineaccessrules.isEmpty();
 				if ("lib".equals(kind)) {
 					if (path != null) {

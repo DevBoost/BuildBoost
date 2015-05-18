@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.ant;
@@ -53,7 +53,8 @@ public class AntScript {
 		if (allDependencies.length() > 0) {
 			allDependencies = allDependencies.substring(0, allDependencies.length() - 2);
 		}
-		script.append("<target name=\"execute-all-targets\" " + (allDependencies.trim().length() > 0 ? "depends=\"" + allDependencies + "\"" : "") + " />");
+		script.append("<target name=\"execute-all-targets\" "
+				+ (allDependencies.trim().length() > 0 ? "depends=\"" + allDependencies + "\"" : "") + " />");
 		script.append(NL);
 
 		// TODO make sure that names of the targets do not collide
@@ -69,7 +70,10 @@ public class AntScript {
 			}
 			String ifConditions = target.getIfConditions();
 			String unlessConditions = target.getUnlessConditions();
-			script.append("<target name=\"" + target.getName() + "\" " + (allDeps.length() > 0 ? "depends=\"" + allDeps + "\"" : "") + (ifConditions != null ? " if=\"" + ifConditions + "\"" : "") + (unlessConditions != null ? " unless=\"" + unlessConditions + "\"" : "") + ">");
+			script.append("<target name=\"" + target.getName() + "\" "
+					+ (allDeps.length() > 0 ? "depends=\"" + allDeps + "\"" : "")
+					+ (ifConditions != null ? " if=\"" + ifConditions + "\"" : "")
+					+ (unlessConditions != null ? " unless=\"" + unlessConditions + "\"" : "") + ">");
 			script.append(target.getContent());
 			script.append("</target>");
 			script.append(NL);
@@ -83,7 +87,8 @@ public class AntScript {
 	private AntTarget createLogTimeTarget(String name) {
 		XMLContent content = new XMLContent();
 		content.append("<tstamp><format property=\"time-" + name + "\" pattern=\"yyyy-dd-MM HH:mm:ss\" /></tstamp>");
-		content.append("<echo file=\"time-log.txt\" append=\"true\">" + name + ": ${time-" + name + "} (" + this.name + ")\n</echo>");
+		content.append("<echo file=\"time-log.txt\" append=\"true\">" + name + ": ${time-" + name + "} (" + this.name
+				+ ")\n</echo>");
 		AntTarget target = new AntTarget("log-time-" + name, content);
 		return target;
 	}
@@ -93,10 +98,10 @@ public class AntScript {
 	}
 
 	/**
-	 * Use {@link #addTarget(AntTarget)} or {@link #addTargets(Collection)} 
-	 * instead.
+	 * Use {@link #addTarget(AntTarget)} or {@link #addTargets(Collection)} instead.
 	 */
-	@Deprecated // TODO remove this method once all references are removed
+	@Deprecated
+	// TODO remove this method once all references are removed
 	public void addContent(StringBuffer content) {
 		this.content.append(content);
 	}

@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.steps.copy;
@@ -28,14 +28,14 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link CopyPluginsAndFeaturesBuildStep} generates a script that copies
- * the given bundled plug-ins and features to a target directory.
+ * The {@link CopyPluginsAndFeaturesBuildStep} generates a script that copies the given bundled plug-ins and features to
+ * a target directory.
  */
 public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator {
 
 	private IArtifact pluginOrFeature;
 	private File targetPlatformEclipseDir;
-	
+
 	public CopyPluginsAndFeaturesBuildStep(IArtifact pluginOrFeature, File targetDir) {
 		super();
 		this.pluginOrFeature = pluginOrFeature;
@@ -73,9 +73,10 @@ public class CopyPluginsAndFeaturesBuildStep extends AbstractAntTargetGenerator 
 				targetSubDir = targetPlatformFeaturesDir.getAbsolutePath();
 			}
 		} else {
-			throw new RuntimeException("Found unknown artifact type " + pluginOrFeatureName + " in " + getClass().getSimpleName());
+			throw new RuntimeException("Found unknown artifact type " + pluginOrFeatureName + " in "
+					+ getClass().getSimpleName());
 		}
-		
+
 		XMLContent content = new XMLContent();
 		if (isExtracted) {
 			content.append("<copy todir=\"" + targetSubDir + "\" includeEmptyDirs=\"true\">");

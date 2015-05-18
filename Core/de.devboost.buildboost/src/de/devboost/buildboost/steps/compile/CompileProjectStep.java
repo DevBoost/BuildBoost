@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.steps.compile;
@@ -28,8 +28,7 @@ import de.devboost.buildboost.steps.ClasspathHelper;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link CompileProjectStep} generates a script that compiles a plug-in
- * project.
+ * The {@link CompileProjectStep} generates a script that compiles a plug-in project.
  */
 public class CompileProjectStep extends AbstractAntTargetGenerator {
 
@@ -44,9 +43,8 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 	}
 
 	/**
-	 * Returns the ANT build instructions for a single plug-in projects. The 
-	 * returned script compiles the content of all source folders and copies 
-	 * all resource files to the bin folder.
+	 * Returns the ANT build instructions for a single plug-in projects. The returned script compiles the content of all
+	 * source folders and copies all resource files to the bin folder.
 	 */
 	public Collection<AntTarget> generateAntTargets() {
 		File[] sourceFolders = project.getSourceFolders();
@@ -56,7 +54,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		}
 		XMLContent content = new XMLContent();
 		String projectName = project.getIdentifier();
-		
+
 		content.append("<!-- Compile instructions for plug-in project " + projectName + " -->");
 		String binPath = new ClasspathHelper().getBinPath(project);
 		content.append(NL);
@@ -64,7 +62,8 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		if (targetVersion != null) {
 			target = " target=\"" + targetVersion.getNumber() + "\"";
 		}
-		String javacTag = "<javac" + target + " destdir=\"" + binPath + "\" debug=\"on\" encoding=\"utf-8\" includeantruntime=\"false\"";
+		String javacTag = "<javac" + target + " destdir=\"" + binPath
+				+ "\" debug=\"on\" encoding=\"utf-8\" includeantruntime=\"false\"";
 		if (sourceFileEncoding != null) {
 			javacTag += " encoding=\"" + sourceFileEncoding + "\"";
 		}
@@ -77,7 +76,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 		content.append(NL);
 		content.append("<classpath>");
 		content.append(new ClasspathHelper().getClasspath(project, false));
-		
+
 		content.append("</classpath>");
 		content.append("</javac>");
 		content.append(NL);

@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost;
@@ -46,7 +46,7 @@ public class BuildContext implements IBuildContext {
 		addBuildParticipant(new ArtifactSorter());
 		addBuildParticipant(new AntTargetGeneratorRunner());
 	}
-	
+
 	public Collection<IArtifact> getDiscoveredArtifacts() {
 		return Collections.unmodifiableCollection(discoveredArtifacts);
 	}
@@ -73,7 +73,7 @@ public class BuildContext implements IBuildContext {
 	public void addDiscoveredArtifacts(Collection<IArtifact> artifactsToAdd) {
 		discoveredArtifacts.addAll(artifactsToAdd);
 	}
-	
+
 	public void removeDiscoveredArtifacts(Collection<IArtifact> artifactsToRemove) {
 		discoveredArtifacts.removeAll(artifactsToRemove);
 	}

@@ -22,9 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MD5Utils {
-	
+
 	public final static MD5Utils INSTANCE = new MD5Utils();
-	
+
 	private static final Logger logger = Logger.getLogger(MD5Utils.class.getName());
 
 	private MD5Utils() {
@@ -33,7 +33,8 @@ public class MD5Utils {
 	/**
 	 * Computes the MD5 hash code of the given input string by converting it to a byte array (using UTF-8 as encoding).
 	 * 
-	 * @param input the string to compute the hash code for
+	 * @param input
+	 *            the string to compute the hash code for
 	 * @return the MD5 hash code as hex string (or <code>null</code> if the hash code cannot be computed).
 	 */
 	public String computeMD5(String input) {
@@ -52,7 +53,8 @@ public class MD5Utils {
 	/**
 	 * Computes the MD5 hash code of the given input array.
 	 * 
-	 * @param input the byte array to compute the hash code for
+	 * @param input
+	 *            the byte array to compute the hash code for
 	 * @return the MD5 hash code as hex string (or <code>null</code> if the hash code cannot be computed).
 	 */
 	public String computeMD5(byte[] input) {
@@ -71,14 +73,14 @@ public class MD5Utils {
 
 	// This is from http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
 	private String bytesToHex(byte[] bytes) {
-	    final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-	    char[] hexChars = new char[bytes.length * 2];
-	    int v;
-	    for ( int j = 0; j < bytes.length; j++ ) {
-	        v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = hexArray[v >>> 4];
-	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-	    }
-	    return new String(hexChars);
+		final char[] hexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		char[] hexChars = new char[bytes.length * 2];
+		int v;
+		for (int j = 0; j < bytes.length; j++) {
+			v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 }

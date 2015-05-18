@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.filters;
@@ -22,11 +22,10 @@ import java.util.Set;
 import de.devboost.buildboost.model.IArtifact;
 
 /**
- * A filter that accepts artifacts where the identifier is within a given set
- * of valid identifiers.
+ * A filter that accepts artifacts where the identifier is within a given set of valid identifiers.
  */
 public class IdentifierFilter extends AbstractFilter {
-	
+
 	private Set<String> validArtifactIdentifiers = new LinkedHashSet<String>(1);
 
 	public IdentifierFilter(String validArtifactIdentifier) {
@@ -45,7 +44,7 @@ public class IdentifierFilter extends AbstractFilter {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [valid identifiers = " + validArtifactIdentifiers + "]";

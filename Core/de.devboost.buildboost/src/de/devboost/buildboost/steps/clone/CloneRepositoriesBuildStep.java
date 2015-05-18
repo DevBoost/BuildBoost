@@ -42,26 +42,25 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 	public Collection<AntTarget> generateAntTargets() {
 		Collection<AntTarget> result = new ArrayList<AntTarget>();
 		result.add(writeRepositoryList());
-		
+
 		for (Location location : locations) {
 			generateCloneLocationTasks(result, location);
 		}
 		return result;
 	}
 
-	private void generateCloneLocationTasks(Collection<AntTarget> result,
-			Location location) {
-		
+	private void generateCloneLocationTasks(Collection<AntTarget> result, Location location) {
+
 		String locationURL = location.getUrl();
 		String localRepositoryFolderName = URLToFolderConverter.INSTANCE.url2FolderName(locationURL);
 		String rootName = URLToFolderConverter.INSTANCE.url2RootFolderName(locationURL);
 
 		File localRepo = new File(new File(reposFolder, localRepositoryFolderName), rootName);
-		
+
 		XMLContent content = new XMLContent();
-		
+
 		content.append("<property environment=\"env\"/>");
-		content.appendLineBreak();	
+		content.appendLineBreak();
 
 		content.append("<condition property=\"git-executable\" value=\"git.cmd\">");
 		content.append("<os family=\"windows\"/>");
@@ -71,29 +70,26 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		content.append("<os family=\"windows\"/>");
 		content.append("</not>");
 		content.append("</condition>");
-		content.appendLineBreak();	
-			
+		content.appendLineBreak();
+
 		String locationType = location.getType();
-		
+
 		boolean isGit = locationType.equals(RepositoriesFile.GIT);
 		boolean isSVN = locationType.equals(RepositoriesFile.SVN);
 		boolean isDynamicFile = locationType.equals(RepositoriesFile.DYNAMICFILE);
-		
+
 		String localRepositoryPath = getLocalRepositoryPath(location);
-		
+
 		if (isGit) {
-			addCloneGitRepositoryTasks(location, locationURL, localRepo,
-					content, localRepositoryPath);
+			addCloneGitRepositoryTasks(location, locationURL, localRepo, content, localRepositoryPath);
 		} else if (isSVN) {
-			addCloneSVNTasks(locationURL, localRepo, content,
-					localRepositoryPath);
+			addCloneSVNTasks(locationURL, localRepo, content, localRepositoryPath);
 		} else if (isDynamicFile) {
 			addCloneDynamicFileTask(locationURL, content, localRepositoryPath);
-		} else /* isGet */ {
-			addCloneOtherTasks(location, locationURL, rootName, localRepo,
-					content, localRepositoryPath, true);
+		} else /* isGet */{
+			addCloneOtherTasks(location, locationURL, rootName, localRepo, content, localRepositoryPath, true);
 		}
-		
+
 		String taskName = "update-" + localRepositoryFolderName;
 		String propertyName = "performed-" + taskName;
 		content.append("<echo message=\"Setting property " + propertyName + "\"/>");
@@ -103,31 +99,29 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		result.add(cloneTarget);
 	}
 
-	private void addCloneDynamicFileTask(String locationURL,
-			XMLContent content, String localRepositoryPath) {
-		
-		content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
+	private void addCloneDynamicFileTask(String locationURL, XMLContent content, String localRepositoryPath) {
+
+		content.append("<mkdir dir=\"" + localRepositoryPath + "\"/>");
 		AntScriptUtil.addDownloadFileScript(content, locationURL, localRepositoryPath);
 		AntScriptUtil.addDownloadFileScript(content, locationURL + ".MD5", localRepositoryPath);
 	}
 
-	private void addCloneOtherTasks(Location location, String locationURL,
-			String rootName, File localRepo, XMLContent content,
-			String localRepositoryPath, boolean skipIfRepositoryExists) {
-		
+	private void addCloneOtherTasks(Location location, String locationURL, String rootName, File localRepo,
+			XMLContent content, String localRepositoryPath, boolean skipIfRepositoryExists) {
+
 		if (skipIfRepositoryExists) {
 			// TODO Don't do this here. Add condition to Ant task instead.
 			if (localRepo.exists()) {
 				return;
 			}
 		}
-		
-		content.append("<mkdir dir=\""+ localRepositoryPath + "\"/>");
+
+		content.append("<mkdir dir=\"" + localRepositoryPath + "\"/>");
 		if (!location.getSubDirectories().isEmpty()) {
 			if (localRepo.getName().endsWith(".zip")) {
 				String zipFilePath = new File(localRepo, rootName).getAbsolutePath();
-				content.append("<get src=\""+ locationURL + "\" dest=\""+ localRepositoryPath + "\"/>");
-				content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" +  localRepositoryPath + "\">");
+				content.append("<get src=\"" + locationURL + "\" dest=\"" + localRepositoryPath + "\"/>");
+				content.append("<unzip src=\"" + zipFilePath + "\" dest=\"" + localRepositoryPath + "\">");
 				content.append("<patternset>");
 				for (String zipEntry : location.getSubDirectories()) {
 					content.append("<include name=\"" + zipEntry + "\"/>");
@@ -135,10 +129,11 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				content.append("</patternset>");
 				content.append("</unzip>");
 				content.append("<delete file=\"" + zipFilePath + "\"/>");
-			} else /* folder */ {
+			} else /* folder */{
 				for (String subPath : location.getSubDirectories()) {
-					content.append("<get src=\""+ locationURL + "/" + subPath + "\" dest=\""+ localRepositoryPath + "/" + subPath + "\"/>");
-				}	
+					content.append("<get src=\"" + locationURL + "/" + subPath + "\" dest=\"" + localRepositoryPath
+							+ "/" + subPath + "\"/>");
+				}
 			}
 		} else {
 			AntScriptUtil.addDownloadFileScript(content, locationURL, localRepositoryPath);
@@ -148,9 +143,8 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 	/**
 	 * Adds Ant tasks to check out or update an SVN repository.
 	 */
-	private void addCloneSVNTasks(String locationURL, File localRepo,
-			XMLContent content, String localRepositoryPath) {
-		
+	private void addCloneSVNTasks(String locationURL, File localRepo, XMLContent content, String localRepositoryPath) {
+
 		String locationURLWithoutCredentials = URLToFolderConverter.INSTANCE.removeCredentialPlaceholders(locationURL);
 		if (localRepo.exists()) {
 			// execute update
@@ -178,11 +172,11 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 	/**
 	 * Adds Ant tasks to clone or pull a GIT repository.
 	 */
-	private void addCloneGitRepositoryTasks(Location location,
-			String locationURL, File localRepo, XMLContent content,
+	private void addCloneGitRepositoryTasks(Location location, String locationURL, File localRepo, XMLContent content,
 			String localRepositoryPath) {
 		if (localRepo.exists()) {
-			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
+			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath
+					+ "\" failonerror=\"false\">");
 			content.append("<arg value=\"pull\"/>");
 			content.append("</exec>");
 		} else {
@@ -191,15 +185,17 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 			content.append("<echo message=\"Git executable ${git-executable}\"/>");
 			content.append("<echo message=\"LocationURL " + locationURL + "\"/>");
 			content.append("<echo message=\"LocalRepositoryPath " + localRepositoryPath + "\"/>");
-			content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath() + "\" failonerror=\"false\">");
+			content.append("<exec executable=\"${git-executable}\" dir=\"" + reposFolder.getAbsolutePath()
+					+ "\" failonerror=\"false\">");
 			content.append("<arg value=\"clone\"/>");
 			content.append("<arg value=\"" + locationURL + "\"/>");
 			content.append("<arg value=\"" + localRepositoryPath + "\"/>");
 			content.append("</exec>");
 		}
 		if (!location.getSubDirectories().isEmpty()) {
-			//enable sparse checkout
-			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
+			// enable sparse checkout
+			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath
+					+ "\" failonerror=\"false\">");
 			content.append("<arg value=\"config\"/>");
 			content.append("<arg value=\"core.sparsecheckout\"/>");
 			content.append("<arg value=\"true\"/>");
@@ -209,8 +205,10 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 				dirList += subDir;
 				dirList += "${line.separator}";
 			}
-			content.append("<echo message=\"" + dirList + "\" file=\"" + localRepositoryPath + "/.git/info/sparse-checkout\"/>");
-			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath + "\" failonerror=\"false\">");
+			content.append("<echo message=\"" + dirList + "\" file=\"" + localRepositoryPath
+					+ "/.git/info/sparse-checkout\"/>");
+			content.append("<exec executable=\"${git-executable}\" dir=\"" + localRepositoryPath
+					+ "\" failonerror=\"false\">");
 			content.append("<arg value=\"read-tree\"/>");
 			content.append("<arg value=\"-mu\"/>");
 			content.append("<arg value=\"HEAD\"/>");
@@ -226,25 +224,28 @@ public class CloneRepositoriesBuildStep extends AbstractAntTargetGenerator {
 		content.append("</echo>");
 		for (Location location : locations) {
 			String locationType = location.getType();
-			
+
 			boolean isGit = locationType.equals("git");
 			boolean isSVN = locationType.equals("svn");
 			boolean isDynamicFile = locationType.equals("dynamicfile");
-			
+
 			String locationURL = location.getUrl();
-			
-			String localRepositoryPath = getLocalRepositoryPath(location); 
-			
+
+			String localRepositoryPath = getLocalRepositoryPath(location);
+
 			if (isSVN || isGit || isDynamicFile) {
-				content.append("<echo message=\"BuildBoost-Repository-Type: " + locationType + "\" file=\"" + repositoryListPath + "\" append=\"true\">");
+				content.append("<echo message=\"BuildBoost-Repository-Type: " + locationType + "\" file=\""
+						+ repositoryListPath + "\" append=\"true\">");
 				content.append("</echo>");
-				content.append("<echo message=\"BuildBoost-Repository-URL: " + locationURL + "\" file=\"" + repositoryListPath + "\" append=\"true\">");
+				content.append("<echo message=\"BuildBoost-Repository-URL: " + locationURL + "\" file=\""
+						+ repositoryListPath + "\" append=\"true\">");
 				content.append("</echo>");
-				content.append("<echo message=\"BuildBoost-Repository-Local: " + localRepositoryPath + "\" file=\"" + repositoryListPath + "\" append=\"true\">");
+				content.append("<echo message=\"BuildBoost-Repository-Local: " + localRepositoryPath + "\" file=\""
+						+ repositoryListPath + "\" append=\"true\">");
 				content.append("</echo>");
 			}
 		}
-		
+
 		return new AntTarget("write-repository-list", content);
 	}
 

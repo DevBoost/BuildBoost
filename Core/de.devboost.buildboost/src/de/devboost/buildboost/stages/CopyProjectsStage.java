@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.stages;
@@ -43,17 +43,17 @@ public class CopyProjectsStage extends AbstractBuildStage implements IUniversalB
 	public void setArtifactsFolder(String artifactsFolder) {
 		this.artifactsFolder = artifactsFolder;
 	}
-	
+
 	public AntScript getScript() throws BuildException {
 		BuildContext context = createContext(true);
 		context.addBuildParticipant(new PluginFinder(new File(reposFolder)));
 		context.addBuildParticipant(new CopyProjectsBuildStepProvider(new File(artifactsFolder)));
-		
-		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(reposFolder)));	
+
+		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(new File(reposFolder)));
 		context.addBuildParticipant(new CopyPluginsAndFeaturesBuildStepProvider(new File(artifactsFolder)));
 		context.addBuildParticipant(new TargetPlatformZipFinder(new File(reposFolder)));
 		context.addBuildParticipant(new ExtractZipFileBuildStepProvider(new File(artifactsFolder)));
-		
+
 		context.setIgnoreUnresolvedDependencies(true);
 		AutoBuilder builder = new AutoBuilder(context);
 		Collection<AntTarget> targets = builder.generateAntTargets();
@@ -61,10 +61,10 @@ public class CopyProjectsStage extends AbstractBuildStage implements IUniversalB
 		AntScript copyScript = new AntScript();
 		copyScript.setName("Copy plug-in stage");
 		copyScript.addTargets(targets);
-		
+
 		return copyScript;
 	}
-	
+
 	@Override
 	public int getPriority() {
 		return 0;

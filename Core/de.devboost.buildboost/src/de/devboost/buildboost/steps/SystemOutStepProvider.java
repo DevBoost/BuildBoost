@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.steps;
@@ -28,17 +28,17 @@ import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * The {@link SystemOutStepProvider} generates a script the prints all artifacts
- * to the console.
+ * The {@link SystemOutStepProvider} generates a script the prints all artifacts to the console.
  */
 public class SystemOutStepProvider extends AbstractAntTargetGeneratorProvider {
 
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, final IArtifact artifact) {
 		IAntTargetGenerator step = new AbstractAntTargetGenerator() {
-			
+
 			public Collection<AntTarget> generateAntTargets() {
 				XMLContent content = new XMLContent();
-				content.append("<echo message=\"" + artifact.getClass().getSimpleName() + ": " + artifact.getIdentifier() + "\" />");
+				content.append("<echo message=\"" + artifact.getClass().getSimpleName() + ": "
+						+ artifact.getIdentifier() + "\" />");
 				return Collections.singleton(new AntTarget("output", content));
 			}
 		};

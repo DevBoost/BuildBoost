@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.util;
@@ -50,12 +50,12 @@ public abstract class AbstractXMLReader {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void readXMLStrem(InputStream inputStream) {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-	    
+
 		try {
-		    DocumentBuilder builder = builderFactory.newDocumentBuilder();
+			DocumentBuilder builder = builderFactory.newDocumentBuilder();
 			Document document = builder.parse(inputStream);
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			process(document, xpath);
@@ -69,10 +69,8 @@ public abstract class AbstractXMLReader {
 		// TODO handle exceptions?
 	}
 
-	protected void findDependencies(Document document, XPath xpath,
-			String pathExpression, String idAttribute, String optionalAttribute,
-			Class<? extends IArtifact> dependencyType)
-			throws XPathExpressionException {
+	protected void findDependencies(Document document, XPath xpath, String pathExpression, String idAttribute,
+			String optionalAttribute, Class<? extends IArtifact> dependencyType) throws XPathExpressionException {
 		NodeList nodelist = (NodeList) xpath.evaluate(pathExpression, document, XPathConstants.NODESET);
 		for (int i = 0; i < nodelist.getLength(); i++) {
 			Node node = nodelist.item(i);
@@ -83,7 +81,7 @@ public abstract class AbstractXMLReader {
 				if (idAttributeValue == null || "".equals(idAttributeValue.trim())) {
 					continue;
 				}
-				
+
 				boolean optional = false;
 				if (optionalAttribute != null) {
 					String optionalValue = element.getAttribute(optionalAttribute);
@@ -91,9 +89,10 @@ public abstract class AbstractXMLReader {
 						optional = true;
 					}
 				}
-				
+
 				// TODO add version?
-				addUnresolvedDependencies(element, new UnresolvedDependency(dependencyType, idAttributeValue, null, true, null, true, optional, false));
+				addUnresolvedDependencies(element, new UnresolvedDependency(dependencyType, idAttributeValue, null,
+						true, null, true, optional, false));
 			}
 		}
 	}

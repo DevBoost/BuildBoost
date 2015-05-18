@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.util;
@@ -27,26 +27,26 @@ import java.util.Set;
 import de.devboost.buildboost.IConstants;
 
 /**
- * XMLContent objects can be used to compose contents for XML files. The 
- * XMLContent class automatically handles line breaks and indentation.
+ * XMLContent objects can be used to compose contents for XML files. The XMLContent class automatically handles line
+ * breaks and indentation.
  */
 public class XMLContent {
-	
+
 	private List<String> lines = new ArrayList<String>();
 
 	public void append(String text) {
 		lines.add(text);
 	}
-	
+
 	public void append(XMLContent content) {
 		lines.addAll(content.lines);
 	}
-	
+
 	private String composeContent() {
 		int indentation = 0;
 		Map<Integer, String> tabMap = new LinkedHashMap<Integer, String>();
 		StringBuilder content = new StringBuilder();
-		
+
 		for (String text : lines) {
 			if (NL.equals(text)) {
 				content.append(NL);
@@ -77,7 +77,7 @@ public class XMLContent {
 		}
 		return content.toString();
 	}
-	
+
 	private String getTabs(int indentation, Map<Integer, String> tabMap) {
 		String tabs = tabMap.get(indentation);
 		if (tabs == null) {
@@ -112,7 +112,7 @@ public class XMLContent {
 		for (String line : lines) {
 			uniqueLines.add(line);
 		}
-		
+
 		XMLContent newContent = new XMLContent();
 		for (String uniqueLine : uniqueLines) {
 			newContent.append(uniqueLine);

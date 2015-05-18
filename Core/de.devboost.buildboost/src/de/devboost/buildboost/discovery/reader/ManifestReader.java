@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery.reader;
@@ -39,18 +39,15 @@ public class ManifestReader {
 	public final static String OPTION_NAME_REGEX = "((" + ALPHA_AND_MINUS + ")+)";
 	public final static String QUALIFIED_NUMBER_REGEX = "([0-9\\.]+)";
 	public final static String INCLUDING_EXCLUDING_REGEX = "(\\[|\\))";
-	public final static String BUNDLE_VERSION_REGEX = "bundle-version=\\\"(" + QUALIFIED_NUMBER_REGEX + "|" + INCLUDING_EXCLUDING_REGEX + QUALIFIED_NUMBER_REGEX + "," + QUALIFIED_NUMBER_REGEX + INCLUDING_EXCLUDING_REGEX + ")\\\"";
+	public final static String BUNDLE_VERSION_REGEX = "bundle-version=\\\"(" + QUALIFIED_NUMBER_REGEX + "|"
+			+ INCLUDING_EXCLUDING_REGEX + QUALIFIED_NUMBER_REGEX + "," + QUALIFIED_NUMBER_REGEX
+			+ INCLUDING_EXCLUDING_REGEX + ")\\\"";
 	public final static String RESOLUTION_REFEX = "resolution:=\\\"?optional\\\"?";
 	public final static String VISIBILITY_REGEX = "visibility:=\\\"?reexport\\\"?";
 	public final static String USES_REGEX = "uses:=\\\"?" + ALPHA + "\\\"?";
 	public final static String OPTION_VALUE_REGEX = "((\\\"[^\\\"]+\\\")+|[^\\\"]([^;,])+)";
 	public final static String OPTION_REGEX = ";[ ]*(" + OPTION_NAME_REGEX + "[:]?=" + OPTION_VALUE_REGEX + ")";
-	public final static String DEPENDENCY_REGEX = 
-			"(" + 
-			QUALIFIED_NAME_REGEX + 
-			"((" + OPTION_REGEX + ")*)" + 
-			")" + 
-			",?";
+	public final static String DEPENDENCY_REGEX = "(" + QUALIFIED_NAME_REGEX + "((" + OPTION_REGEX + ")*)" + ")" + ",?";
 
 	private final static Pattern DEPENDENCY_PATTERN = Pattern.compile(DEPENDENCY_REGEX);
 
@@ -64,16 +61,16 @@ public class ManifestReader {
 	public final static String VERSION_PREFIX = "Bundle-Version: ";
 	public final static String FRAGMENT_HOST_PREFIX = "Fragment-Host: ";
 	public final static String RESOLUTION_OPTIONAL = "resolution:=\"optional\"";
-			
+
 	public final static Pattern REQUIRED_BUNDLE_REGEX = Pattern.compile(REQUIRED_BUNDLE_PREFIX + ".*(\r)?\n");
 	public final static Pattern IMPORT_PACKAGE_REGEX = Pattern.compile("(?<!c)" + IMPORT_PACKAGE_PREFIX + ".*(\r)?\n");
 	public final static Pattern EXPORT_PACKAGE_REGEX = Pattern.compile(EXPORT_PACKAGE_PREFIX + ".*(\r)?\n");
 	public final static Pattern NAME_REGEX = Pattern.compile(NAME_PREFIX + ".*(\r)?\n");
 	public final static Pattern SYMBOLIC_NAME_REGEX = Pattern.compile(SYMBOLIC_NAME_PREFIX + ".*(\r)?\n");
 	public final static Pattern CLASSPATH_REGEX = Pattern.compile(CLASSPATH_PREFIX + ".*(\r)?\n");
-	public static final Pattern VERSION_REGEX = Pattern.compile(VERSION_PREFIX+ ".*(\r)?\n");
-	public static final Pattern FRAGMENT_HOST_REGEX = Pattern.compile(FRAGMENT_HOST_PREFIX+ ".*(\r)?\n");
-	
+	public static final Pattern VERSION_REGEX = Pattern.compile(VERSION_PREFIX + ".*(\r)?\n");
+	public static final Pattern FRAGMENT_HOST_REGEX = Pattern.compile(FRAGMENT_HOST_PREFIX + ".*(\r)?\n");
+
 	private String content;
 	private Set<String> classpath;
 	private Set<UnresolvedDependency> dependencies;
@@ -82,7 +79,7 @@ public class ManifestReader {
 	private String symbolicName;
 	private UnresolvedDependency fragmentHost;
 	private String version;
-	
+
 	public ManifestReader(InputStream manifestInputStream) throws IOException {
 		content = getContentAsString(manifestInputStream);
 		manifestInputStream.close();
@@ -99,7 +96,7 @@ public class ManifestReader {
 		}
 		return dependencies;
 	}
-	
+
 	public Set<String> getExportedPackages() {
 		if (exportedPackages == null) {
 			exportedPackages = findDependencies(content, null, EXPORT_PACKAGE_REGEX, EXPORT_PACKAGE_PREFIX);
@@ -109,7 +106,7 @@ public class ManifestReader {
 		}
 		return exportedPackages;
 	}
-	
+
 	public String getSymbolicName() {
 		if (symbolicName == null) {
 			symbolicName = getValue(SYMBOLIC_NAME_REGEX, SYMBOLIC_NAME_PREFIX, UNKNOWN_SYMBOLIC_NAME);
@@ -138,7 +135,7 @@ public class ManifestReader {
 					if (".".equals(path)) {
 						continue;
 					}
-					//TODO this is declared in "org.eclipse.equinox.registry" but the JAR does not exist
+					// TODO this is declared in "org.eclipse.equinox.registry" but the JAR does not exist
 					if ("runtime_registry_compatibility.jar".equals(path)) {
 						continue;
 					}
@@ -160,7 +157,7 @@ public class ManifestReader {
 				String bundleOrPackageName = matcher2.group(2).trim();
 				String allOptions = matcher2.group(3).trim();
 				String[] options = allOptions.split(";( )*");
-				
+
 				// TODO use these two properties
 				boolean inclusiveMin = true;
 				boolean inclusiveMax = true;
@@ -168,7 +165,7 @@ public class ManifestReader {
 				String maxVersion = null;
 				boolean optional = false;
 				boolean reexport = false;
-				//boolean uses = false;
+				// boolean uses = false;
 				for (String option : options) {
 					if ("".equals(option)) {
 						continue;
@@ -194,20 +191,19 @@ public class ManifestReader {
 						reexport = true;
 						continue;
 					}
-					/*groups = getGroups(option, USES_REGEX);
-					if (groups != null) {
-						uses = true;
-						continue;
-					}*/
+					/*
+					 * groups = getGroups(option, USES_REGEX); if (groups != null) { uses = true; continue; }
+					 */
 				}
 				if ("system.bundle".equals(bundleOrPackageName)) {
 					bundleOrPackageName = "org.eclipse.osgi";
 				}
 				if (dependencyType != null) {
-					UnresolvedDependency dependency = new UnresolvedDependency(dependencyType, bundleOrPackageName, minVersion, inclusiveMin, maxVersion, inclusiveMax, optional, reexport);
-					
+					UnresolvedDependency dependency = new UnresolvedDependency(dependencyType, bundleOrPackageName,
+							minVersion, inclusiveMin, maxVersion, inclusiveMax, optional, reexport);
+
 					if (dependencyType == Package.class && getExportedPackages().contains(bundleOrPackageName)) {
-						// cyclic! 
+						// cyclic!
 						// TODO improve package import/export support
 					} else {
 						dependencies.add(dependency);
@@ -226,7 +222,7 @@ public class ManifestReader {
 			String[] groups = new String[matcher.groupCount() + 1];
 			for (int i = 0; i < groups.length; i++) {
 				groups[i] = matcher.group(i);
-				//System.out.println("groups[" + i +"] = " + groups[i]);
+				// System.out.println("groups[" + i +"] = " + groups[i]);
 			}
 			return groups;
 		}
@@ -246,7 +242,7 @@ public class ManifestReader {
 	public String getVersion() {
 		if (version == null) {
 			String rawVersion = getValue(VERSION_REGEX, VERSION_PREFIX, "UNKNOWN_VERSION");
-			
+
 			Matcher matcher = Pattern.compile("[0-9]+(\\.[0-9]+)*").matcher(rawVersion);
 			boolean found = matcher.find();
 			if (found) {
@@ -259,11 +255,12 @@ public class ManifestReader {
 	public UnresolvedDependency getFragmentHost() {
 		if (fragmentHost == null) {
 			String fragmentHostBundleName = getValue(FRAGMENT_HOST_REGEX, FRAGMENT_HOST_PREFIX, null);
-			fragmentHost = new UnresolvedDependency(Plugin.class, fragmentHostBundleName, null, true, null, true, false, false);
+			fragmentHost = new UnresolvedDependency(Plugin.class, fragmentHostBundleName, null, true, null, true,
+					false, false);
 		}
 		return fragmentHost;
 	}
-	
+
 	private String getValue(Pattern regex, String prefix, String defaultValue) {
 		Matcher matcher = regex.matcher(content);
 		if (matcher.find()) {
@@ -277,8 +274,8 @@ public class ManifestReader {
 		}
 		return defaultValue;
 	}
-	
-	//TODO read .profile file(s) instead!
+
+	// TODO read .profile file(s) instead!
 	private void addOSGINativeDefaultPackageExports() {
 		exportedPackages.add("javax.accessibility");
 		exportedPackages.add("javax.activity");

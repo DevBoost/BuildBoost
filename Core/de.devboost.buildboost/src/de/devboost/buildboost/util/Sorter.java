@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.util;
@@ -31,13 +31,12 @@ import de.devboost.buildboost.artifacts.Package;
 import de.devboost.buildboost.model.IDependable;
 
 /**
- * A class to sort artifacts topologically in order to determine a reasonable
- * order in which they must be built.
+ * A class to sort artifacts topologically in order to determine a reasonable order in which they must be built.
  */
 public class Sorter {
 
 	public List<IDependable> findCycle(IDependable start) {
-		return findCycle(start, Collections.<IDependable>emptySet());
+		return findCycle(start, Collections.<IDependable> emptySet());
 	}
 
 	public List<IDependable> findCycle(IDependable start, Set<IDependable> ignore) {
@@ -46,7 +45,7 @@ public class Sorter {
 
 		return findCycle(start, ignore, visitedPlugins);
 	}
-	
+
 	private List<IDependable> findCycle(IDependable artifact, Set<IDependable> ignore, Set<IDependable> visitedPlugins) {
 		Collection<IDependable> dependencies = new LinkedHashSet<IDependable>(artifact.getDependencies());
 		dependencies.removeAll(ignore);
@@ -70,10 +69,9 @@ public class Sorter {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Returns the transient hull of dependencies for the given collection of
-	 * artifacts.
+	 * Returns the transient hull of dependencies for the given collection of artifacts.
 	 * 
 	 * @param artifacts
 	 * @return
@@ -81,7 +79,7 @@ public class Sorter {
 	public Set<IDependable> getTransientHull(Collection<IDependable> artifacts) {
 		Set<IDependable> toAnalyze = new LinkedHashSet<IDependable>();
 		toAnalyze.addAll(artifacts);
-		
+
 		Set<IDependable> result = new LinkedHashSet<IDependable>();
 		while (!toAnalyze.isEmpty()) {
 			IDependable next = toAnalyze.iterator().next();
@@ -96,14 +94,13 @@ public class Sorter {
 		}
 		return result;
 	}
-	
+
 	public List<IDependable> topologicalSort(List<IDependable> list) {
-		return topologicalSort(list, Collections.<IDependable>emptySet());
+		return topologicalSort(list, Collections.<IDependable> emptySet());
 	}
-	
+
 	/**
-	 * Sorts the given list of artifacts topologically according to their 
-	 * declared dependencies.
+	 * Sorts the given list of artifacts topologically according to their declared dependencies.
 	 */
 	public List<IDependable> topologicalSort(List<IDependable> artifacts, Set<IDependable> artifactsToIgnore) {
 		// check that set of artifacts is complete
@@ -111,7 +108,8 @@ public class Sorter {
 		transientHull.removeAll(artifactsToIgnore);
 		transientHull.removeAll(artifacts);
 		if (!transientHull.isEmpty()) {
-			throw new RuntimeException("Can't sort artifacts topologically, some dependencies are missing (" + transientHull + ").");
+			throw new RuntimeException("Can't sort artifacts topologically, some dependencies are missing ("
+					+ transientHull + ").");
 		}
 
 		int totalListSize = artifacts.size();
@@ -121,11 +119,11 @@ public class Sorter {
 		// create dependency graph
 		for (int i = 0; i < artifacts.size(); i++) {
 			graph.put(artifacts.get(i), new LinkedHashSet<IDependable>());
-	
-			Collection<IDependable> requiredJobs = new LinkedHashSet<IDependable>(); 
+
+			Collection<IDependable> requiredJobs = new LinkedHashSet<IDependable>();
 			requiredJobs.addAll(artifacts.get(i).getDependencies());
 			requiredJobs.removeAll(artifactsToIgnore);
-			
+
 			Set<IDependable> dependencySet = (Set<IDependable>) graph.get(artifacts.get(i));
 			for (IDependable requiredJob : requiredJobs) {
 				dependencySet.add(requiredJob);
@@ -151,21 +149,22 @@ public class Sorter {
 				if (!dependencySet.isEmpty()) {
 					dependencySet.remove(next);
 					if (next instanceof Package) {
-						//TODO this is needed because the fairly complex package 
-						//     import/export mechanism of OSGi which allows multiple
-						//     (re-)exports of the same package
+						// TODO this is needed because the fairly complex package
+						// import/export mechanism of OSGi which allows multiple
+						// (re-)exports of the same package
 						removeAllSimilarPackages(dependencySet, (Package) next);
 					}
 					// if this node now has zero incoming edges
 					if (dependencySet.isEmpty()) {
 						queue.add(key);
-					}	
+					}
 				}
 			}
 		}
 
 		if (index < totalListSize) {
-			throw new RuntimeException("Cycle detected in plug-in dependencies or plug-in is missing from set of all plug-ins.");
+			throw new RuntimeException(
+					"Cycle detected in plug-in dependencies or plug-in is missing from set of all plug-ins.");
 		}
 
 		List<IDependable> result = new ArrayList<IDependable>(sorted.length);
@@ -178,22 +177,20 @@ public class Sorter {
 	private void removeAllSimilarPackages(Set<IDependable> dependencySet, Package p) {
 		for (Iterator<IDependable> i = dependencySet.iterator(); i.hasNext();) {
 			IDependable next = i.next();
-			if (next instanceof Package && 
-					((Package) next).getIdentifier().endsWith(p.getIdentifier())) {
+			if (next instanceof Package && ((Package) next).getIdentifier().endsWith(p.getIdentifier())) {
 				i.remove();
 			}
-		}	
+		}
 	}
 
 	/**
-	 * Sorts the given list of artifacts topologically and creates a bucket for
-	 * each set of artifacts where artifacts are on the same topological level.
+	 * Sorts the given list of artifacts topologically and creates a bucket for each set of artifacts where artifacts
+	 * are on the same topological level.
 	 * 
 	 * @param artifacts
 	 * @return
 	 */
-	public List<List<IDependable>> sortTopologicallyToBuckets(
-			List<IDependable> artifacts) {
+	public List<List<IDependable>> sortTopologicallyToBuckets(List<IDependable> artifacts) {
 		List<IDependable> sorted = topologicalSort(artifacts);
 		List<List<IDependable>> buckets = new ArrayList<List<IDependable>>();
 		List<IDependable> bucket = new ArrayList<IDependable>();

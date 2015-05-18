@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost;
@@ -30,20 +30,16 @@ import de.devboost.buildboost.util.ArtifactUtil;
 import de.devboost.buildboost.util.Sorter;
 
 /**
- * The {@link AutoBuilder} is a generic builder that can be configured with sets of
- * build participants. These participants can search for artifacts that must be 
- * built and provide respective build scripts. The {@link AutoBuilder} class is the
- * main entry point to the BuildBoost system. A typical use of this class is to
- * configure an {@link IBuildContext} with appropriate discoverers, filters and 
- * build step providers, pass this context to the constructor 
- * {@link #AutoBuilder(IBuildContext)} and call {@link #generateAntTargets()} 
- * to obtain scripts that implement the build.
+ * The {@link AutoBuilder} is a generic builder that can be configured with sets of build participants. These
+ * participants can search for artifacts that must be built and provide respective build scripts. The
+ * {@link AutoBuilder} class is the main entry point to the BuildBoost system. A typical use of this class is to
+ * configure an {@link IBuildContext} with appropriate discoverers, filters and build step providers, pass this context
+ * to the constructor {@link #AutoBuilder(IBuildContext)} and call {@link #generateAntTargets()} to obtain scripts that
+ * implement the build.
  * 
- * Alternatively, one can use build stages, which encapsulate typical 
- * configurations, for example a discoverer for Eclipse plug-in projects and
- * a build step provider that creates a compile script for such projects. The
- * use of build stages is recommended, but only applicable if respective stages
- * are available. 
+ * Alternatively, one can use build stages, which encapsulate typical configurations, for example a discoverer for
+ * Eclipse plug-in projects and a build step provider that creates a compile script for such projects. The use of build
+ * stages is recommended, but only applicable if respective stages are available.
  */
 public class AutoBuilder {
 
@@ -64,7 +60,7 @@ public class AutoBuilder {
 			listener.handleBuildEvent(BuildEventType.INFO, "Executing build participant: " + participant);
 			participant.execute(context);
 		}
-		
+
 		Collection<AntTarget> targets = new ArrayList<AntTarget>();
 		Collection<IArtifact> discoveredArtifacts = context.getDiscoveredArtifacts();
 		for (IArtifact artifact : discoveredArtifacts) {
@@ -84,7 +80,8 @@ public class AutoBuilder {
 		for (DependableBuildParticipant dependable : dependables) {
 			dependable.initializeDependencies(dependables);
 		}
-		List<IDependable> sorted = new Sorter().topologicalSort(new ArtifactUtil().getConcreteList(dependables, IDependable.class));
+		List<IDependable> sorted = new Sorter().topologicalSort(new ArtifactUtil().getConcreteList(dependables,
+				IDependable.class));
 		return new ArtifactUtil().getConcreteList(sorted, IBuildParticipant.class);
 	}
 }

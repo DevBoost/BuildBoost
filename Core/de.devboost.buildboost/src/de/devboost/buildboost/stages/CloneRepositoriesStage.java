@@ -65,7 +65,7 @@ public class CloneRepositoriesStage extends AbstractBuildStage {
 			// projects was already performed.
 			return Collections.singleton(target);
 		}
-		
+
 		context.addBuildParticipant(new RepositoriesFileFinder(reposFolder));
 		context.addBuildParticipant(new CloneRepositoriesBuildStepProvider(reposFolder));
 

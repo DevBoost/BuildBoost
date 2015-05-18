@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.ant;
@@ -22,11 +22,9 @@ import de.devboost.buildboost.artifacts.AbstractArtifact;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * An {@link AntTarget} is a representation of a generated Ant script fragment,
- * namely an ANT target element.
+ * An {@link AntTarget} is a representation of a generated Ant script fragment, namely an ANT target element.
  * 
- * TODO Add parameter Class<?> creator to all constructors to avoid duplicate
- * names for generated targets.
+ * TODO Add parameter Class<?> creator to all constructors to avoid duplicate names for generated targets.
  */
 public class AntTarget extends AbstractArtifact {
 
@@ -45,9 +43,8 @@ public class AntTarget extends AbstractArtifact {
 		this(name, content.toString());
 	}
 
-	public AntTarget(String name, XMLContent content,
-			Collection<String> dependencies) {
-		
+	public AntTarget(String name, XMLContent content, Collection<String> dependencies) {
+
 		this(name, content.toString(), dependencies);
 	}
 
@@ -55,20 +52,18 @@ public class AntTarget extends AbstractArtifact {
 		this(name, content, new LinkedHashSet<String>());
 	}
 
-	private AntTarget(String name, String content,
-			Collection<String> dependencies) {
-		
+	private AntTarget(String name, String content, Collection<String> dependencies) {
+
 		super();
 		if (name.contains(",")) {
-			throw new RuntimeException(
-					"Names for ANT targets must not contain the ',' character, but '"
-							+ name + "' does.");
+			throw new RuntimeException("Names for ANT targets must not contain the ',' character, but '" + name
+					+ "' does.");
 		}
 		this.name = name;
 		this.content = content;
 		this.dependencies = dependencies;
 	}
-	
+
 	public void setIfConditions(String ifConditions) {
 		this.ifConditions = ifConditions;
 	}

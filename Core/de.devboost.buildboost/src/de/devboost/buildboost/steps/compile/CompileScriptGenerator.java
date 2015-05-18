@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.steps.compile;
@@ -30,17 +30,15 @@ import de.devboost.buildboost.util.Sorter;
 import de.devboost.buildboost.util.XMLContent;
 
 /**
- * A utility class that can create Ant scripts to compile Eclipse plug-in 
- * projects.
+ * A utility class that can create Ant scripts to compile Eclipse plug-in projects.
  */
 public class CompileScriptGenerator {
 
 	/**
-	 * Returns an ANT script that compiles all the given projects in the correct
-	 * order.
+	 * Returns an ANT script that compiles all the given projects in the correct order.
 	 * 
 	 * @param pluginsToCompile
-	 * @param targetPlatformPlugins 
+	 * @param targetPlatformPlugins
 	 * @return
 	 */
 	public String getCompileAntScript(Collection<Plugin> pluginsToCompile, Set<Plugin> targetPlatformPlugins) {

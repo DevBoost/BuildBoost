@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.stages;
@@ -28,7 +28,7 @@ import de.devboost.buildboost.steps.compile.ExtractPluginZipStepProvider;
 public class ExtractPluginsStage extends AbstractBuildStage implements IUniversalBuildStage {
 
 	private String artifactsFolder;
-	
+
 	public void setArtifactsFolder(String artifactsFolder) {
 		this.artifactsFolder = artifactsFolder;
 	}
@@ -38,20 +38,20 @@ public class ExtractPluginsStage extends AbstractBuildStage implements IUniversa
 		BuildContext context = createContext(false);
 		File targetPlatform = new File(artifactsFolder);
 		context.addBuildParticipant(new EclipseTargetPlatformAnalyzer(targetPlatform));
-		context.addBuildParticipant(new ExtractPluginZipStepProvider(new File(
-				buildDir, EclipseTargetPlatformAnalyzer.ARTIFACT_CACHE_FILE_NAME)));
-		
+		context.addBuildParticipant(new ExtractPluginZipStepProvider(new File(buildDir,
+				EclipseTargetPlatformAnalyzer.ARTIFACT_CACHE_FILE_NAME)));
+
 		context.setIgnoreUnresolvedDependencies(true);
-		
+
 		AutoBuilder builder = new AutoBuilder(context);
-		
+
 		AntScript script = new AntScript();
 		script.setName("Extract plugins with libs");
 		script.addTargets(builder.generateAntTargets());
-		
+
 		return script;
 	}
-	
+
 	@Override
 	public int getPriority() {
 		return 20;

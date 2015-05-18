@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.filters;
@@ -23,15 +23,14 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IFileArtifact;
 
 /**
- * A DirectoryFilter can be used to exclude artifacts that are contained in a
- * certain directory. The DirectoryFilter walks up the parent hierarchy of the
- * file that contains the artifact and compares the names of the parent 
- * directories with the given exclusion list.
+ * A DirectoryFilter can be used to exclude artifacts that are contained in a certain directory. The DirectoryFilter
+ * walks up the parent hierarchy of the file that contains the artifact and compares the names of the parent directories
+ * with the given exclusion list.
  */
 public class DirectoryFilter extends AbstractFilter {
 
 	private Set<String> excludedNames;
-	
+
 	public DirectoryFilter(Set<String> excludedNames) {
 		this.excludedNames = excludedNames;
 	}
@@ -54,7 +53,7 @@ public class DirectoryFilter extends AbstractFilter {
 				}
 				file = file.getParentFile();
 			}
-			
+
 		}
 		return true;
 	}

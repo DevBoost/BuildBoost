@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.model;
@@ -20,11 +20,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * An UnresolvedDependency is a pair consisting of a symbolic artifact 
- * identifier and a version. UnresolvedDependency objects are used to represent 
- * dependencies between artifacts when the actual artifacts are not known yet. 
- * During the analysis process performed by BuildBoost, UnresolvedDependency 
- * objects are replaced by links to actual artifact objects.
+ * An UnresolvedDependency is a pair consisting of a symbolic artifact identifier and a version. UnresolvedDependency
+ * objects are used to represent dependencies between artifacts when the actual artifacts are not known yet. During the
+ * analysis process performed by BuildBoost, UnresolvedDependency objects are replaced by links to actual artifact
+ * objects.
  */
 public class UnresolvedDependency implements Serializable {
 
@@ -39,21 +38,29 @@ public class UnresolvedDependency implements Serializable {
 	private boolean reexport;
 	private boolean inclusiveMin;
 	private boolean inclusiveMax;
-	
+
 	/**
-	 * Creates a new unresolved dependency object of the given type having the
-	 * given identifier.
+	 * Creates a new unresolved dependency object of the given type having the given identifier.
 	 * 
-	 * @param type the type of artifact the dependency refers to
-	 * @param identifier the symbolic identifier of the referenced artifact
-	 * @param minVersion the minimal version that is required
-	 * @param inclusiveMin a flag indicating whether the minimal version is inclusive or not
-	 * @param maxVersion the maximum version that is required
-	 * @param inclusiveMax a flag indicating whether the maximum version is inclusive or not
-	 * @param optional a flag indicating whether the dependency is optional
-	 * @param reexport a flag indicating whether this dependency is re-exported 
+	 * @param type
+	 *            the type of artifact the dependency refers to
+	 * @param identifier
+	 *            the symbolic identifier of the referenced artifact
+	 * @param minVersion
+	 *            the minimal version that is required
+	 * @param inclusiveMin
+	 *            a flag indicating whether the minimal version is inclusive or not
+	 * @param maxVersion
+	 *            the maximum version that is required
+	 * @param inclusiveMax
+	 *            a flag indicating whether the maximum version is inclusive or not
+	 * @param optional
+	 *            a flag indicating whether the dependency is optional
+	 * @param reexport
+	 *            a flag indicating whether this dependency is re-exported
 	 */
-	public UnresolvedDependency(Class<?> type, String identifier, String minVersion, boolean inclusiveMin, String maxVersion, boolean inclusiveMax, boolean optional, boolean reexport) {
+	public UnresolvedDependency(Class<?> type, String identifier, String minVersion, boolean inclusiveMin,
+			String maxVersion, boolean inclusiveMax, boolean optional, boolean reexport) {
 		super();
 		this.type = type;
 		this.identifier = identifier;
@@ -72,7 +79,7 @@ public class UnresolvedDependency implements Serializable {
 	public String getMinVersion() {
 		return minVersion;
 	}
-	
+
 	public String getMaxVersion() {
 		return maxVersion;
 	}
@@ -84,7 +91,7 @@ public class UnresolvedDependency implements Serializable {
 	public boolean isReexported() {
 		return reexport;
 	}
-	
+
 	public boolean isInclusiveMin() {
 		return inclusiveMin;
 	}
@@ -92,7 +99,7 @@ public class UnresolvedDependency implements Serializable {
 	public boolean isInclusiveMax() {
 		return inclusiveMax;
 	}
-	
+
 	public void addAlternativeIdentifier(String alternativeIdentifier) {
 		alternativeIdentifiers.add(alternativeIdentifier);
 	}
@@ -101,8 +108,7 @@ public class UnresolvedDependency implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((identifier == null) ? 0 : identifier.hashCode());
+		result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
 		result = prime * result + ((minVersion == null) ? 0 : minVersion.hashCode());
 		return result;
 	}
@@ -146,18 +152,18 @@ public class UnresolvedDependency implements Serializable {
 		if (!type.isInstance(artifact)) {
 			return false;
 		}
-		
+
 		// check symbolic identifier
 		String artifactIdentifier = artifact.getIdentifier();
 		if (artifactIdentifier.equals(getIdentifier())) {
 			return true;
 		}
-		
+
 		// check alternative symbolic identifiers
 		if (alternativeIdentifiers.contains(artifactIdentifier)) {
 			return true;
 		}
-		
+
 		// TODO check versions for compatibility
 		return false;
 	}
@@ -168,6 +174,7 @@ public class UnresolvedDependency implements Serializable {
 
 	@Override
 	public String toString() {
-		return type.getSimpleName() + " id=" + identifier + (minVersion == null ? "" : ", version=" + minVersion) + (optional ? ", optional" : "") + (reexport ? ", reexport" : "");
+		return type.getSimpleName() + " id=" + identifier + (minVersion == null ? "" : ", version=" + minVersion)
+				+ (optional ? ", optional" : "") + (reexport ? ", reexport" : "");
 	}
 }

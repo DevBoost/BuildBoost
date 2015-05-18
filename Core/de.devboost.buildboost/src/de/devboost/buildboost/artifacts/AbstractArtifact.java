@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
@@ -27,9 +27,8 @@ import de.devboost.buildboost.model.ResolvedDependency;
 import de.devboost.buildboost.model.UnresolvedDependency;
 
 /**
- * AbstractArtifact is a base class for implementing artifact types. It provides
- * common functionality shared across artifact type, for example, the resolution
- * of unresolved dependencies.
+ * AbstractArtifact is a base class for implementing artifact types. It provides common functionality shared across
+ * artifact type, for example, the resolution of unresolved dependencies.
  * 
  * This class is intended to be subclasses by clients.
  */
@@ -43,7 +42,7 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	public String getIdentifier() {
 		return identifier;
 	}
-	
+
 	public Collection<IDependable> getDependencies() {
 		Collection<IDependable> dependencies = new LinkedHashSet<IDependable>();
 		for (ResolvedDependency dependency : resolvedDependencies) {
@@ -53,22 +52,21 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	}
 
 	protected void addDependency(IArtifact artifact) {
-		UnresolvedDependency dependency = new UnresolvedDependency(
-				artifact.getClass(), artifact.getIdentifier(), null, true,
-				null, true, false, false);
+		UnresolvedDependency dependency = new UnresolvedDependency(artifact.getClass(), artifact.getIdentifier(), null,
+				true, null, true, false, false);
 		addResolvedDependency(dependency, artifact);
 	}
 
 	public Collection<UnresolvedDependency> getUnresolvedDependencies() {
 		return unresolvedDependencies;
 	}
-	
+
 	public Collection<ResolvedDependency> getResolvedDependencies() {
 		return Collections.unmodifiableCollection(resolvedDependencies);
 	}
 
 	public Collection<ResolvedDependency> getAllResolvedDependencies() {
-		
+
 		Collection<ResolvedDependency> allDependencies = new LinkedHashSet<ResolvedDependency>();
 		for (ResolvedDependency dependency : getResolvedDependencies()) {
 			// Add direct dependency
@@ -94,9 +92,9 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 	}
 
 	public void addResolvedDependency(UnresolvedDependency dependency, IDependable dependable) {
-		
+
 		ResolvedDependency resolvedDependency = new ResolvedDependency(this, dependable, dependency);
-		
+
 		resolvedDependencies.add(resolvedDependency);
 		unresolvedDependencies.remove(dependency);
 	}
@@ -107,7 +105,8 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 
 	public void resolveDependencies(Collection<? extends IArtifact> allArtifacts) {
 		for (IArtifact artifact : allArtifacts) {
-			Collection<UnresolvedDependency> unresolvedDependencies = new ArrayList<UnresolvedDependency>(getUnresolvedDependencies());
+			Collection<UnresolvedDependency> unresolvedDependencies = new ArrayList<UnresolvedDependency>(
+					getUnresolvedDependencies());
 			for (UnresolvedDependency nextDependency : unresolvedDependencies) {
 				if (nextDependency.isFulfilledBy(artifact)) {
 					addResolvedDependency(nextDependency, artifact);
@@ -115,7 +114,7 @@ public abstract class AbstractArtifact implements IArtifact, Serializable {
 			}
 		}
 	}
-	
+
 	@Override
 	public long getTimestamp() {
 		return -1;

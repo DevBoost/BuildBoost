@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
@@ -44,9 +44,9 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 	private static final long serialVersionUID = 8136940018246598015L;
 
 	public static final String FEATURE_XML = "feature.xml";
-	
+
 	private File file;
-	
+
 	private Set<String> containedPluginIDs = new LinkedHashSet<String>();
 
 	private String version;
@@ -80,15 +80,14 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 	public boolean isExtracted() {
 		return file.getName().equals(FEATURE_XML);
 	}
-	
+
 	private void readFeatureInputStream(InputStream is) {
 		AbstractXMLReader xmlUtil = new AbstractXMLReader() {
-			
+
 			private boolean searchingContainedPlugins = false;
 
 			@Override
-			protected void process(Document document, XPath xpath)
-					throws XPathExpressionException {
+			protected void process(Document document, XPath xpath) throws XPathExpressionException {
 				findIdentifier(document, xpath);
 				findVersion(document, xpath);
 				searchingContainedPlugins = true;
@@ -99,8 +98,7 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 			}
 
 			@Override
-			protected void addUnresolvedDependencies(Element element,
-					UnresolvedDependency unresolvedDependency) {
+			protected void addUnresolvedDependencies(Element element, UnresolvedDependency unresolvedDependency) {
 				// we exclude dependencies that are specific to a particular OS
 				// or windowing system
 				boolean isOsIndependent = isAttributeNotSet(element, "os");
@@ -134,24 +132,22 @@ public class EclipseFeature extends AbstractArtifact implements Serializable {
 				findDependencies(document, xpath, "//plugin", "id", "fragment", Plugin.class);
 			}
 
-			private void findFeatureDependencies(Document document, XPath xpath)
-					throws XPathExpressionException {
+			private void findFeatureDependencies(Document document, XPath xpath) throws XPathExpressionException {
 				// TODO deactivated, because this information only becomes important at installation time
-				//      and installation is (currently) always performed against external p2-repositories
-				//      and not against the artifacts that are discovered in the build process
-				
+				// and installation is (currently) always performed against external p2-repositories
+				// and not against the artifacts that are discovered in the build process
+
 				// mseifert: reactivated discovery of feature dependencies, because they are required
 				// to update the minimal required version
 				findDependencies(document, xpath, "//import", "feature", null, EclipseFeature.class);
 			}
 
-			private void findPluginDependencies(Document document, XPath xpath)
-					throws XPathExpressionException {
+			private void findPluginDependencies(Document document, XPath xpath) throws XPathExpressionException {
 				// TODO deactivated (see above)
-				//findDependencies(document, xpath, "//import", "plugin", null, Plugin.class);
+				// findDependencies(document, xpath, "//import", "plugin", null, Plugin.class);
 			}
 		};
-		
+
 		xmlUtil.readXMLStrem(is);
 	}
 

@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery.reader;
@@ -26,7 +26,7 @@ import java.util.Properties;
 public class PropertyFileReader {
 
 	private Properties properties;
-	
+
 	public PropertyFileReader(File file) {
 		super();
 		readPropertyFile(file);
@@ -42,7 +42,7 @@ public class PropertyFileReader {
 			throw new RuntimeException("Exception while reading property file: " + e.getMessage());
 		}
 	}
-	
+
 	public String getValue(String... path) {
 		StringBuilder key = new StringBuilder();
 		for (int i = 0; i < path.length - 1; i++) {
@@ -54,7 +54,7 @@ public class PropertyFileReader {
 		}
 		return getValueInternal(key.toString());
 	}
-	
+
 	private String getValueInternal(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
@@ -65,7 +65,7 @@ public class PropertyFileReader {
 		}
 		return value;
 	}
-	
+
 	public Map<String, String> getValues(String... path) {
 		StringBuilder key = new StringBuilder();
 		Map<String, String> values = new LinkedHashMap<String, String>();
@@ -73,10 +73,9 @@ public class PropertyFileReader {
 			key.append(path[i]);
 			key.append("/");
 		}
-		for(Map.Entry<Object, Object> entry : properties.entrySet()) {
+		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 			if (entry.getKey().toString().startsWith(key.toString())) {
-				String subKey = entry.getKey().toString().substring(
-						key.toString().length());
+				String subKey = entry.getKey().toString().substring(key.toString().length());
 				if (!subKey.contains("/")) {
 					values.put(subKey, entry.getValue().toString());
 				}

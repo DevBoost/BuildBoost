@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.filters;
@@ -35,20 +35,21 @@ public abstract class AbstractFilter extends AbstractBuildParticipant implements
 	public void execute(IBuildContext context) throws BuildException {
 		IBuildListener buildListener = context.getBuildListener();
 		Collection<IArtifact> artifacts = context.getDiscoveredArtifacts();
-		Collection<IArtifact> artifactsToRemove = new ArrayList<IArtifact>(); 
+		Collection<IArtifact> artifactsToRemove = new ArrayList<IArtifact>();
 		for (IArtifact artifact : artifacts) {
 			if (!accept(artifact)) {
-				buildListener.handleBuildEvent(BuildEventType.INFO, "Artifact " + artifact + " is removed because of filter " + this);
+				buildListener.handleBuildEvent(BuildEventType.INFO, "Artifact " + artifact
+						+ " is removed because of filter " + this);
 				artifactsToRemove.add(artifact);
 			}
 		}
 		context.removeDiscoveredArtifacts(artifactsToRemove);
 	}
-	
+
 	public OrFilter or(IArtifactFilter other) {
 		return new OrFilter(this, other);
 	}
-	
+
 	@Override
 	public boolean dependsOn(IBuildParticipant otherParticipant) {
 		if (otherParticipant instanceof IArtifactDiscoverer) {

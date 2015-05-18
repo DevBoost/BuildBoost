@@ -36,7 +36,7 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 
 	private final TargetPlatformZip zip;
 	private final File targetDir;
-	
+
 	public ExtractZipFileBuildStep(TargetPlatformZip zip, File targetDir) {
 		this.zip = zip;
 		this.targetDir = new File(targetDir, IConstants.TARGET_PLATFORM_FOLDER);
@@ -47,7 +47,8 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 		File file = zip.getZipFile();
 		String absolutePath = file.getAbsolutePath();
 		String md5 = MD5Utils.INSTANCE.computeMD5(absolutePath);
-		AntScriptUtil.addZipFileExtractionScript(content, file, new File(targetDir, determineEclipseTargetStructurePrefix(file)));
+		AntScriptUtil.addZipFileExtractionScript(content, file, new File(targetDir,
+				determineEclipseTargetStructurePrefix(file)));
 		AntTarget antTarget = new AntTarget("unzip-target-platform-" + zip.getIdentifier() + "-" + md5, content);
 		return Collections.singleton(antTarget);
 	}
@@ -71,8 +72,8 @@ public class ExtractZipFileBuildStep extends AbstractAntTargetGenerator {
 				}
 			}
 			zipFile.close();
-		} catch (IOException e) { 
-			//ignore
+		} catch (IOException e) {
+			// ignore
 			e.printStackTrace();
 		}
 		return "eclipse/plugins";

@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
@@ -32,28 +32,28 @@ import de.devboost.buildboost.BuildException;
 
 @SuppressWarnings("serial")
 public class RepositoriesFile extends AbstractArtifact {
-	
+
 	public static final String SVN = "svn";
 	public static final String GIT = "git";
 	public static final String GET = "get";
 	public static final String DYNAMICFILE = "dynamicfile";
 
 	public static String SUB_DIR_SEPARATOR = "!";
-	
+
 	public static String[] SUPPORTED_TYPES = { SVN + ":", GIT + ":", GET + ":", DYNAMICFILE + ":" };
-	
+
 	public class Location {
-		
+
 		private final String type;
 		private final String url;
 		private final Set<String> subDirectories;
-		
+
 		public Location(String type, String url) {
 			super();
 			this.type = type;
 			this.url = url;
 			this.subDirectories = new LinkedHashSet<String>();
-			//TODO we wouldn't need this if we create an extra repository for extensions
+			// TODO we wouldn't need this if we create an extra repository for extensions
 			if (BUILD_BOOST_REPOSITORY_URL.equals(url)) {
 				subDirectories.add("Core/");
 				subDirectories.add("Universal/");
@@ -63,11 +63,11 @@ public class RepositoriesFile extends AbstractArtifact {
 		public String getType() {
 			return type;
 		}
-		
+
 		public String getUrl() {
 			return url;
 		}
-		
+
 		public Set<String> getSubDirectories() {
 			return subDirectories;
 		}
@@ -87,7 +87,7 @@ public class RepositoriesFile extends AbstractArtifact {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String locationString;
-			readLine: while((locationString = reader.readLine()) != null) {
+			readLine: while ((locationString = reader.readLine()) != null) {
 				locationString = locationString.trim();
 				if (isComment(locationString)) {
 					continue readLine;
@@ -113,7 +113,7 @@ public class RepositoriesFile extends AbstractArtifact {
 						continue readLine;
 					}
 				}
-				
+
 				reader.close();
 				throw new BuildException("Cannot handle repository location: " + locationString);
 			}

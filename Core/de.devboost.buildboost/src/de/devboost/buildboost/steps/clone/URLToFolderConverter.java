@@ -1,45 +1,60 @@
+/*******************************************************************************
+ * Copyright (c) 2006-2015
+ * Software Technology Group, Dresden University of Technology
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *   Software Technology Group - TU Dresden, Germany;
+ *   DevBoost GmbH - Dresden, Germany
+ *      - initial API and implementation
+ ******************************************************************************/
 package de.devboost.buildboost.steps.clone;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class URLToFolderConverter {
-	
+
 	public final static URLToFolderConverter INSTANCE = new URLToFolderConverter();
 
 	private static final String CREDENTIALS_REGEX = "\\{([a-z|A-Z|_]+)\\}:\\{([a-z|A-Z|_]+)\\}@";
 	private static final Pattern CREDENTIALS_PATTERN = Pattern.compile(CREDENTIALS_REGEX);
-	
+
 	private URLToFolderConverter() {
 	}
 
 	/**
-	 * Converts the given URL to a folder names. This is used to compute the
-	 * names for the folder where to checkout the repository with the given URL 
-	 * to.
+	 * Converts the given URL to a folder names. This is used to compute the names for the folder where to checkout the
+	 * repository with the given URL to.
 	 * 
-	 * @param url a URL of a repository
+	 * @param url
+	 *            a URL of a repository
 	 * @return a folder name
 	 */
 	public String url2FolderName(String url) {
 		int idx;
 		String folderName = url;
-		
+
 		// Cut leading protocol
 		idx = folderName.indexOf("//");
 		if (idx != -1) {
 			folderName = folderName.substring(idx + 2);
 		}
-		
+
 		// Cut arguments
 		idx = folderName.indexOf("?");
 		if (idx != -1) {
 			folderName = folderName.substring(0, idx);
 		}
-		
+
 		// Remove credential place holders
 		folderName = removeCredentialPlaceholders(folderName);
-		
+
 		// Replace special character that are not allows in folder names
 		folderName = folderName.replace(":", "");
 		folderName = folderName.replace("~", "_");
@@ -62,7 +77,6 @@ public class URLToFolderConverter {
 		return !path.equals(removeCredentialPlaceholders(path));
 	}
 
-
 	protected String getUsername(String path) {
 		return getCredentialVar(path, 1);
 	}
@@ -70,7 +84,7 @@ public class URLToFolderConverter {
 	protected String getPasswordVar(String path) {
 		return getCredentialVar(path, 2);
 	}
-	
+
 	private String getCredentialVar(String path, int group) {
 		Matcher matcher = CREDENTIALS_PATTERN.matcher(path);
 		if (matcher.find()) {

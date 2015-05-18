@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery;
@@ -25,15 +25,12 @@ import de.devboost.buildboost.model.IArtifactDiscoverer;
 import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildListener;
 
-public abstract class AbstractArtifactDiscoverer extends AbstractBuildParticipant 
-	implements IArtifactDiscoverer {
+public abstract class AbstractArtifactDiscoverer extends AbstractBuildParticipant implements IArtifactDiscoverer {
 
 	@Override
 	public void execute(IBuildContext context) throws BuildException {
 		IBuildListener buildListener = context.getBuildListener();
-		buildListener.handleBuildEvent(
-				BuildEventType.INFO, 
-				"Running artifact discoverer: " + this);
+		buildListener.handleBuildEvent(BuildEventType.INFO, "Running artifact discoverer: " + this);
 		Collection<IArtifact> discoveredArtifacts = discoverArtifacts(context);
 		context.addDiscoveredArtifacts(discoveredArtifacts);
 	}

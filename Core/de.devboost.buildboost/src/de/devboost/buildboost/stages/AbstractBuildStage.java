@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.stages;
@@ -31,11 +31,11 @@ public abstract class AbstractBuildStage implements IBuildStage {
 	public void addBuildParticipant(IBuildParticipant participant) {
 		participants.add(participant);
 	}
-	
+
 	public void addBuildParticipants(Collection<IBuildParticipant> participants) {
 		this.participants.addAll(participants);
 	}
-	
+
 	protected BuildContext createContext(boolean ignoreUnresolvedDependencies) {
 		BuildContext context = new BuildContext();
 		context.setIgnoreUnresolvedDependencies(ignoreUnresolvedDependencies);
@@ -44,7 +44,7 @@ public abstract class AbstractBuildStage implements IBuildStage {
 		}
 		return context;
 	}
-	
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
@@ -53,7 +53,7 @@ public abstract class AbstractBuildStage implements IBuildStage {
 	public boolean isEnabled() {
 		return enabled;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();

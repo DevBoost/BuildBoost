@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery;
@@ -40,26 +40,24 @@ import de.devboost.buildboost.util.ArtifactUtil;
 import de.devboost.buildboost.util.EclipsePluginHelper;
 
 /**
- * The EclipseTargetPlatformAnalyzer can be used to scan an Eclipse instance
- * to detect all contained plug-ins. This is required to compile Eclipse
- * plug-in projects that depend on plug-ins of an Eclipse target platform.
+ * The EclipseTargetPlatformAnalyzer can be used to scan an Eclipse instance to detect all contained plug-ins. This is
+ * required to compile Eclipse plug-in projects that depend on plug-ins of an Eclipse target platform.
  */
-//TODO is there a overlap with FeatureFinder?
+// TODO is there a overlap with FeatureFinder?
 public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 
 	public static final String ARTIFACT_CACHE_FILE_NAME = "artifact_cache.ser";
 
 	private interface IArtifactCreator {
-		
+
 		public IArtifact create(File file) throws IOException, InvalidMetadataException;
 	}
-	
+
 	/**
-	 * The {@link CompiledPluginCreator} creates a {@link CompiledPlugin} from
-	 * a file.
+	 * The {@link CompiledPluginCreator} creates a {@link CompiledPlugin} from a file.
 	 */
 	private static class CompiledPluginCreator implements IArtifactCreator {
-		
+
 		@Override
 		public IArtifact create(File file) throws IOException, InvalidMetadataException {
 			return new CompiledPlugin(file);
@@ -67,8 +65,7 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 	}
 
 	/**
-	 * The {@link EclipseFeatureCreator} creates an {@link EclipseFeature} from
-	 * a file.
+	 * The {@link EclipseFeatureCreator} creates an {@link EclipseFeature} from a file.
 	 */
 	private static class EclipseFeatureCreator implements IArtifactCreator {
 
@@ -89,33 +86,31 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		this.targetPlatformLocation = targetPlatform;
 	}
 
-	//TODO the discover should traverse the folder hierarchy only once. 
-	//     Could we optimize discovering in general such that there is only one traversal each time?
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context)
-			throws BuildException {
-		
+	// TODO the discover should traverse the folder hierarchy only once.
+	// Could we optimize discovering in general such that there is only one traversal each time?
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
+
 		IBuildListener buildListener = context.getBuildListener();
-		buildListener.handleBuildEvent(BuildEventType.INFO,
-				"Analyzing target platform...");
-		
+		buildListener.handleBuildEvent(BuildEventType.INFO, "Analyzing target platform...");
+
 		// TODO Clarify why Jendrik had to deactivate the cache
 		/*
-		Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts();
-		if (cachedArtifacts != null) {
-			buildListener.handleBuildEvent(BuildEventType.INFO, "Loaded cached target platform info: " + cachedArtifacts);
-			return cachedArtifacts;
-		}
-		*/
-		
+		 * Set<IArtifact> cachedArtifacts = loadDiscoveredArtifacts(); if (cachedArtifacts != null) {
+		 * buildListener.handleBuildEvent(BuildEventType.INFO, "Loaded cached target platform info: " +
+		 * cachedArtifacts); return cachedArtifacts; }
+		 */
+
 		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
-		
+
 		// first, find plug-ins and create respective artifact objects
 		Set<File> pluginJarsAndDirs = findFiles(targetPlatformLocation, new EclipsePluginFileFilter());
-		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener, new CompiledPluginCreator());
-		
+		Set<IArtifact> foundPlugins = analyzeTargetPlatformJarFiles(pluginJarsAndDirs, "plug-in", buildListener,
+				new CompiledPluginCreator());
+
 		// second, find features and create respective artifact objects
 		Set<File> featureJarsAndDirs = findFiles(targetPlatformLocation, new EclipseFeatureFileFilter());
-		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener, new EclipseFeatureCreator());
+		Set<IArtifact> foundFeatures = analyzeTargetPlatformJarFiles(featureJarsAndDirs, "feature", buildListener,
+				new EclipseFeatureCreator());
 
 		// third, add all found artifacts to result set
 		artifacts.addAll(foundPlugins);
@@ -143,13 +138,13 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		if (!cacheFile.exists()) {
 			return null;
 		}
-		
+
 		try {
 			FileInputStream fis = new FileInputStream(cacheFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			Object object = ois.readObject();
 			fis.close();
-			
+
 			if (object instanceof Set) {
 				return (Set<IArtifact>) object;
 			} else {
@@ -167,12 +162,12 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		if (!directory.isDirectory()) {
 			return Collections.emptySet();
 		}
-		
+
 		File[] filesInDirectory = directory.listFiles();
 		if (filesInDirectory == null) {
 			return Collections.emptySet();
 		}
-		
+
 		Set<File> result = new LinkedHashSet<File>();
 		for (File file : filesInDirectory) {
 			boolean isDirectory = file.isDirectory();
@@ -184,17 +179,16 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 					continue;
 				}
 			}
-			
+
 			boolean accepted = fileFilter.accept(file);
 			if (accepted) {
 				result.add(file);
 			}
-			
-			boolean isTargetPlatformRoot = 
-				"eclipse".equals(file.getName()) &&
-				"target-platform".equals(file.getParentFile().getName());
-			
-			// Search for nested JARs and plug-ins if we're in the root 
+
+			boolean isTargetPlatformRoot = "eclipse".equals(file.getName())
+					&& "target-platform".equals(file.getParentFile().getName());
+
+			// Search for nested JARs and plug-ins if we're in the root
 			// directory of the target platform. The latter condition is a
 			// workaround for the Refactory build where the target platform
 			// root contains a META-INF folder.
@@ -205,49 +199,39 @@ public class EclipseTargetPlatformAnalyzer extends AbstractArtifactDiscoverer {
 		return result;
 	}
 
-	private Set<IArtifact> analyzeTargetPlatformJarFiles(
-			Set<File> targetPlatformFiles, 
-			String type, 
-			IBuildListener buildListener,
-			IArtifactCreator creator) {
-		
+	private Set<IArtifact> analyzeTargetPlatformJarFiles(Set<File> targetPlatformFiles, String type,
+			IBuildListener buildListener, IArtifactCreator creator) {
+
 		Set<IArtifact> artifacts = new LinkedHashSet<IArtifact>();
 		for (File targetPlatformFile : targetPlatformFiles) {
 			IArtifact artifact;
 			try {
 				artifact = creator.create(targetPlatformFile);
 			} catch (IOException e) {
-				buildListener.handleBuildEvent(BuildEventType.WARNING,
-						"Exception while analyzing target platform " + type
-								+ " " + targetPlatformFile.toString() + ": "
-								+ e.getMessage());
+				buildListener.handleBuildEvent(BuildEventType.WARNING, "Exception while analyzing target platform "
+						+ type + " " + targetPlatformFile.toString() + ": " + e.getMessage());
 				continue;
 			} catch (InvalidMetadataException e) {
-				buildListener.handleBuildEvent(BuildEventType.INFO,
-						"Skipping invalid target platform JAR "
-								+ targetPlatformFile.getAbsolutePath());
+				buildListener.handleBuildEvent(BuildEventType.INFO, "Skipping invalid target platform JAR "
+						+ targetPlatformFile.getAbsolutePath());
 				continue;
 			}
 			if (artifact.getIdentifier() == null) {
-				buildListener.handleBuildEvent(
-						BuildEventType.INFO,
-						"Ignoring target platform " + type
-								+ " without name at "
-								+ targetPlatformFile.getAbsolutePath());
+				buildListener.handleBuildEvent(BuildEventType.INFO, "Ignoring target platform " + type
+						+ " without name at " + targetPlatformFile.getAbsolutePath());
 				continue;
 			}
 			artifacts.add(artifact);
 			if (artifact instanceof CompiledPlugin) {
 				Plugin plugin = (Plugin) artifact;
-				artifacts.addAll(plugin.getExportedPackages());				
+				artifacts.addAll(plugin.getExportedPackages());
 			}
 			buildListener.handleBuildEvent(
 					BuildEventType.INFO,
-					"Found target platform " + type + " '"
-							+ artifact.getIdentifier() + "' at "
+					"Found target platform " + type + " '" + artifact.getIdentifier() + "' at "
 							+ targetPlatformFile.getAbsolutePath());
 		}
-		
+
 		return new ArtifactUtil().getSetOfArtifacts(artifacts);
 	}
 

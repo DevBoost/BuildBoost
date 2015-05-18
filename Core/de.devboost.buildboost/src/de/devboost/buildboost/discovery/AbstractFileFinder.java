@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2012
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery;
@@ -25,13 +25,12 @@ import de.devboost.buildboost.model.IBuildContext;
 import de.devboost.buildboost.model.IBuildParticipant;
 
 /**
- * An abstract base class for discoverers that search for files in the 
- * workspace that is subject to the current build.
+ * An abstract base class for discoverers that search for files in the workspace that is subject to the current build.
  *
- * @param <ArtifactType> the type of artifact that is searched for
+ * @param <ArtifactType>
+ *            the type of artifact that is searched for
  */
-public abstract class AbstractFileFinder<ArtifactType extends IArtifact> 
-	extends AbstractArtifactDiscoverer {
+public abstract class AbstractFileFinder<ArtifactType extends IArtifact> extends AbstractArtifactDiscoverer {
 
 	protected File directory;
 
@@ -40,30 +39,28 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 		this.directory = directory;
 	}
 
-	protected void traverse(
-			IBuildContext context, 
-			Collection<ArtifactType> artifacts) throws BuildException {
+	protected void traverse(IBuildContext context, Collection<ArtifactType> artifacts) throws BuildException {
 		traverse(context, directory, artifacts);
 	}
 
 	/**
-	 * Traverses the given directory and all its sub folders recursively to
-	 * find artifacts. Using the two template methods {@link #getFileFilter()}
-	 * and {@link #createArtifactFromFile(File)} sub classes can determine which
-	 * files are considered and how these are converted into artifact objects.
+	 * Traverses the given directory and all its sub folders recursively to find artifacts. Using the two template
+	 * methods {@link #getFileFilter()} and {@link #createArtifactFromFile(File)} sub classes can determine which files
+	 * are considered and how these are converted into artifact objects.
 	 * 
-	 * @param context the context this build is performed in
-	 * @param directory the root directory where to start the traversal
-	 * @param artifacts a collection that is used to store the found artifacts
-	 * @throws BuildException 
+	 * @param context
+	 *            the context this build is performed in
+	 * @param directory
+	 *            the root directory where to start the traversal
+	 * @param artifacts
+	 *            a collection that is used to store the found artifacts
+	 * @throws BuildException
 	 */
-	protected void traverse(
-			IBuildContext context, 
-			File directory,
-			Collection<ArtifactType> artifacts) throws BuildException {
-		
+	protected void traverse(IBuildContext context, File directory, Collection<ArtifactType> artifacts)
+			throws BuildException {
+
 		findFiles(directory, artifacts);
-		
+
 		File[] subDirectories = directory.listFiles(getDirectoryFilter());
 		if (subDirectories == null) {
 			return;
@@ -87,7 +84,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 	public boolean dependsOn(IBuildParticipant otherParticipant) {
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [" + directory.getAbsolutePath() + "]";
@@ -96,7 +93,7 @@ public abstract class AbstractFileFinder<ArtifactType extends IArtifact>
 	protected abstract ArtifactType createArtifactFromFile(File file) throws BuildException;
 
 	protected FileFilter getDirectoryFilter() {
-		return new FileFilter() {	
+		return new FileFilter() {
 			public boolean accept(File file) {
 				return file.isDirectory();
 			}

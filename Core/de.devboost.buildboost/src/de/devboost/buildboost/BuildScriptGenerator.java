@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2013
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost;
@@ -52,12 +52,12 @@ import de.devboost.buildboost.stages.CopyProjectsStage;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildScriptGenerator implements IBuildConfiguration {
-	
+
 	private class MergeBootstrapBinariesStage extends AbstractBuildStage {
 
 		private String sourcePath;
 		private String buildBoostBinDir;
-		
+
 		public MergeBootstrapBinariesStage(String sourcePath, String buildBoostBinDir) {
 			super();
 			this.sourcePath = sourcePath;
@@ -70,14 +70,14 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 
 			BuildContext context = createContext(true);
 			context.addBuildParticipant(new PluginFinder(buildDir));
-			
+
 			context.addBuildParticipant(new MergeBinariesStepProvider(buildBoostBinDir));
 			AutoBuilder builder = new AutoBuilder(context);
-			
+
 			AntScript script = new AntScript();
 			script.setName("Merge bootstrapped binaries");
 			script.addTargets(builder.generateAntTargets());
-			
+
 			return script;
 		}
 
@@ -87,7 +87,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 			return 0;
 		}
 	}
-	
+
 	private class MergeBinariesStepProvider extends AbstractAntTargetGeneratorProvider {
 
 		private String buildBoostBinDir;
@@ -97,8 +97,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		}
 
 		@Override
-		public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context,
-				IArtifact artifact) {
+		public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 			if (artifact instanceof Plugin) {
 				Plugin plugin = (Plugin) artifact;
 				if (plugin.isProject()) {
@@ -110,7 +109,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 			return Collections.emptyList();
 		}
 	}
-	
+
 	private class MergeBinariesStep extends AbstractAntTargetGenerator {
 
 		private Plugin plugin;
@@ -130,7 +129,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 			for (Plugin dependency : dependencies) {
 				copyToSharedBinFolder(content, dependency);
 			}
-			
+
 			String identifier = plugin.getIdentifier();
 			AntTarget target = new AntTarget("merge-bin-" + identifier, content);
 			return Collections.singleton(target);
@@ -150,7 +149,7 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 			content.append("<copy todir=\"" + buildBoostBinDir + "\">");
 			content.append("<fileset dir=\"" + binFolder + "\" />");
 			content.append("</copy>");
-			
+
 			Set<String> libs = plugin.getLibs();
 			for (String lib : libs) {
 				if (plugin.isProject()) {
@@ -172,35 +171,35 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		File artifactsFolder = new File(buildFolder, ARTIFACTS_FOLDER);
 
 		List<IBuildStage> stages = new ArrayList<IBuildStage>();
-		
+
 		CloneRepositoriesStage stage1 = new CloneRepositoriesStage();
 		stage1.setReposFolder(reposFolder.getAbsolutePath());
 
-		// TODO This is not correct and it also makes the builds slow. There 
-		// can be new '.repositories' files after the second clone and this 
-		// might go on even further. We need to come up with a more clever 
+		// TODO This is not correct and it also makes the builds slow. There
+		// can be new '.repositories' files after the second clone and this
+		// might go on even further. We need to come up with a more clever
 		// solution here.
-		
+
 		// update a second time, since the first update might have revealed new
 		// '.repository' files
 		// CloneRepositoriesStage stage2 = new CloneRepositoriesStage();
 		// stage2.setReposFolder(reposFolder.getAbsolutePath());
-		
+
 		CopyProjectsStage stage3 = new CopyProjectsStage();
 		stage3.setReposFolder(reposFolder.getAbsolutePath());
 		stage3.setArtifactsFolder(artifactsFolder.getAbsolutePath());
 		stage3.addBuildParticipant(createFilter());
-		
+
 		CompileStage stage4 = new CompileStage();
 		stage4.setArtifactsFolder(artifactsFolder.getAbsolutePath());
 		stage4.addBuildParticipant(createFilter());
-		
-		MergeBootstrapBinariesStage stage5 = new MergeBootstrapBinariesStage(
-				artifactsFolder.getAbsolutePath(), buildBoostBinFolder.getAbsolutePath());
+
+		MergeBootstrapBinariesStage stage5 = new MergeBootstrapBinariesStage(artifactsFolder.getAbsolutePath(),
+				buildBoostBinFolder.getAbsolutePath());
 		stage5.addBuildParticipant(createFilter());
-		
+
 		stages.add(stage1);
-		//stages.add(stage2);
+		// stages.add(stage2);
 		stages.add(stage3);
 		stages.add(stage4);
 		stages.add(stage5);

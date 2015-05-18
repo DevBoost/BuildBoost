@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2006-2014
+ * Copyright (c) 2006-2015
  * Software Technology Group, Dresden University of Technology
- * DevBoost GmbH, Berlin, Amtsgericht Charlottenburg, HRB 140026
+ * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,7 +10,7 @@
  * 
  * Contributors:
  *   Software Technology Group - TU Dresden, Germany;
- *   DevBoost GmbH - Berlin, Germany
+ *   DevBoost GmbH - Dresden, Germany
  *      - initial API and implementation
  ******************************************************************************/
 package de.devboost.buildboost.discovery;
@@ -30,8 +30,8 @@ import de.devboost.buildboost.util.ArtifactUtil;
 import de.devboost.buildboost.util.EclipsePluginHelper;
 
 /**
- * The {@link TargetPlatformZipFinder} can be used to discover ZIP and TAR/GZ 
- * files which contain Eclipse plug-ins or features.
+ * The {@link TargetPlatformZipFinder} can be used to discover ZIP and TAR/GZ files which contain Eclipse plug-ins or
+ * features.
  */
 public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZip> {
 
@@ -39,26 +39,23 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 		super(directory);
 	}
 
-	public Collection<IArtifact> discoverArtifacts(IBuildContext context)
-			throws BuildException {
-		
+	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
+
 		IBuildListener buildListener = context.getBuildListener();
 
 		Collection<TargetPlatformZip> zipFiles = new ArrayList<TargetPlatformZip>();
 		traverse(context, zipFiles);
 		for (TargetPlatformZip targetPlatformZip : zipFiles) {
-			buildListener.handleBuildEvent(
-					BuildEventType.INFO,
-					"Found target platform zip: "
-							+ targetPlatformZip.getIdentifier());
+			buildListener.handleBuildEvent(BuildEventType.INFO,
+					"Found target platform zip: " + targetPlatformZip.getIdentifier());
 		}
 		return new ArtifactUtil().getSetOfArtifacts(zipFiles);
 	}
 
 	@Override
-	protected void traverse(IBuildContext context, File directory,
-			Collection<TargetPlatformZip> artifacts) throws BuildException {
-		
+	protected void traverse(IBuildContext context, File directory, Collection<TargetPlatformZip> artifacts)
+			throws BuildException {
+
 		// ignore projects and things inside projects
 		boolean isProject = EclipsePluginHelper.INSTANCE.isProject(directory);
 		if (isProject) {
@@ -66,14 +63,14 @@ public class TargetPlatformZipFinder extends AbstractFileFinder<TargetPlatformZi
 		}
 		super.traverse(context, directory, artifacts);
 	}
-	
+
 	protected TargetPlatformZip createArtifactFromFile(File file) {
 		return new TargetPlatformZip(file);
 	}
-	
+
 	protected FileFilter getFileFilter() {
 		return new FileFilter() {
-			
+
 			public boolean accept(File file) {
 				String name = file.getName();
 				boolean isArchive = name.endsWith(".zip") || name.endsWith(".tar.gz");
