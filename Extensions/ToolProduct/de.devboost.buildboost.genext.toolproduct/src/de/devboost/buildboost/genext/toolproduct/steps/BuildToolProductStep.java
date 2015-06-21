@@ -131,7 +131,13 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			// Extract product base
 			content.append("<mkdir dir=\"" + productInstallationFolder.getParentFile().getAbsolutePath() + "\" />");
-			AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
+			if (sdkZipFile.getName().contains("4.5-macosx-cocoa")) {
+				// Starting from Eclipse Mars, the OSX distribution does not contain a folder 'eclipse' anymore.
+				// Therefore, it needs to be extract to the subfolder 'eclipse', instead of the parent.
+				AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder);
+			} else {
+				AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
+			}
 			content.appendLineBreak();
 			
 			content.append("<path id=\"toolproduct.path\">");
