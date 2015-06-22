@@ -279,19 +279,21 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				userHomeWorkspace = "osgi.instance.area.default=@user.home/workspace";
 				appRelativeWorkspace = "osgi.instance.area.default=./workspace";
 			}
-			// Change default workspace location
-			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"" + userHomeWorkspace + "\" value=\"" + appRelativeWorkspace + "\"/>");
-			// Change product to launch, remove application to launch (this is
-			// required to make the splash screen settings work)
-			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"eclipse.product=org.eclipse.sdk.ide\" value=\"eclipse.product=org.eclipse.platform.ide\"/>");
-			content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"eclipse.product=eclipse.application=org.eclipse.ui.ide.workbench\" value=\"\"/>");
-			
-			content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
-			content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
-			
+
 			if (!productType.startsWith("osx")) {
-				// TODO We must also patch the eclipse.ini for OSX, but 
-				// currently we can't because this breaks the signature
+				// TODO We should also patch the .ini files for OSX, but currently we can't because this breaks the
+				// signature
+				
+				// Change default workspace location
+				content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"" + userHomeWorkspace + "\" value=\"" + appRelativeWorkspace + "\"/>");
+				// Change product to launch, remove application to launch (this is
+				// required to make the splash screen settings work)
+				content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"eclipse.product=org.eclipse.sdk.ide\" value=\"eclipse.product=org.eclipse.platform.ide\"/>");
+				content.append("<replace file=\"" + configIni.getAbsolutePath() + "\" token=\"eclipse.product=eclipse.application=org.eclipse.ui.ide.workbench\" value=\"\"/>");
+				
+				content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
+				content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
+			
 				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
 				// Disable SSL option to make sure SVN works over HTTPS with Java 1.7 
 				content.append("<echo file=\"" + eclipseIni.getAbsolutePath() + "\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
