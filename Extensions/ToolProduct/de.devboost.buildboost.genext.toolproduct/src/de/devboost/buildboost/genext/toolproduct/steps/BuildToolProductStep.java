@@ -126,18 +126,20 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			content.appendLineBreak();
 			
-			File productInstallationFolder = new File("temp/toolproducts/" + productName + "/" + productType + "/eclipse");
+			File productTypeFolder = new File("temp/toolproducts/" + productName + "/" + productType);
+			File productInstallationFolder = new File(productTypeFolder, "eclipse");
 			File brandedProductFolder = new File(productFolderPath + "/" + productType + "/" + productName);
 			
 			// Extract product base
-			content.append("<mkdir dir=\"" + productInstallationFolder.getParentFile().getAbsolutePath() + "\" />");
+			content.append("<mkdir dir=\"" + productTypeFolder.getAbsolutePath() + "\" />");
+			// TODO Remove this special logic if it turns out to work
 			if (sdkZipFile.getName().contains("4.5-macosx-cocoa")) {
 				// Starting from Eclipse Mars, the OSX distribution does not contain a folder 'eclipse' anymore.
 				// Therefore, it needs to be extract to the subfolder 'eclipse', instead of the parent.
-				content.append("<mkdir dir=\"" + productInstallationFolder.getAbsolutePath() + "\" />");
-				AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder);
+				// content.append("<mkdir dir=\"" + productInstallationFolder.getAbsolutePath() + "\" />");
+				AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productTypeFolder);
 			} else {
-				AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productInstallationFolder.getParentFile());
+				AntScriptUtil.addZipFileExtractionScript(content, sdkZipFile, productTypeFolder);
 			}
 			content.appendLineBreak();
 			
@@ -147,6 +149,13 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("<include name=\"org.eclipse.equinox.launcher_*.jar\"/>");
 			content.append("</fileset>");
 			content.append("</path>");
+
+			File productEclipseFolder = productInstallationFolder;
+			// For MAC OSX version of Eclipse (starting from 4.5) the target folder to install the feature to is
+			// different, because the directory structure has changed.
+			if (sdkZipFile.getName().contains("4.5-macosx-cocoa")) {
+				productEclipseFolder = new File(new File(new File(productTypeFolder, "Eclipse.app"), "Contents"), "Eclipse");
+			}
 
 			for (String featureID : featureIDs) {
 				// TODO Use constant for class name
@@ -178,7 +187,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<arg value=\"-tag\"/>");
 				content.append("<arg value=\"InstallationOf_" + featureID + "\"/>");
 				content.append("<arg value=\"-destination\"/>");
-				content.append("<arg value=\"" + productInstallationFolder.getAbsolutePath() + "\"/>");
+				content.append("<arg value=\"" + productEclipseFolder.getAbsolutePath() + "\"/>");
 				content.append("<arg value=\"-profile\"/>");
 				content.append("<arg value=\"SDKProfile\"/>");
 				
@@ -187,12 +196,12 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			}
 			
 			File splashScreenFile = new File(toolProductFolder, "splash.bmp");
-			File pluginFolder = new File(productInstallationFolder, "plugins");
+			File pluginFolder = new File(productEclipseFolder, "plugins");
 			File iconFolder = new File(toolProductFolder, "icons");
 
 			//File osxIconFile = new File(iconFolder, "Eclipse.icns");
-			File osxAppFolder = new File(productInstallationFolder, "Eclipse.app");
-			File osxBrandedAppFolder = new File(productInstallationFolder, productName + ".app");
+			File osxAppFolder = new File(productTypeFolder, "Eclipse.app");
+			File osxBrandedAppFolder = new File(productTypeFolder, productName + ".app");
 			//File osxIconFolder =  new File(osxAppFolder, "Contents/Resources");
 			String[] iconFormats = new String[] { "16.gif", "16.png", "32.gif", "32.png", "48.gif", "48.png", "256.png", "512.png", "1024.png" };
 			
@@ -241,7 +250,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File eclipseIni;	
 			//copy icon osx
 			if (productType.startsWith("osx")) {
-				eclipseIni = new File(productInstallationFolder, productName + ".app/Contents/MacOS/eclipse.ini");	
+				eclipseIni = new File(productTypeFolder, productName + ".app/Contents/MacOS/eclipse.ini");	
 				//copy icon osx
 				//content.append("<copy overwrite=\"true\" file=\"" + osxIconFile.getAbsolutePath() + "\" todir=\"" + osxIconFolder.getAbsolutePath() + "\"/>");
 				//rename app folder
