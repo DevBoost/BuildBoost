@@ -133,7 +133,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			// Extract product base
 			content.append("<mkdir dir=\"" + productTypeFolder.getAbsolutePath() + "\" />");
 			// TODO Remove this special logic if it turns out to work
-			if (sdkZipFile.getName().contains("4.5-macosx-cocoa")) {
+			boolean isOSXgreater45 = sdkZipFile.getName().contains("4.5-macosx-cocoa");
+			if (isOSXgreater45) {
 				// Starting from Eclipse Mars, the OSX distribution does not contain a folder 'eclipse' anymore.
 				// Therefore, it needs to be extract to the subfolder 'eclipse', instead of the parent.
 				// content.append("<mkdir dir=\"" + productInstallationFolder.getAbsolutePath() + "\" />");
@@ -153,7 +154,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			File productEclipseFolder = productInstallationFolder;
 			// For MAC OSX version of Eclipse (starting from 4.5) the target folder to install the feature to is
 			// different, because the directory structure has changed.
-			if (sdkZipFile.getName().contains("4.5-macosx-cocoa")) {
+			if (isOSXgreater45) {
 				productEclipseFolder = new File(new File(new File(productTypeFolder, "Eclipse.app"), "Contents"), "Eclipse");
 			}
 
@@ -312,7 +313,11 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				}
 			}
 			// Rename base folder
-			content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
+			if (isOSXgreater45) {
+				content.append("<move file=\"" + productInstallationFolder.getParentFile().getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
+			} else {
+				content.append("<move file=\"" + productInstallationFolder.getAbsolutePath() + "\" tofile=\"" + brandedProductFolder.getAbsolutePath() +"\"/>");
+			}
 
 			File productsDistFolder = new File("dist/products");
 			content.append("<mkdir dir=\"" + productsDistFolder.getAbsolutePath() + "\" />");
@@ -338,7 +343,8 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			String brandedProductFolderParentPath = brandedProductFolder.getParentFile().getAbsolutePath();
 			AntScriptUtil.addZipFileCompressionScript(content, productZipPath, brandedProductFolderParentPath);
-			content.append("<delete dir=\"" + brandedProductFolderParentPath + "\"/>");
+			// TODO Temporarily deactivate to keep contents of distribution after compression it
+			// content.append("<delete dir=\"" + brandedProductFolderParentPath + "\"/>");
 			content.appendLineBreak();
 			
 			addUploadTask(content, productsDistFolder, productArchiveFileName);
