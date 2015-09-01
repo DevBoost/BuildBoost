@@ -199,7 +199,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		if (location.isDirectory()) {
 			File alternativesFile = new File(location, ALTERNATIVE_DEPENDENCIES_PROPERTIES);
 			if (!alternativesFile.exists()) {
-				return null;
+				return new byte[0];
 			}
 			
 			InputStream inputStream = null;
@@ -224,7 +224,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 				jarFile = new JarFile(location);
 				ZipEntry entry = jarFile.getEntry(ALTERNATIVE_DEPENDENCIES_PROPERTIES);
 				if (entry == null) {
-					return null;
+					return new byte[0];
 				}
 				InputStream inputStream = jarFile.getInputStream(entry);
 				return new StreamUtil().getContent(inputStream);
