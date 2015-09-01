@@ -15,6 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,5 +31,15 @@ public class StreamUtil {
 		}
 		// TODO close the stream?
 		return content.toString();
+	}
+
+	public byte[] getContent(InputStream inputStream) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		int next = -1;
+		while ((next = inputStream.read()) >= 0) {
+			baos.write(next);
+		}
+
+		return baos.toByteArray();
 	}
 }

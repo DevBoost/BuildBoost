@@ -15,6 +15,7 @@
  ******************************************************************************/
 package de.devboost.buildboost.artifacts;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -37,12 +39,15 @@ import de.devboost.buildboost.model.IArtifact;
 import de.devboost.buildboost.model.IDependable;
 import de.devboost.buildboost.model.IFileArtifact;
 import de.devboost.buildboost.model.UnresolvedDependency;
+import de.devboost.buildboost.util.StreamUtil;
 
 /**
  * A Plug-in represents an OSGi bundle (i.e., an Eclipse plug-in) that is either found in a target platform (e.g., an
  * Eclipse distribution) or that is part of the workspace that is subject to the build process.
  */
 public class Plugin extends AbstractArtifact implements IFileArtifact, Serializable {
+
+	private static final String ALTERNATIVE_DEPENDENCIES_PROPERTIES = "alternative_dependencies.properties";
 
 	private static final long serialVersionUID = 7995849293974638695L;
 
@@ -141,31 +146,9 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 
 	private void addAlternativeIdentifiers(Set<UnresolvedDependency> unresolvedDependencies) {
 
-		Properties properties = new Properties();
-		File location = getLocation();
-		if (!location.isDirectory()) {
-			return;
-		}
-		File alternativesFile = new File(location, "alternative_dependencies.properties");
-		if (!alternativesFile.exists()) {
-			return;
-		}
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(alternativesFile);
-			properties.load(fis);
-		} catch (IOException ioe) {
-			// TODO Auto-generated catch block
-			ioe.printStackTrace();
-		} finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-					// Ignore
-				}
-			}
-		}
+		byte[] content = getAlternativeDependenciesContent();
+		InputStream inputStream = new ByteArrayInputStream(content);
+		Properties properties = loadProperties(inputStream);
 
 		Set<UnresolvedDependency> removableDependencies = new LinkedHashSet<UnresolvedDependency>();
 		for (UnresolvedDependency unresolvedDependency : unresolvedDependencies) {
@@ -186,6 +169,80 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 		}
 
 		unresolvedDependencies.removeAll(removableDependencies);
+	}
+
+	private Properties loadProperties(InputStream inputStream) {
+		Properties properties = new Properties();
+		if (inputStream != null) {
+			return properties;
+		}
+		
+		try {
+			properties.load(inputStream);
+		} catch (IOException ioe) {
+			// TODO Auto-generated catch block
+			ioe.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+		return properties;
+	}
+
+	private byte[] getAlternativeDependenciesContent() {
+		File location = getLocation();
+		if (location.isDirectory()) {
+			File alternativesFile = new File(location, ALTERNATIVE_DEPENDENCIES_PROPERTIES);
+			if (!alternativesFile.exists()) {
+				return null;
+			}
+			
+			InputStream inputStream = null;
+			try {
+				inputStream = new FileInputStream(alternativesFile);
+				return new StreamUtil().getContent(inputStream);
+			} catch (IOException ioe) {
+				// TODO Auto-generated catch block
+				ioe.printStackTrace();
+			} finally {
+				if (inputStream != null) {
+					try {
+						inputStream.close();
+					} catch (IOException e) {
+						// Ignore
+					}
+				}
+			}
+		} else if (location.isFile() && location.getName().endsWith(".jar")) {
+			JarFile jarFile = null;
+			try {
+				jarFile = new JarFile(location);
+				ZipEntry entry = jarFile.getEntry(ALTERNATIVE_DEPENDENCIES_PROPERTIES);
+				if (entry == null) {
+					return null;
+				}
+				InputStream inputStream = jarFile.getInputStream(entry);
+				return new StreamUtil().getContent(inputStream);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				if (jarFile != null) {
+					try {
+						jarFile.close();
+					} catch (IOException e) {
+						// Ignore
+					}
+				}
+			}
+		}
+		
+		return new byte[0];
 	}
 
 	public String getVersion() {
