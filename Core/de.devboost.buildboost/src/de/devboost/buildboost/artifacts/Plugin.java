@@ -173,7 +173,7 @@ public class Plugin extends AbstractArtifact implements IFileArtifact, Serializa
 
 	private Properties loadProperties(InputStream inputStream) {
 		Properties properties = new Properties();
-		if (inputStream != null) {
+		if (inputStream == null) {
 			return properties;
 		}
 		
