@@ -40,6 +40,7 @@ public class ToolProductSpecificationFinder extends AbstractFileFinder<ToolProdu
 		super(directory);
 	}
 
+	@Override
 	public Collection<IArtifact> discoverArtifacts(IBuildContext context) throws BuildException {
 		buildListener = context.getBuildListener();
 		Collection<ToolProductSpecification> specifications = new ArrayList<ToolProductSpecification>();
@@ -47,6 +48,7 @@ public class ToolProductSpecificationFinder extends AbstractFileFinder<ToolProdu
 		return new ArtifactUtil().getSetOfArtifacts(specifications);
 	}
 
+	@Override
 	protected ToolProductSpecification createArtifactFromFile(File file) {
 		if (buildListener != null) {
 			String message = "Discovered tool product specification: " + file.getAbsolutePath();
@@ -63,9 +65,11 @@ public class ToolProductSpecificationFinder extends AbstractFileFinder<ToolProdu
 		return specification;
 	}
 
+	@Override
 	protected FileFilter getFileFilter() {
 		return new FileFilter() {
 			
+			@Override
 			public boolean accept(File file) {
 				return file.getName().equals("toolproduct.spec") && file.isFile();
 			}
