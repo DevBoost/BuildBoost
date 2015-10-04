@@ -35,6 +35,8 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
 
+	private static final String LAUNCHER_WRAPPER_CLASSNAME = "de.devboost.buildboost.buildext.toolproduct.LauncherWrapper";
+	
 	// TODO Make this configurable
 	private static final String INSTALLATION_PLATFORM_FILE = "eclipse-platform-4.3-linux-gtk-x86_64.tar.gz";
 	private static final String INSTALLATION_PLATFORM_URL = "http://www.devboost.de/eclipse-mirror/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
@@ -42,7 +44,6 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	private final ToolProductSpecification specification;
 
 	public BuildToolProductStep(ToolProductSpecification specification) {
-		super();
 		this.specification = specification;
 	}
 	
@@ -113,7 +114,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		String productFolderPath = distProductsPath + "/" + productName;
 		content.append("<mkdir dir=\"" + productFolderPath + "\" />");
 		
-		//call director for publishing
+		// Call director for publishing
 		Map<String, String> configs = specification.getProductTypes();
 		for (Entry<String, String> conf : configs.entrySet()) {
 			String productType = conf.getKey();
@@ -152,15 +153,14 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			content.append("</path>");
 
 			File productEclipseFolder = productInstallationFolder;
-			// For MAC OSX version of Eclipse (starting from 4.5) the target folder to install the feature to is
+			// For the MAC OSX version of Eclipse (starting from 4.5) the target folder to install the feature to is
 			// different, because the directory structure has changed.
 			if (isOSXgreater45) {
 				productEclipseFolder = new File(new File(new File(productTypeFolder, "Eclipse.app"), "Contents"), "Eclipse");
 			}
 
 			for (String featureID : featureIDs) {
-				// TODO Use constant for class name
-				content.append("<java classname=\"de.devboost.buildboost.buildext.toolproduct.LauncherWrapper\" fork=\"true\" failonerror=\"true\">");
+				content.append("<java classname=\"" + LAUNCHER_WRAPPER_CLASSNAME + "\" fork=\"true\" failonerror=\"true\">");
 				
 				content.append("<classpath refid=\"toolproduct.path\"/>");
 				
@@ -343,8 +343,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			
 			String brandedProductFolderParentPath = brandedProductFolder.getParentFile().getAbsolutePath();
 			AntScriptUtil.addZipFileCompressionScript(content, productZipPath, brandedProductFolderParentPath);
-			// TODO Temporarily deactivate to keep contents of distribution after compression it
-			// content.append("<delete dir=\"" + brandedProductFolderParentPath + "\"/>");
+			content.append("<delete dir=\"" + brandedProductFolderParentPath + "\"/>");
 			content.appendLineBreak();
 			
 			addUploadTask(content, productsDistFolder, productArchiveFileName);
@@ -419,6 +418,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				}
 			}
 		}
+		
 		return null;
 	}
 }

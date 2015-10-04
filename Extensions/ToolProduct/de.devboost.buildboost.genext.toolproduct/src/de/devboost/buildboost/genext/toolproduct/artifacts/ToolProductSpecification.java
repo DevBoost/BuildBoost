@@ -33,7 +33,6 @@ public class ToolProductSpecification extends AbstractArtifact {
 	private final File file;
 
 	public ToolProductSpecification(File file) {
-		super();
 		this.file = file;
 		this.propertyFileReader = new PropertyFileReader(file);
 		
@@ -43,10 +42,11 @@ public class ToolProductSpecification extends AbstractArtifact {
 		setIdentifier(identifier);
 		
 		String updateSiteID = propertyFileReader.getValue("updatesite");
-		// Tool products do not necessarily require a local update site. They  
-		// can also be built using remote repositories only.
+		// Tool products do not necessarily require a local update site. They can also be built using remote
+		// repositories only.
 		if (updateSiteID != null) {
-			UnresolvedDependency updateSiteDependency = new UnresolvedDependency(EclipseUpdateSite.class, updateSiteID, null, true, null, true, false, false);
+			UnresolvedDependency updateSiteDependency = new UnresolvedDependency(EclipseUpdateSite.class, updateSiteID,
+					null, true, null, true, false, false);
 			getUnresolvedDependencies().add(updateSiteDependency);
 		}
 	}
@@ -64,8 +64,8 @@ public class ToolProductSpecification extends AbstractArtifact {
 	}
 
 	/**
-	 * Returns are list of associated update sites that will be used when
-	 * installing the tool product feature into Eclipse.
+	 * Returns are list of associated update sites that will be used when installing the tool product features into
+	 * Eclipse.
 	 */
 	public String getAssociateSites() {
 		return propertyFileReader.getValue("associatesites");
@@ -82,6 +82,7 @@ public class ToolProductSpecification extends AbstractArtifact {
 				return eclipseUpdateSite;
 			}
 		}
+		
 		return null;
 	}
 

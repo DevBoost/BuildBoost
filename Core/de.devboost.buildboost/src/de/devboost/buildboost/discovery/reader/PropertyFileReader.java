@@ -28,7 +28,6 @@ public class PropertyFileReader {
 	private Properties properties;
 
 	public PropertyFileReader(File file) {
-		super();
 		readPropertyFile(file);
 	}
 
@@ -73,6 +72,7 @@ public class PropertyFileReader {
 			key.append(path[i]);
 			key.append("/");
 		}
+		
 		for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 			if (entry.getKey().toString().startsWith(key.toString())) {
 				String subKey = entry.getKey().toString().substring(key.toString().length());
@@ -81,6 +81,7 @@ public class PropertyFileReader {
 				}
 			}
 		}
+		
 		return values;
 	}
 }
