@@ -35,6 +35,8 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
 
+	public static final String MACOSX_4_5_OR_NEWER_REGEX = "4\\.[5-9]\\.?[0-9]?-macosx-cocoa";
+
 	private static final String LAUNCHER_WRAPPER_CLASSNAME = "de.devboost.buildboost.buildext.toolproduct.LauncherWrapper";
 	
 	// TODO Make this configurable
@@ -134,7 +136,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			// Extract product base
 			content.append("<mkdir dir=\"" + productTypeFolder.getAbsolutePath() + "\" />");
 			// TODO Remove this special logic if it turns out to work
-			boolean isOSXgreater45 = sdkZipFile.getName().contains("4.5-macosx-cocoa");
+			boolean isOSXgreater45 = sdkZipFile.getName().matches(MACOSX_4_5_OR_NEWER_REGEX);
 			if (isOSXgreater45) {
 				// Starting from Eclipse Mars, the OSX distribution does not contain a folder 'eclipse' anymore.
 				// Therefore, it needs to be extract to the subfolder 'eclipse', instead of the parent.

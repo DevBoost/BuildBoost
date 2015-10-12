@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Updatesite
-Bundle-SymbolicName: de.devboost.buildboost.genext.product
+Bundle-Name: Tool Product
+Bundle-SymbolicName: de.devboost.buildboost.genext.toolproduct
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.devboost.buildboost.genext.toolproduct.stages,
