@@ -29,11 +29,10 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class BuildProductStep extends AbstractAntTargetGenerator {
 	
-	private EclipseProduct productSpec;
-	private File targetDir;
+	private final EclipseProduct productSpec;
+	private final File targetDir;
 
 	public BuildProductStep(EclipseProduct productSpec, File targetDir) {
-		super();
 		this.productSpec = productSpec;
 		this.targetDir = targetDir;
 	}
@@ -57,13 +56,13 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		
 		new TimestampUtil().addGetBuildTimestampFromEnvironment(content);
 		
-		//TODO this is not good, because the tstamp should not be stage dependent
+		// TODO this is not good, because the tstamp should not be stage dependent
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
 		content.appendLineBreak();
 	
-		//set version in product file
+		// Set version in product file
 		content.append("<replace file=\"" + productSpecPath + "\" token=\"0.0.0\" value=\"" + siteVersion + ".v${buildid}\"/>");
 		
 		String updateSiteID = deploymentSpec.getUpdateSite().getIdentifier();
@@ -77,7 +76,7 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		String p2ProductRepo = new File(new File(repoBaseFolder.getParentFile(), "products-p2"), updateSiteID).getAbsolutePath();
 		String productsDir = new File(repoBaseFolder.getParentFile(), "products-zip").getAbsolutePath();
 		
-		//call PDE product build
+		// Call PDE product build
 		content.append("<exec executable=\"eclipse\" failonerror=\"true\">"); //TODO this is a platform dependent executable in the PATH
 		content.append("<arg value=\"--launcher.suppressErrors\"/>");
 		content.append("<arg value=\"-noSplash\"/>");
@@ -161,7 +160,4 @@ public class BuildProductStep extends AbstractAntTargetGenerator {
 		AntTarget target = new AntTarget("build-eclipse-product-" + updateSiteID, content);
 		return target;
 	}
-
-
-
 }
