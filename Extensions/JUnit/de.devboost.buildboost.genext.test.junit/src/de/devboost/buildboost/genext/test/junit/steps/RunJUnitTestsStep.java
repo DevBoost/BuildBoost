@@ -76,6 +76,10 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 		if (junitProperties.containsKey("forkmode")) {
 			forkmode = junitProperties.get("forkmode").toString();
 		}
+		String maxmemory = "2048m";
+		if (junitProperties.containsKey("maxmemory")) {
+			maxmemory = junitProperties.get("maxmemory").toString();
+		}
 		
 		File[] sourceFolders = testPlugin.getSourceFolders();
 		String name = testPlugin.getIdentifier();
@@ -103,12 +107,10 @@ public class RunJUnitTestsStep extends AbstractAntTargetGenerator {
 		sb.append("<property environment=\"env\" />");
 		sb.append("<mkdir dir=\"" + projectTestResultDir + "\" />");
 		sb.append(NL);
-		sb.append("<junit forkmode=\"" + forkmode + "\" errorproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" failureproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" haltonfailure=\"false\" haltonerror=\"false\" fork=\"true\" dir=\"" + testPlugin.getAbsolutePath() + "\" maxmemory=\"2048m\">");
+		sb.append("<junit forkmode=\"" + forkmode + "\" errorproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" failureproperty=\"test-failed-" + testPlugin.getIdentifier() + "\" haltonfailure=\"false\" haltonerror=\"false\" fork=\"true\" dir=\"" + testPlugin.getAbsolutePath() + "\" maxmemory=\"" + maxmemory + "\">");
 		sb.append("<jvmarg value=\"-ea\" />");
 		sb.append("<jvmarg value=\"-XX:MaxPermSize=256m\" />");
 		sb.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
-		//disable GC overhead limit to avoid OutOfMemory exceptions
-		sb.append("<jvmarg value=\"-XX:-UseGCOverheadLimit\"/>");
 		sb.append("<classpath>");
 		sb.append("<path path=\"test-classpath.jar\"/>");
 		sb.append("</classpath>");
