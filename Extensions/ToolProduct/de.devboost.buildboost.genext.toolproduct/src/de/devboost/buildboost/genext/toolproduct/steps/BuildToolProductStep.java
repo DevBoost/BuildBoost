@@ -35,7 +35,7 @@ import de.devboost.buildboost.util.XMLContent;
 
 public class BuildToolProductStep extends AbstractAntTargetGenerator {
 
-	public static final String MACOSX_4_5_OR_NEWER_REGEX = ".+4\\.[5-9]\\.?[0-9]?-macosx-cocoa-.+";
+	public static final String MACOSX_4_5_OR_NEWER_REGEX = ".+4\\.[5-9](RC[1-9])?\\.?[0-9]?-macosx-cocoa-.+";
 
 	private static final String LAUNCHER_WRAPPER_CLASSNAME = "de.devboost.buildboost.buildext.toolproduct.LauncherWrapper";
 	
