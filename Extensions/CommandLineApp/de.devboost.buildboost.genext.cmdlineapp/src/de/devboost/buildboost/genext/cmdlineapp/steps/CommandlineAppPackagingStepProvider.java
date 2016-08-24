@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -27,19 +27,23 @@ import de.devboost.buildboost.model.IBuildContext;
 
 public class CommandlineAppPackagingStepProvider extends AbstractAntTargetGeneratorProvider {
 
+	@Override
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		List<IAntTargetGenerator> steps = new ArrayList<IAntTargetGenerator>(1);
 		if (artifact instanceof Plugin) {
 			Plugin plugin = (Plugin) artifact;
 			File[] sourceFolders = plugin.getSourceFolders();
-			// Check whether one of the source folders contains a Main.java in
-			// a package that has the same name as the plug-in. If this is the
-			// case, we package the plug-in as a executable JAR file.
+			// Check whether one of the source folders contains a Main.java in a package that has the same name as the
+			// plug-in. If this is the case, we package the plug-in as a executable JAR file.
 			for (File sourceFolder : sourceFolders) {
-				File mainClass = new File(sourceFolder, plugin.getIdentifier().replace(".", File.separator) + File.separator + "Main.java");
-				if (mainClass.exists()) {
-					steps.add(new CommandlineAppPackagingStep(plugin));
+				String mainClassPackagePath = plugin.getIdentifier().replace(".", File.separator);
+				String mainClassSourcePath = mainClassPackagePath + File.separator + "Main.java";
+				File mainClass = new File(sourceFolder, mainClassSourcePath);
+				if (!mainClass.exists()) {
+					continue;
 				}
+
+				steps.add(new CommandlineAppPackagingStep(plugin, context.getBuildListener()));
 			}
 		}
 		return steps;

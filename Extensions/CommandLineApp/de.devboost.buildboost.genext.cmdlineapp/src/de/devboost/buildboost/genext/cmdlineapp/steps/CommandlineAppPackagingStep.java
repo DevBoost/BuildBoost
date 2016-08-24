@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -16,11 +16,15 @@
 package de.devboost.buildboost.genext.cmdlineapp.steps;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,53 +32,63 @@ import de.devboost.buildboost.BuildException;
 import de.devboost.buildboost.ant.AbstractAntTargetGenerator;
 import de.devboost.buildboost.ant.AntTarget;
 import de.devboost.buildboost.artifacts.Plugin;
+import de.devboost.buildboost.model.BuildEventType;
+import de.devboost.buildboost.model.IBuildListener;
 import de.devboost.buildboost.util.PluginPackagingHelper;
+import de.devboost.buildboost.util.StreamUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 
-	private Plugin plugin;
+	private final Plugin plugin;
+	private final IBuildListener buildListener;
 
-	public CommandlineAppPackagingStep(Plugin plugin) {
+	public CommandlineAppPackagingStep(Plugin plugin, IBuildListener buildListener) {
 		this.plugin = plugin;
+		this.buildListener = buildListener;
 	}
 
+	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		XMLContent content = new XMLContent();
-		
+
 		String temporaryDir = "temp/cmdlineapps/" + plugin.getIdentifier();
 		content.append("<mkdir dir=\"" + temporaryDir + "\" />");
 
-	    Set<Plugin> dependencies = plugin.getAllDependencies();
-	    
+		Set<Plugin> dependencies = plugin.getAllDependencies();
+
 		PluginPackagingHelper packagingHelper = new PluginPackagingHelper();
 		packagingHelper.addPackageAsJarFileScript(content, temporaryDir, plugin);
 		packagingHelper.addPackageAsJarFileScripts(content, temporaryDir, dependencies);
 
 		// add script content
 		content.append("<jar destfile=\"dist/commandlineapps/" + plugin.getIdentifier() + ".jar\">");
-		
+
 		// TODO this is a dirty hack and will not work when BuildBoost is used in its packaged form
 		URL classLocation = getClass().getProtectionDomain().getCodeSource().getLocation();
-		String pathTail = getClass().getPackage().getName().replace(".", File.separator) + File.separator + "jar-in-jar-loader.zip";
+		String pathTail = getClass().getPackage().getName().replace(".", File.separator) + File.separator
+				+ "jar-in-jar-loader.zip";
 		try {
-			content.append("<zipfileset src=\"" + new File(classLocation.toURI().getPath(), pathTail).getAbsolutePath() + "\"/>");
+			content.append("<zipfileset src=\"" + new File(classLocation.toURI().getPath(), pathTail).getAbsolutePath()
+					+ "\"/>");
 		} catch (URISyntaxException e) {
 			throw new BuildException(e.getMessage());
 		}
-		
+
 		List<String> allLibraries = new ArrayList<String>();
 		// add the project itself
 		addProject(content, temporaryDir, plugin, allLibraries);
 		// add the dependencies
-	    for (Plugin dependency : dependencies) {
-	    	if (dependency.isProject()) {
+		for (Plugin dependency : dependencies) {
+			if (dependency.isProject()) {
 				addProject(content, temporaryDir, dependency, allLibraries);
-	    	} else {
-	    		addTargetPlatformPlugin(content, dependency, allLibraries);
-	    	}
-	    }
-		
+			} else {
+				addTargetPlatformPlugin(content, dependency, allLibraries);
+			}
+		}
+
+		allLibraries = removeExcludedLibraries(allLibraries);
+
 		StringBuilder spaceSeparatedLibs = new StringBuilder();
 		for (String lib : allLibraries) {
 			spaceSeparatedLibs.append(" ");
@@ -82,38 +96,74 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 		}
 
 		content.append("<manifest>");
-		content.append("<attribute name=\"Main-Class\" value=\"org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader\"/>");
+		content.append(
+				"<attribute name=\"Main-Class\" value=\"org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader\"/>");
 		content.append("<attribute name=\"Rsrc-Main-Class\" value=\"" + plugin.getIdentifier() + ".Main\"/>");
 		content.append("<attribute name=\"Class-Path\" value=\".\"/>");
 		content.append("<attribute name=\"Rsrc-Class-Path\" value=\"./" + spaceSeparatedLibs.toString() + "\"/>");
 		content.append("</manifest>");
-		
+
 		content.append("</jar>");
-		
+
 		AntTarget target = new AntTarget("package-cmdlineapp-" + plugin.getIdentifier(), content);
 		return Collections.singleton(target);
+	}
+
+	private List<String> removeExcludedLibraries(List<String> allLibraries) {
+
+		String path = plugin.getAbsolutePath() + File.separator + "excluded_libraries.conf";
+		File excludeFile = new File(path);
+		if (!excludeFile.exists()) {
+			return allLibraries;
+		}
+
+		Set<String> remainingLibraries = new LinkedHashSet<String>(allLibraries);
+		try {
+			String contentAsString = new StreamUtil().getContentAsString(new FileInputStream(excludeFile));
+			contentAsString = contentAsString.replace("\r", "");
+			String[] lines = contentAsString.split("\n");
+			for (int i = 0; i < lines.length; i++) {
+				String line = lines[i].trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				boolean removed = remainingLibraries.remove(line);
+				if (removed) {
+					buildListener.handleBuildEvent(BuildEventType.INFO,
+							"Removed excluded library '" + line + "' from JAR classpath");
+				} else {
+					buildListener.handleBuildEvent(BuildEventType.INFO, "Can't find excluded library '" + line + "'");
+				}
+			}
+		} catch (FileNotFoundException e) {
+			buildListener.handleBuildEvent(BuildEventType.ERROR, e.getMessage());
+		} catch (IOException e) {
+			buildListener.handleBuildEvent(BuildEventType.ERROR, e.getMessage());
+		}
+		
+		return new ArrayList<String>(remainingLibraries);
 	}
 
 	private void addTargetPlatformPlugin(XMLContent content, Plugin plugin, List<String> allLibraries) {
 		File file = plugin.getFile();
 		if (file.isFile()) {
-		    content.append("<fileset file=\"" + file.getAbsolutePath() + "\" />");
-		    allLibraries.add(file.getName());
+			content.append("<fileset file=\"" + file.getAbsolutePath() + "\" />");
+			allLibraries.add(file.getName());
 		} else {
 			// TODO extracted plug-ins must be packaged
 		}
 	}
 
-	private void addProject(XMLContent content, String tempDir, Plugin project,
-			List<String> allLibraries) {
-	    String jarName = project.getIdentifier() + ".jar";
-	    content.append("<fileset dir=\"" + tempDir + "\" includes=\"" + jarName + "\" />");
+	private void addProject(XMLContent content, String tempDir, Plugin project, List<String> allLibraries) {
+		String jarName = project.getIdentifier() + ".jar";
+		content.append("<fileset dir=\"" + tempDir + "\" includes=\"" + jarName + "\" />");
 		allLibraries.add(jarName);
 		for (String lib : project.getLibs()) {
 			String absoluteLibPath = project.getAbsoluteLibPath(lib);
 			File libFile = new File(absoluteLibPath);
-		    content.append("<zipfileset dir=\"" + libFile.getParentFile().getAbsolutePath() + "\" includes=\"" + libFile.getName() + "\"/>");
-		    allLibraries.add(libFile.getName());
+			content.append("<zipfileset dir=\"" + libFile.getParentFile().getAbsolutePath() + "\" includes=\""
+					+ libFile.getName() + "\"/>");
+			allLibraries.add(libFile.getName());
 		}
 	}
 }
