@@ -86,6 +86,13 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 				addTargetPlatformPlugin(content, dependency, allLibraries);
 			}
 		}
+		
+		Set<String> additionalFiles = getLines("additional_zip_contents.conf");
+		if (additionalFiles != null) {
+			for (String additionalFile : additionalFiles) {
+				content.append("<fileset file=\"" + plugin.getLocation().getAbsolutePath() + File.separator + additionalFile + "\" />");
+			}
+		}
 
 		allLibraries = removeExcludedLibraries(allLibraries);
 
@@ -110,14 +117,35 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 	}
 
 	private List<String> removeExcludedLibraries(List<String> allLibraries) {
-
-		String path = plugin.getAbsolutePath() + File.separator + "excluded_libraries.conf";
-		File excludeFile = new File(path);
-		if (!excludeFile.exists()) {
+		String filename = "excluded_libraries.conf";
+		Set<String> librariesToRemoveFromClasspath = getLines(filename);
+		if (librariesToRemoveFromClasspath == null) {
 			return allLibraries;
 		}
 
 		Set<String> remainingLibraries = new LinkedHashSet<String>(allLibraries);
+		for (String libraryToRemoveFromClasspath : librariesToRemoveFromClasspath) {
+			boolean removed = remainingLibraries.remove(libraryToRemoveFromClasspath);
+			if (removed) {
+				buildListener.handleBuildEvent(BuildEventType.INFO,
+						"Removed excluded library '" + libraryToRemoveFromClasspath + "' from JAR classpath");
+			} else {
+				buildListener.handleBuildEvent(BuildEventType.INFO,
+						"Can't find excluded library '" + libraryToRemoveFromClasspath + "'");
+			}
+		}
+
+		return new ArrayList<String>(remainingLibraries);
+	}
+
+	private Set<String> getLines(String filename) {
+		String path = plugin.getAbsolutePath() + File.separator + filename;
+		File excludeFile = new File(path);
+		if (!excludeFile.exists()) {
+			return null;
+		}
+
+		Set<String> librariesToRemoveFromClasspath = new LinkedHashSet<String>();
 		try {
 			String contentAsString = new StreamUtil().getContentAsString(new FileInputStream(excludeFile));
 			contentAsString = contentAsString.replace("\r", "");
@@ -127,21 +155,14 @@ public class CommandlineAppPackagingStep extends AbstractAntTargetGenerator {
 				if (line.isEmpty()) {
 					continue;
 				}
-				boolean removed = remainingLibraries.remove(line);
-				if (removed) {
-					buildListener.handleBuildEvent(BuildEventType.INFO,
-							"Removed excluded library '" + line + "' from JAR classpath");
-				} else {
-					buildListener.handleBuildEvent(BuildEventType.INFO, "Can't find excluded library '" + line + "'");
-				}
+				librariesToRemoveFromClasspath.add(line);
 			}
 		} catch (FileNotFoundException e) {
 			buildListener.handleBuildEvent(BuildEventType.ERROR, e.getMessage());
 		} catch (IOException e) {
 			buildListener.handleBuildEvent(BuildEventType.ERROR, e.getMessage());
 		}
-		
-		return new ArrayList<String>(remainingLibraries);
+		return librariesToRemoveFromClasspath;
 	}
 
 	private void addTargetPlatformPlugin(XMLContent content, Plugin plugin, List<String> allLibraries) {
