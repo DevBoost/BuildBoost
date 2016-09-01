@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -15,8 +15,11 @@
  ******************************************************************************/
 package de.devboost.buildboost.model;
 
-// TODO document
-// TODO Remove this because implementing IBuildStage only does
-// not make sense anymore (such stages are ignored by BuildBoost)
+/**
+ * The {@link IUniversalBuildStage} is a marker interface that is used by BuildBoost to automatically detect build
+ * stages provided by BuildBoost plug-ins.
+ */
+// TODO Remove the 'extends' because implementing IBuildStage only does not make sense anymore (such stages are ignored
+// by BuildBoost)
 public interface IUniversalBuildStage extends IBuildStage {
 }

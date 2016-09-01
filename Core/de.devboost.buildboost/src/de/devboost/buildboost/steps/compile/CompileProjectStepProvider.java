@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -26,19 +26,19 @@ import de.devboost.buildboost.model.IBuildContext;
 
 public class CompileProjectStepProvider extends AbstractAntTargetGeneratorProvider {
 
-	private String sourceFileEncoding;
-	private JDKVersion jdkVersion;
+	private final String sourceFileEncoding;
+	private final JDKVersion jdkVersion;
 
 	public CompileProjectStepProvider() {
 		this(null, null);
 	}
 
 	public CompileProjectStepProvider(JDKVersion jdkVersion, String sourceFileEncoding) {
-		super();
 		this.jdkVersion = jdkVersion;
 		this.sourceFileEncoding = sourceFileEncoding;
 	}
 
+	@Override
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof Plugin) {
 			Plugin plugin = (Plugin) artifact;

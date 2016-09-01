@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -33,10 +33,11 @@ import de.devboost.buildboost.util.SystemOutListener;
  */
 public class BuildContext implements IBuildContext {
 
-	private Collection<IArtifact> discoveredArtifacts = new LinkedHashSet<IArtifact>();
+	private final Collection<IArtifact> discoveredArtifacts = new LinkedHashSet<IArtifact>();
+	private final List<IBuildParticipant> buildParticipants = new ArrayList<IBuildParticipant>();
+	
 	private IBuildListener buildListener;
 	private boolean ignoreUnresolvedDependencies;
-	private List<IBuildParticipant> buildParticipants = new ArrayList<IBuildParticipant>();
 
 	public BuildContext() {
 		super();
@@ -47,10 +48,12 @@ public class BuildContext implements IBuildContext {
 		addBuildParticipant(new AntTargetGeneratorRunner());
 	}
 
+	@Override
 	public Collection<IArtifact> getDiscoveredArtifacts() {
 		return Collections.unmodifiableCollection(discoveredArtifacts);
 	}
 
+	@Override
 	public IBuildListener getBuildListener() {
 		if (buildListener == null) {
 			buildListener = new SystemOutListener();
@@ -62,6 +65,7 @@ public class BuildContext implements IBuildContext {
 		this.buildListener = buildListener;
 	}
 
+	@Override
 	public boolean ignoreUnresolvedDependencies() {
 		return ignoreUnresolvedDependencies;
 	}
@@ -70,18 +74,22 @@ public class BuildContext implements IBuildContext {
 		this.ignoreUnresolvedDependencies = ignoreUnresolvedDependencies;
 	}
 
+	@Override
 	public void addDiscoveredArtifacts(Collection<IArtifact> artifactsToAdd) {
 		discoveredArtifacts.addAll(artifactsToAdd);
 	}
 
+	@Override
 	public void removeDiscoveredArtifacts(Collection<IArtifact> artifactsToRemove) {
 		discoveredArtifacts.removeAll(artifactsToRemove);
 	}
 
+	@Override
 	public void addBuildParticipant(IBuildParticipant participant) {
 		buildParticipants.add(participant);
 	}
 
+	@Override
 	public List<IBuildParticipant> getBuildParticipants() {
 		return buildParticipants;
 	}

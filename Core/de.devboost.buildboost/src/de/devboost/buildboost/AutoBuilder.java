@@ -43,7 +43,7 @@ import de.devboost.buildboost.util.Sorter;
  */
 public class AutoBuilder {
 
-	private IBuildContext context;
+	private final IBuildContext context;
 
 	public AutoBuilder(IBuildContext context) {
 		this.context = context;

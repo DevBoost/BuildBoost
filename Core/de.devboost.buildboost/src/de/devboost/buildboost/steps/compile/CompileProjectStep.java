@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -32,9 +32,9 @@ import de.devboost.buildboost.util.XMLContent;
  */
 public class CompileProjectStep extends AbstractAntTargetGenerator {
 
-	private Plugin project;
-	private String sourceFileEncoding;
-	private JDKVersion targetVersion;
+	private final Plugin project;
+	private final String sourceFileEncoding;
+	private final JDKVersion targetVersion;
 
 	public CompileProjectStep(Plugin plugin, JDKVersion targetVersion, String sourceFileEncoding) {
 		this.project = plugin;
@@ -46,6 +46,7 @@ public class CompileProjectStep extends AbstractAntTargetGenerator {
 	 * Returns the ANT build instructions for a single plug-in projects. The returned script compiles the content of all
 	 * source folders and copies all resource files to the bin folder.
 	 */
+	@Override
 	public Collection<AntTarget> generateAntTargets() {
 		File[] sourceFolders = project.getSourceFolders();
 		if (sourceFolders.length == 0 || !project.hasManifest()) {

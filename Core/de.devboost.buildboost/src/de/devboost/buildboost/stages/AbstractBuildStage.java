@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2016
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -25,11 +25,12 @@ import de.devboost.buildboost.model.IBuildStage;
 
 public abstract class AbstractBuildStage implements IBuildStage {
 
-	private List<IBuildParticipant> participants = new ArrayList<IBuildParticipant>();
+	private final List<IBuildParticipant> participants = new ArrayList<IBuildParticipant>();
+	
 	private boolean enabled = true;
 
 	public void addBuildParticipant(IBuildParticipant participant) {
-		participants.add(participant);
+		this.participants.add(participant);
 	}
 
 	public void addBuildParticipants(Collection<IBuildParticipant> participants) {
