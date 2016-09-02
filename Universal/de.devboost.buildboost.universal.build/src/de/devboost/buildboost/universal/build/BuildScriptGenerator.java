@@ -23,6 +23,7 @@ import static de.devboost.buildboost.IConstants.REPOS_FOLDER;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -125,12 +126,15 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 	}
 
 	private boolean isIgnored(String className) {
-		String ignoredStages = System.getProperty("BUILD_BOOST_IGNORE_STAGES");
+		String propertyName = "BUILD_BOOST_IGNORE_STAGES";
+		String ignoredStages = System.getProperty(propertyName);
+		System.out.println("System property '" + propertyName + "' is: " + ignoredStages);
 		if (ignoredStages == null) {
 			return false;
 		}
 		
 		String[] ignoredStageClasses = ignoredStages.split(",");
+		System.out.println("Stages to ignore: " + Arrays.toString(ignoredStageClasses));
 		for (String ignoredStageClass : ignoredStageClasses) {
 			if (className.equals(ignoredStageClass)) {
 				return true;
