@@ -94,9 +94,8 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		List<IBuildStage> result = new ArrayList<IBuildStage>();
 		List<String> javaClassNames = new ArrayList<String>();
 		collectClasses(javaClassNames, buildBoostBinFolder, null);
-		String ignoredStages = System.getenv("BUILD_BOOST_IGNORE_STAGES");
 		for (String className : javaClassNames) {
-			if (isIgnored(className, ignoredStages)) {
+			if (isIgnored(className)) {
 				continue;
 			}
 			try {
@@ -125,7 +124,8 @@ public class BuildScriptGenerator implements IBuildConfiguration {
 		return result;
 	}
 
-	private boolean isIgnored(String className, String ignoredStages) {
+	private boolean isIgnored(String className) {
+		String ignoredStages = System.getProperty("BUILD_BOOST_IGNORE_STAGES");
 		if (ignoredStages == null) {
 			return false;
 		}
