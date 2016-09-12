@@ -88,6 +88,7 @@ public class ScriptSaver {
 				content.append("<pathelement path=\"${basedir}/" + BUILD_BOOST_BIN_FOLDER + "\" />");
 				content.append("<pathelement path=\"${java.class.path}\"/>");
 				content.append("</classpath>");
+				content.append("<jvmarg value=\"-DBUILD_BOOST_IGNORE_STAGES=${BUILD_BOOST_IGNORE_STAGES}\"/>");
 				content.append("</java>");
 			}
 		}

@@ -10,6 +10,8 @@
 				<pathelement path="${build_dir}/build-boost-bin"/>
 				<pathelement path="${java.class.path}"/>
 			</classpath>
+			
+			<jvmarg value="-DBUILD_BOOST_IGNORE_STAGES=${BUILD_BOOST_IGNORE_STAGES}"/>
 		</java>
 	</target>
 </project>
