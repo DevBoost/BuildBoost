@@ -16,7 +16,7 @@
 package de.devboost.buildboost;
 
 /**
- * A {@link BuildException} can be thrown be participants of the BuildBoost script generation process if unexpected
+ * A {@link BuildException} can be thrown by participants of the BuildBoost script generation process if unexpected
  * situations are detected (e.g. required artifacts are missing).
  */
 public class BuildException extends Exception {
