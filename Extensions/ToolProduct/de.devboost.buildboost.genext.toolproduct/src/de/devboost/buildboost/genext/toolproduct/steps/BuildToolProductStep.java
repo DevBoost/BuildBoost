@@ -41,7 +41,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	
 	// TODO Make this configurable
 	private static final String INSTALLATION_PLATFORM_FILE = "eclipse-platform-4.3-linux-gtk-x86_64.tar.gz";
-	private static final String INSTALLATION_PLATFORM_URL = "http://eclipse.devboost.de/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
+	private static final String INSTALLATION_PLATFORM_URL = "https://eclipse.devboost.de/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
 	
 	private final ToolProductSpecification specification;
 
