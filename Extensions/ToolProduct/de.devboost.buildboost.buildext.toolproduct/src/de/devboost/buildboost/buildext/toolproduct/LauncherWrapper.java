@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2017
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
