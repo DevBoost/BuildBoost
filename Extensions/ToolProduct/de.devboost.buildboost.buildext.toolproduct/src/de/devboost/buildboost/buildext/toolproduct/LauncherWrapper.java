@@ -48,7 +48,9 @@ public class LauncherWrapper {
 		}
 		LocalNameService.HOST = hostAddress;
 		
-		// Configure VM to use local DNS
+		// Configure VM to use local DNS preferred over default (i.e., system) DNS to resolve eclipse.org domains to Eclipse
+		// mirror hosted by DevBoost. All other domains must be resolved using the default DNS.
 		System.setProperty("sun.net.spi.nameservice.provider.1", "dns,localdns");
+		System.setProperty("sun.net.spi.nameservice.provider.2", "default");
 	}
 }
