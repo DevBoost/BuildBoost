@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2017
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -20,9 +20,8 @@ import org.eclipse.equinox.launcher.Main;
 import de.devboost.buildboost.buildext.toolproduct.localdns.LocalNameService;
 
 /**
- * The {@link LauncherWrapper} is a wrapper for the Eclipse launcher that
- * activates a special DNS service which resolves all domain names to a single
- * IP address.
+ * The {@link LauncherWrapper} is a wrapper for the Eclipse launcher that activates a special DNS service which resolves 'eclipse.org' 
+ * domain names to the configured IP address of an Eclipse mirror server.
  */
 @SuppressWarnings("restriction")
 public class LauncherWrapper {
@@ -48,7 +47,9 @@ public class LauncherWrapper {
 		}
 		LocalNameService.HOST = hostAddress;
 		
-		// Configure VM to use local DNS
+		// Configure VM to use local DNS preferred over default (i.e., system) DNS to resolve eclipse.org domains to Eclipse
+		// mirror hosted by DevBoost. All other domains must be resolved using the default DNS.
 		System.setProperty("sun.net.spi.nameservice.provider.1", "dns,localdns");
+		System.setProperty("sun.net.spi.nameservice.provider.2", "default");
 	}
 }

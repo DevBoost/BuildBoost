@@ -41,7 +41,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 	
 	// TODO Make this configurable
 	private static final String INSTALLATION_PLATFORM_FILE = "eclipse-platform-4.3-linux-gtk-x86_64.tar.gz";
-	private static final String INSTALLATION_PLATFORM_URL = "http://eclipse.devboost.de/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
+	private static final String INSTALLATION_PLATFORM_URL = "https://eclipse.devboost.de/downloads/drops4/R-4.3-201306052000/" + INSTALLATION_PLATFORM_FILE;
 	
 	private final ToolProductSpecification specification;
 
@@ -168,7 +168,6 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				
 				content.append("<jvmarg value=\"-Xms40m\"/>");
 				content.append("<jvmarg value=\"-Xmx1024m\"/>");
-				content.append("<jvmarg value=\"-XX:MaxPermSize=256m\"/>");
 				content.append("<jvmarg value=\"-Declipse.pde.launch=true\"/>");
 				content.append("<jvmarg value=\"-Dfile.encoding=UTF-8\"/>");
 	
@@ -306,7 +305,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 				content.append("<mkdir dir=\"" + uiPrefs.getParentFile().getAbsolutePath() + "\"/>");
 				content.append("<echo file=\"" + uiPrefs.getAbsolutePath() + "\" message=\"SHOW_WORKSPACE_SELECTION_DIALOG=false\"/>");
 			
-				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m\n-XX:MaxPermSize=256m]]></replacevalue></replace>");
+				content.append("<replace file=\"" + eclipseIni.getAbsolutePath() + "\" token=\"-Xmx512m\" ><replacevalue><![CDATA[-Xmx1024m]]></replacevalue></replace>");
 				// Disable SSL option to make sure SVN works over HTTPS with Java 1.7 
 				content.append("<echo file=\"" + eclipseIni.getAbsolutePath() + "\" append=\"true\" message=\"-Djsse.enableSNIExtension=false\" />");
 				// Only rename the eclipse.ini for Unix and for Windows (if branded binary was provided)

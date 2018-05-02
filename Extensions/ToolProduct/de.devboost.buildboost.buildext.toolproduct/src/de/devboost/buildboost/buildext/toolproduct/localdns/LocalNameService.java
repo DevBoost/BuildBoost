@@ -36,14 +36,17 @@ public class LocalNameService implements NameService {
 	 * Returns {@link #HOST} regardless of the name.
 	 */
 	@Override
-	public InetAddress[] lookupAllHostAddr(String name) {
-		InetAddress inetAddress;
-		try {
-			inetAddress = InetAddress.getByAddress(HOST);
-			return new InetAddress[] {inetAddress};
-		} catch (UnknownHostException e) {
-			return null;
+	public InetAddress[] lookupAllHostAddr(String name) throws UnknownHostException {
+		if (name != null && name.endsWith(".eclipse.org")) {
+			InetAddress inetAddress;
+			try {
+				inetAddress = InetAddress.getByAddress(HOST);
+				return new InetAddress[] {inetAddress};
+			} catch (UnknownHostException e) {
+				return null;
+			}
 		}
+		throw new UnknownHostException();
 	}
 
 	/**
