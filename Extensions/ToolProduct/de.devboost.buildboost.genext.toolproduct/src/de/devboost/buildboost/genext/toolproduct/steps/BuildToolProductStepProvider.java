@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2018
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -30,6 +30,7 @@ public class BuildToolProductStepProvider extends AbstractAntTargetGeneratorProv
 		super();
 	}
 
+	@Override
 	public List<IAntTargetGenerator> getAntTargetGenerators(IBuildContext context, IArtifact artifact) {
 		if (artifact instanceof ToolProductSpecification) {
 			ToolProductSpecification specification = (ToolProductSpecification) artifact;
