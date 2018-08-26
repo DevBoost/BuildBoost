@@ -207,7 +207,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		File workspace = new File(toolProductFolder, "workspace");
 		File configIni;
 		if (isOSXgreater45) {
-			configIni = new File(productInstallationFolder, "Eclipse.app/Contents/Eclipse/configuration/config.ini");
+			configIni = new File(productEclipseFolder, "configuration/config.ini");
 		} else {
 			configIni = new File(productInstallationFolder, "configuration/config.ini");
 		}
