@@ -262,6 +262,10 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 			// remove command line "eclipse"
 			content.append(
 					"<delete file=\"" + new File(productInstallationFolder, "eclipse").getAbsolutePath() + "\"/>");
+			// Adjust config.ini path after renaming the app folder
+			if (isOSXgreater45) {
+				configIni = new File(osxBrandedAppFolder, "Contents/Eclipse/configuration/config.ini");
+			}
 		} else if (productType.startsWith("win")) {
 			eclipseIni = new File(productInstallationFolder, "eclipse.ini");
 			// Use branded binary (if available)
