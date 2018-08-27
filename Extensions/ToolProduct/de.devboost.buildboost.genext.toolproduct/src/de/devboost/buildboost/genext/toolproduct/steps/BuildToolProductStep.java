@@ -183,6 +183,17 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 					"Eclipse");
 		}
 
+		File configIni;
+		if (isOSXgreater45) {
+			configIni = new File(productEclipseFolder, "configuration/config.ini");
+		} else {
+			configIni = new File(productInstallationFolder, "configuration/config.ini");
+		}
+		// make backup of config.ini file, because the installation of the features modifies the file in way that
+		// renders it unusable on other machines
+		content.append("<copy overwrite=\"true\" file=\"" + configIni.getAbsolutePath() + "\" tofile=\""
+				+ configIni.getAbsolutePath() + ".backup\"/>");
+
 		addStepsToInstallFeatures(content, featureIDs, productEclipseFolder);
 
 		File splashScreenFile = new File(toolProductFolder, "splash.bmp");
@@ -205,17 +216,6 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 		File linuxBrandedExe = new File(productInstallationFolder, productName);
 
 		File workspace = new File(toolProductFolder, "workspace");
-		File configIni;
-		if (isOSXgreater45) {
-			configIni = new File(productEclipseFolder, "configuration/config.ini");
-		} else {
-			configIni = new File(productInstallationFolder, "configuration/config.ini");
-		}
-		// make backup of config.ini file, because the installation of the features modifies the file in way that
-		// renders it unusable on other machines
-		content.append("<copy overwrite=\"true\" file=\"" + configIni.getAbsolutePath() + "\" tofile=\""
-				+ configIni.getAbsolutePath() + ".backup\"/>");
-
 		File uiPrefs = new File(productInstallationFolder, "configuration/.settings/org.eclipse.ui.ide.prefs");
 
 		// copy splash
