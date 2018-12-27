@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2015
+ * Copyright (c) 2006-2018
  * Software Technology Group, Dresden University of Technology
  * DevBoost GmbH, Dresden, Amtsgericht Dresden, HRB 34001
  * 
@@ -480,6 +480,7 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 			String destBinJarFile, String destSrcJarFile) {
 		
 		content.append("<exec executable=\"${mvn-executable}\" dir=\"" + jarsDir + "\">");
+		content.append("<arg value=\"--batch-mode\"/>");
 		content.append("<arg value=\"deploy:deploy-file\"/>");
 		content.append("<arg value=\"-Dfile=" + destBinJarFile + "\"/>");
 		content.append("<arg value=\"-DpomFile=" + pomFile + "\"/>");
@@ -488,24 +489,6 @@ public class BuildMavenRepositoryStep extends AbstractAntTargetGenerator {
 		content.append("</exec>");
 	}
 	
-	/*
-	protected void addDeploySourceJarToLocalRepositoryScript(XMLContent content,
-			String jarsDir, String mavenRepositoryDir, Plugin plugin,
-			String pluginVersion, String destSrcJarFile) {
-		
-		content.append("<exec executable=\"${mvn-executable}\" dir=\"" + jarsDir + "\">");
-		content.append("<arg value=\"deploy:deploy-file\"/>");
-		content.append("<arg value=\"-Dfile=" + destSrcJarFile + "\"/>");
-		content.append("<arg value=\"-Dpackaging=java-source\"/>");
-		content.append("<arg value=\"-DgeneratePom=false\"/>");
-		content.append("<arg value=\"-DgroupId=" + getMavenGroup(plugin.getIdentifier()) + "\"/>");
-		content.append("<arg value=\"-DartifactId=" + plugin.getIdentifier() + "\"/>");
-		content.append("<arg value=\"-Dversion=" + pluginVersion + "\"/>");
-		addMavenRepositoryArgument(content, mavenRepositoryDir);
-		content.append("</exec>");
-	}
-	*/
-
 	private void addMavenRepositoryArgument(XMLContent content,
 			String localMavenRepositoryDir) {
 
