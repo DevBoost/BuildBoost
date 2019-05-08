@@ -439,7 +439,7 @@ public class BuildToolProductStep extends AbstractAntTargetGenerator {
 
 		content.append("<!-- Copy tool product archive to server -->");
 		content.append("<scp todir=\"${env." + usernameProperty + "}@" + targetPath
-				+ "\" keyfile=\"${user.home}/.ssh/id_dsa\" port=\"22\" sftp=\"true\" trust=\"true\">");
+				+ "\" keyfile=\"${user.home}/.ssh/id_rsa\" port=\"22\" sftp=\"true\" trust=\"true\">");
 		content.append("<fileset dir=\"" + productsDistFolder.getAbsolutePath() + "\">");
 		content.append("<include name=\"" + productArchiveFileName + "\"/>");
 		content.append("</fileset>");
