@@ -33,21 +33,20 @@ import de.devboost.buildboost.util.TimestampUtil;
 import de.devboost.buildboost.util.XMLContent;
 
 public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
-	
+
 	private final EclipseUpdateSiteDeploymentSpec updateSiteSpec;
 	private final File targetDir;
-	
+
 	private String usernameProperty = null;
 	private String passwordProperty = null;
 
-	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec,
-			File targetDir) {
-		
+	public BuildUpdateSiteStep(EclipseUpdateSiteDeploymentSpec updateSiteSpec, File targetDir) {
+
 		super();
 		this.updateSiteSpec = updateSiteSpec;
 		this.targetDir = targetDir;
 	}
-	
+
 	@Override
 	public Collection<AntTarget> generateAntTargets() throws BuildException {
 		if (usernameProperty == null) {
@@ -56,7 +55,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		if (passwordProperty == null) {
 			passwordProperty = updateSiteSpec.getSitePasswordProperty();
 		}
-		
+
 		AntTarget updateSiteTarget = generateUpdateSiteAntTarget();
 		return Collections.singletonList(updateSiteTarget);
 	}
@@ -66,17 +65,17 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		if (updateSite == null) {
 			throw new BuildException("Can't find update site for update site specification.");
 		}
-		
+
 		String distDir = targetDir.getAbsolutePath();
 
 		XMLContent content = new XMLContent();
-		
+
 		String updateSiteID = updateSite.getIdentifier();
 		File updateSiteFile = updateSite.getFile();
 		String updateSiteDir = distDir + File.separator + "updatesites" + File.separator + updateSiteID;
 
 		new TimestampUtil().addGetBuildTimestampFromEnvironment(content);
-	
+
 		content.append("<!-- fallback if env.BUILD_ID is not set -->");
 		content.append("<tstamp/>");
 		content.append("<property name=\"buildid\" value=\"${DSTAMP}${TSTAMP}\" />");
@@ -86,16 +85,19 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<mkdir dir=\"" + updateSiteDir + "\" />");
 		content.append("<mkdir dir=\"" + updateSiteDir + "/plugins\" />");
 		content.append("<mkdir dir=\"" + updateSiteDir + "/features\" />");
-		content.append("<copy file=\"" + updateSiteFile.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/site.xml\"/>");
+		content.append(
+				"<copy file=\"" + updateSiteFile.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/site.xml\"/>");
 		File associatedSitesXML = new File(updateSiteFile.getParent(), "associateSites.xml");
 		if (associatedSitesXML.exists()) {
-			content.append("<copy file=\"" + associatedSitesXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/associateSites.xml\"/>");			
+			content.append("<copy file=\"" + associatedSitesXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir
+					+ "/associateSites.xml\"/>");
 		}
 		content.appendLineBreak();
-		
+
 		File categoryXML = new File(updateSiteFile.getParent(), "category.xml");
 		if (categoryXML.exists()) {
-			content.append("<copy file=\"" + categoryXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir + "/category.xml\"/>");			
+			content.append("<copy file=\"" + categoryXML.getAbsolutePath() + "\" tofile=\"" + updateSiteDir
+					+ "/category.xml\"/>");
 		}
 		content.appendLineBreak();
 
@@ -120,26 +122,41 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 
 			if (isFeatureJAR) {
 				// the feature is already packaged, we can just copy it
-				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" todir=\"" + updateSiteDir + "/features\"/>");
+				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" todir=\"" + updateSiteDir
+						+ "/features\"/>");
 				content.append("<!-- set correct reference in site.xml -->");
-				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion + "\"'/>");
-				if(categoryXML.exists()){
-					// <feature url="features/org.modelrefactoring.smells_0.0.0.v0.jar" id="org.modelrefactoring.smells" version="0.0.0.v0">
-					content.append("<replaceregexp file=\"" + updateSiteDir + "/category.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion + "\"'/>");
+				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/"
+						+ featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID
+						+ "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/"
+						+ featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion + "\"'/>");
+				if (categoryXML.exists()) {
+					// <feature url="features/org.modelrefactoring.smells_0.0.0.v0.jar" id="org.modelrefactoring.smells"
+					// version="0.0.0.v0">
+					content.append(
+							"<replaceregexp file=\"" + updateSiteDir + "/category.xml\" match='feature url=\"features/"
+									+ featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID
+									+ "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/"
+									+ featureFile.getName() + "\" id=\"" + featureID + "\" version=\"" + featureVersion
+									+ "\"'/>");
 				}
 				content.appendLineBreak();
 			} else {
 				// the feature is not packaged yet, we need to create a JAR file
-				content.append("<echo message=\"Building feature '" + featureID + "' for update site '" + updateSiteID + "'\"/>");
+				content.append("<echo message=\"Building feature '" + featureID + "' for update site '" + updateSiteID
+						+ "'\"/>");
 				content.append("<!-- update version numbers in feature.xml -->");
 				content.append("<!-- copy to be modified -->");
 				content.append("<mkdir dir=\"" + tempFeatureDir + "\" />");
-				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir + "/feature.xml\"/>");
+				content.append("<copy file=\"" + featureFile.getAbsolutePath() + "\" tofile=\"" + tempFeatureDir
+						+ "/feature.xml\"/>");
 				content.append("<!-- set version in copy -->");
-				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"0.0.0\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
-				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"" + featureVersion + "\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
-				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
-	
+				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"0.0.0\"' value='\""
+						+ featureVersion + ".v${buildid}\"'/>");
+				content.append("<replace file=\"" + tempFeatureDir + "/feature.xml\" token='\"" + featureVersion
+						+ "\"' value='\"" + featureVersion + ".v${buildid}\"'/>");
+				content.append("<replace file=\"" + tempFeatureDir
+						+ "/feature.xml\" token=\".qualifier\" value=\".v${buildid}\"/>");
+
 				Collection<IDependable> dependencies = feature.getDependencies();
 				for (IDependable dependency : dependencies) {
 					if (dependency instanceof EclipseFeature) {
@@ -149,49 +166,62 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 							// version
 							continue;
 						}
-						content.append("<replaceregexp file=\"" + tempFeatureDir + "/feature.xml\" match='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\"' replace='&lt;import feature=\"" + requiredFeature.getIdentifier() + "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
+						content.append("<replaceregexp file=\"" + tempFeatureDir
+								+ "/feature.xml\" match='&lt;import feature=\"" + requiredFeature.getIdentifier()
+								+ "\"' replace='&lt;import feature=\"" + requiredFeature.getIdentifier()
+								+ "\" version=\"" + requiredFeature.getVersion() + "\" match=\"greaterOrEqual\"' />");
 					}
 				}
 
 				content.append("<!-- create empty file 'feature.properties' -->");
 				content.append("<touch file=\"feature.properties\"/>");
 				content.append("<!-- create feature JAR -->");
-				content.append("<jar basedir=\"" + tempFeatureDir + "\" includes=\"feature.xml\" destfile=\"" + updateSiteDir + "/features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\">");
+				content.append("<jar basedir=\"" + tempFeatureDir + "\" includes=\"feature.xml\" destfile=\""
+						+ updateSiteDir + "/features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\">");
 				content.append("<fileset dir=\".\" includes=\"feature.properties\" />");
 				content.append("</jar>");
 				content.append("<!-- delete temporary directory -->");
 				content.append("<delete dir=\"" + tempDir + "\"/>");
 
 				content.append("<!-- set version in site.xml -->");
-				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
-				if(categoryXML.exists()){
-					// <feature url="features/org.modelrefactoring.smells_0.0.0.v0.jar" id="org.modelrefactoring.smells" version="0.0.0.v0">
-					content.append("<replaceregexp file=\"" + updateSiteDir + "/category.xml\" match='feature url=\"features/" + featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID + "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
+				content.append("<replaceregexp file=\"" + updateSiteDir + "/site.xml\" match='feature url=\"features/"
+						+ featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID
+						+ "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/" + featureID
+						+ "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID + "\" version=\""
+						+ featureVersion + ".v${buildid}\"'/>");
+				if (categoryXML.exists()) {
+					// <feature url="features/org.modelrefactoring.smells_0.0.0.v0.jar" id="org.modelrefactoring.smells"
+					// version="0.0.0.v0">
+					content.append(
+							"<replaceregexp file=\"" + updateSiteDir + "/category.xml\" match='feature url=\"features/"
+									+ featureID + "_[0-9]*.[0-9]*.[0-9]*.v[0-9]*.jar\" id=\"" + featureID
+									+ "\" version=\"[0-9]*.[0-9]*.[0-9]*.v[0-9]*\"' replace='feature url=\"features/"
+									+ featureID + "_" + featureVersion + ".v${buildid}.jar\" id=\"" + featureID
+									+ "\" version=\"" + featureVersion + ".v${buildid}\"'/>");
 				}
 				content.appendLineBreak();
 			}
-			
+
 			Collection<Plugin> plugins = feature.getRequiredPlugins();
 			for (Plugin plugin : plugins) {
-				addPackagePluginTasks(content, updateSiteID, updateSiteDir,
-						Boolean.parseBoolean(excludeSrc), featureVersion, featureVendor, plugin);
+				addPackagePluginTasks(content, updateSiteDir, Boolean.parseBoolean(excludeSrc), featureVersion,
+						featureVendor, plugin);
 			}
 		}
-		
+
 		addCreateCompleteZipTask(content, updateSiteID, updateSiteDir);
-		
+
 		String targetPath = updateSiteSpec.getSiteUploadPath();
 		if (targetPath != null) {
 			addUploadTasks(content, updateSiteID, updateSiteDir, targetPath, categoryXML);
 		}
-		
+
 		AntTarget target = new AntTarget("build-update-site-" + updateSiteID, content);
 		return target;
 	}
 
-	private void addCreateCompleteZipTask(XMLContent content,
-			String updateSiteID, String updateSiteDir) {
-		
+	private void addCreateCompleteZipTask(XMLContent content, String updateSiteID, String updateSiteDir) {
+
 		String zipFilePath = updateSiteDir + "/" + getUpdateSiteCompleteFileName(updateSiteID);
 
 		content.append("<!-- Create zipped version of update site -->");
@@ -199,12 +229,13 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<checksum file=\"" + zipFilePath + "\"/>");
 	}
 
-	private void addUploadTasks(XMLContent content, String updateSiteID, 
-			String updateSiteDir, String targetPath, File categoryXML) {
+	private void addUploadTasks(XMLContent content, String updateSiteID, String updateSiteDir, String targetPath,
+			File categoryXML) {
 		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
 		// should figure out a way to provide this JAR together with BuildBoost.
 		content.append("<!-- Copy new version of update site to server -->");
-		String scpTag = "<scp todir=\"${env." + usernameProperty + "}@" + targetPath + "\" keyfile=\"${user.home}/.ssh/id_rsa\" port=\"22\" sftp=\"true\" trust=\"true\">";
+		String scpTag = "<scp todir=\"${env." + usernameProperty + "}@" + targetPath
+				+ "\" keyfile=\"${user.home}/.ssh/id_rsa\" port=\"22\" sftp=\"true\" trust=\"true\">";
 		content.append(scpTag);
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"features/**\"/>");
@@ -219,10 +250,11 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("<!-- We copy the site.xml, artifacts.jar and content.jar separately to make sure these");
 		content.append("are the last files that are replaced. Otherwise the files might point to JARs that ");
 		content.append("have not been uploaded yet. -->");
-		if(!categoryXML.exists()){
+		if (!categoryXML.exists()) {
 			// if it doesn't exist just create a copy of site.xml and rename it
 			// must be done before uploading
-			content.append("<copy file=\"" + updateSiteDir + File.separator + "site.xml\" tofile=\"" + updateSiteDir + File.separator + "category.xml\" overwrite=\"true\"/>");
+			content.append("<copy file=\"" + updateSiteDir + File.separator + "site.xml\" tofile=\"" + updateSiteDir
+					+ File.separator + "category.xml\" overwrite=\"true\"/>");
 		}
 		content.append(scpTag);
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
@@ -233,7 +265,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.append("</fileset>");
 		content.append("</scp>");
 		content.appendLineBreak();
-		
+
 		content.append("<!-- Copy zipped version of update site to server (used by downstream builds) -->");
 		content.append(scpTag);
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
@@ -248,10 +280,9 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		return updateSiteID + "-complete.zip";
 	}
 
-	private void addPackagePluginTasks(XMLContent content, String updateSiteID,
-			String updateSiteDir, boolean excludeSrc, String featureVersion,
-			String featureVendor, Plugin plugin) {
-		
+	private void addPackagePluginTasks(XMLContent content, String updateSiteDir, boolean excludeSrc,
+			String featureVersion, String featureVendor, Plugin plugin) {
+
 		String pluginID = plugin.getIdentifier();
 		File pluginDirectory = plugin.getFile();
 		String pluginPath = pluginDirectory.getAbsolutePath();
@@ -265,9 +296,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			pluginVendor = featureVendor;
 		}
 		String pluginName = updateSiteSpec.getPluginName(pluginID);
-		
-		new PluginPackagingHelper().addUpdateManifestScript(content, plugin, 
-				pluginVersion, pluginVendor, pluginName);
+
+		new PluginPackagingHelper().addUpdateManifestScript(content, plugin, pluginVersion, pluginVendor, pluginName);
 
 		boolean isPackaged = plugin.isJarFile();
 
@@ -275,7 +305,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		if (isPackaged) {
 			content.append("<copy file=\"" + pluginPath + "\" todir=\"" + updateSiteDir + "/plugins\" />");
 		} else {
-			content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion + ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
+			content.append("<jar destfile=\"" + updateSiteDir + "/plugins/" + pluginID + "_" + pluginVersion
+					+ ".v${buildid}.jar\" manifest=\"" + pluginPath + "/META-INF/MANIFEST.MF\">");
 			content.append("<fileset dir=\"" + pluginPath + "\">");
 			// TODO make this configurable or read the build.properties file for this
 			content.append("<exclude name=\"**/.*/**\"/>");
@@ -285,7 +316,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 					content.append("<exclude name=\"" + relativeSourceFolder + "/**\"/>");
 				}
 			}
-			
+
 			content.append("</fileset>");
 			content.append("</jar>");
 		}
