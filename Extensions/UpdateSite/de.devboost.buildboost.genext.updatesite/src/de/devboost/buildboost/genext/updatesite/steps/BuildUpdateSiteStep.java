@@ -204,7 +204,8 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		// TODO this requires that jsch-0.1.48.jar is in ANTs classpath. we
 		// should figure out a way to provide this JAR together with BuildBoost.
 		content.append("<!-- Copy new version of update site to server -->");
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		String scpTag = "<scp todir=\"${env." + usernameProperty + "}@" + targetPath + "\" keyfile=\"${user.home}/.ssh/id_rsa\" port=\"22\" sftp=\"true\" trust=\"true\">";
+		content.append(scpTag);
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"features/**\"/>");
 		content.append("<include name=\"plugins/**\"/>");
@@ -223,7 +224,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 			// must be done before uploading
 			content.append("<copy file=\"" + updateSiteDir + File.separator + "site.xml\" tofile=\"" + updateSiteDir + File.separator + "category.xml\" overwrite=\"true\"/>");
 		}
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append(scpTag);
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"artifacts.jar\"/>");
 		content.append("<include name=\"content.jar\"/>");
@@ -234,7 +235,7 @@ public class BuildUpdateSiteStep extends AbstractAntTargetGenerator {
 		content.appendLineBreak();
 		
 		content.append("<!-- Copy zipped version of update site to server (used by downstream builds) -->");
-		content.append("<scp todir=\"${env." + usernameProperty + "}:${env." + passwordProperty + "}@" + targetPath + "\" port=\"22\" sftp=\"true\" trust=\"true\">");
+		content.append(scpTag);
 		content.append("<fileset dir=\"" + updateSiteDir + "\">");
 		content.append("<include name=\"" + getUpdateSiteCompleteFileName(updateSiteID) + "\"/>");
 		content.append("<include name=\"" + getUpdateSiteCompleteFileName(updateSiteID) + ".MD5\"/>");
